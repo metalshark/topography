@@ -1,0 +1,75 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets.main{
+	java{
+        srcDirs = ['src/main/java']
+    }
+    resources{
+        srcDirs = ['src/main/resources']
+    }
+}
+
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+version = config.minecraft_version + "-" + config.mod_version
+group = "com.bloodnbonesgaming.randomgenskyislands"
+archivesBaseName = "RandomGenSkyIslands"
+
+minecraft {
+    version = config.minecraft_version + "-" + config.forge_version
+	mappings = "snapshot_20170624"
+	runDir = "run"
+
+    replaceIn "randomgenskyislands/ModInfo.java"
+    replace "@VERSION@", "${config.mod_version}"
+}
+
+dependencies {
+    compile fileTree(dir: 'dependencies/BNBGamingLib', include: '*.jar')
+}
+
+processResources
+{
+    inputs.property "vars", project.version + project.minecraft.version
+	from(sourceSets.main.resources.srcDirs) {
+		include '**/*.info'
+		
+        // replace version and mcversion
+        expand([
+        'mod_version': project.config.mod_version,
+        'minecraft_version': project.config.minecraft_version,
+        ])
+	}
+	from(sourceSets.main.resources.srcDirs) {
+		exclude '**/*.info'
+	}
+	
+	rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+jar {
+	manifest {
+		attributes 'FMLAT': 'randomgenskyislands_at.cfg'
+	}
+}

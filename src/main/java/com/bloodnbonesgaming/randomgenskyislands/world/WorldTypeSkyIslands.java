@@ -23,5 +23,4 @@ public class WorldTypeSkyIslands extends WorldType
     {
         return new ChunkGeneratorSkyIslands(world);
     }
-
 }

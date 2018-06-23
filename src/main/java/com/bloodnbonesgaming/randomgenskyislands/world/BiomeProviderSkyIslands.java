@@ -8,13 +8,22 @@ import net.minecraft.world.gen.layer.GenLayer;
 
 public class BiomeProviderSkyIslands extends BiomeProvider {
     
+    final SkyIslandDataHandler skyIslandData;
+    
     public BiomeProviderSkyIslands(final World world)
     {
         super();
+        
+        this.skyIslandData = new SkyIslandDataHandler();
 
-        final GenLayer layer = new GenLayerBiomeSkyIslands(world.getSeed());
+        final GenLayer layer = new GenLayerBiomeSkyIslands(world.getSeed(), this.skyIslandData);
         layer.initWorldGenSeed(world.getSeed());
         this.genBiomes = layer;
         this.biomeIndexLayer = layer;
+    }
+    
+    public SkyIslandDataHandler getHandler()
+    {
+        return this.skyIslandData;
     }
 }

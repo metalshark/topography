@@ -9,6 +9,7 @@ public class SkyIslandData
     private int count = 1;
     private int radius = 100;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
+    private boolean randomIslands = true;
 //    private int 
     
     
@@ -34,8 +35,23 @@ public class SkyIslandData
         this.types.add(type);
     }
     
+    public SkyIslandType getType(final int index)
+    {
+        return this.types.get(index % types.size());
+    }
+    
     public SkyIslandType getType(final Random rand)
     {
         return this.types.get(rand.nextInt(this.types.size()));
+    }
+    
+    public boolean isRandomIslands()
+    {
+        return randomIslands;
+    }
+    
+    public void setRandomIslands(boolean randomIslands)
+    {
+        this.randomIslands = randomIslands;
     }
 }

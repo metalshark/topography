@@ -1,9 +1,7 @@
 package com.bloodnbonesgaming.randomgenskyislands.world;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
@@ -44,9 +42,8 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     protected double[] depthBuffer = new double[256];
     
     
+    final SkyIslandDataHandler handler;
     private final Random islandIndexRandom = new Random();
-    final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
-    final Map<Double, List<BlockPos>> islandPositions = new LinkedHashMap<Double, List<BlockPos>>();
     
 //    final List<BlockPos> largeIslands = new ArrayList<BlockPos>();
 //    final List<BlockPos> mediumIslands = new ArrayList<BlockPos>();
@@ -70,104 +67,109 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     {
         this.worldSeed = world.getSeed();
         this.world = world;
+        this.handler = ((BiomeProviderSkyIslands) this.world.getBiomeProvider()).getHandler();
         terrainNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
         
-        final SkyIslandType end = new SkyIslandType();
-        end.setMainBlock(Blocks.END_STONE.getDefaultState());
-        end.setGenBiomeBlocks(false);
-        end.setGenDecorations(false);
-        
-        final SkyIslandType obsidian = new SkyIslandType();
-        obsidian.setMainBlock(Blocks.OBSIDIAN.getDefaultState());
-        obsidian.setGenBiomeBlocks(false);
-        obsidian.setGenDecorations(false);
-        
-        final SkyIslandType lava = new SkyIslandType();
-        lava.setMainBlock(Blocks.LAVA.getDefaultState());
-        lava.setGenBiomeBlocks(false);
-        lava.setGenDecorations(false);
-        
-        final SkyIslandType forest = new SkyIslandType();
-        forest.setBiome(Biome.getIdForBiome(Biomes.FOREST));
-        
-        final SkyIslandType cold_taiga = new SkyIslandType();
-        cold_taiga.setBiome(Biome.getIdForBiome(Biomes.COLD_TAIGA));
-        
-        final SkyIslandType desert = new SkyIslandType();
-        desert.setBiome(Biome.getIdForBiome(Biomes.DESERT));
-        
-        final SkyIslandType mesa = new SkyIslandType();
-        mesa.setBiome(Biome.getIdForBiome(Biomes.MESA));
-        
-        final SkyIslandType jungle = new SkyIslandType();
-        jungle.setBiome(Biome.getIdForBiome(Biomes.JUNGLE));
-        jungle.setGenDecorations(false);
-        
-        final SkyIslandType extreme_hills = new SkyIslandType();
-        extreme_hills.setBiome(Biome.getIdForBiome(Biomes.EXTREME_HILLS));
-        
-        
-        final SkyIslandData large = new SkyIslandData();
-        large.setCount(1);
-        large.setRadius(100);
-        large.addType(forest);
-        large.addType(cold_taiga);
-        large.addType(desert);
-        large.addType(mesa);
-        large.addType(jungle);
-        large.addType(extreme_hills);
-        large.addType(end);
-        large.addType(obsidian);
-        large.addType(lava);
-        this.skyIslandData.add(large);
-        
-        final SkyIslandData medium = new SkyIslandData();
-        medium.setCount(32);
-        medium.setRadius(50);
-        medium.addType(forest);
-        medium.addType(cold_taiga);
-        medium.addType(desert);
-        medium.addType(mesa);
-        medium.addType(jungle);
-        medium.addType(extreme_hills);
-        medium.addType(end);
-        medium.addType(obsidian);
-        medium.addType(lava);
-        this.skyIslandData.add(medium);
-        
-        final SkyIslandData small = new SkyIslandData();
-        small.setCount(64);
-        small.setRadius(25);
-        small.addType(forest);
-        small.addType(cold_taiga);
-        small.addType(desert);
-        small.addType(mesa);
-        small.addType(jungle);
-        small.addType(extreme_hills);
-        small.addType(end);
-        small.addType(obsidian);
-        small.addType(lava);
-        this.skyIslandData.add(small);
-        
-        final SkyIslandData tiny = new SkyIslandData();
-        tiny.setCount(128);
-        tiny.setRadius(10);
-        tiny.addType(forest);
-        tiny.addType(cold_taiga);
-        tiny.addType(desert);
-        tiny.addType(mesa);
-        tiny.addType(jungle);
-        tiny.addType(extreme_hills);
-        tiny.addType(end);
-        tiny.addType(obsidian);
-        tiny.addType(lava);
-        this.skyIslandData.add(tiny);
+////      final SkyIslandType end = new SkyIslandType();
+////      end.setMainBlock(Blocks.END_STONE.getDefaultState());
+////      end.setGenBiomeBlocks(false);
+////      end.setGenDecorations(false);
+//      
+////      final SkyIslandType obsidian = new SkyIslandType();
+////      obsidian.setMainBlock(Blocks.OBSIDIAN.getDefaultState());
+////      obsidian.setGenBiomeBlocks(false);
+////      obsidian.setGenDecorations(false);
+//      
+////      final SkyIslandType lava = new SkyIslandType();
+////      lava.setMainBlock(Blocks.LAVA.getDefaultState());
+////      lava.setGenBiomeBlocks(false);
+////      lava.setGenDecorations(false);
+//      
+//      final SkyIslandType forest = new SkyIslandType();
+//      forest.setBiome(Biome.getIdForBiome(Biomes.FOREST));
+//      
+//      final SkyIslandType cold_taiga = new SkyIslandType();
+//      cold_taiga.setBiome(Biome.getIdForBiome(Biomes.COLD_TAIGA));
+//      
+//      final SkyIslandType desert = new SkyIslandType();
+//      desert.setBiome(Biome.getIdForBiome(Biomes.DESERT));
+//      
+//      final SkyIslandType mesa = new SkyIslandType();
+//      mesa.setBiome(Biome.getIdForBiome(Biomes.MESA));
+//      
+//      final SkyIslandType jungle = new SkyIslandType();
+//      jungle.setBiome(Biome.getIdForBiome(Biomes.JUNGLE));
+//      jungle.setGenDecorations(false);
+//      
+//      final SkyIslandType extreme_hills = new SkyIslandType();
+//      extreme_hills.setBiome(Biome.getIdForBiome(Biomes.EXTREME_HILLS));
+//      
+//      
+//      final SkyIslandData large = new SkyIslandData();
+//      large.setCount(1);
+//      large.setRadius(100);
+//      large.setRandomIslands(false);
+//      large.addType(forest);
+//      large.addType(cold_taiga);
+//      large.addType(desert);
+//      large.addType(mesa);
+//      large.addType(jungle);
+//      large.addType(extreme_hills);
+////      large.addType(end);
+////      large.addType(obsidian);
+////      large.addType(lava);
+//      this.skyIslandData.add(large);
+//      
+//      final SkyIslandData medium = new SkyIslandData();
+//      medium.setCount(32);
+//      medium.setRadius(50);
+//      medium.setRandomIslands(false);
+//      medium.addType(forest);
+//      medium.addType(cold_taiga);
+//      medium.addType(desert);
+//      medium.addType(mesa);
+//      medium.addType(jungle);
+//      medium.addType(extreme_hills);
+////      medium.addType(end);
+////      medium.addType(obsidian);
+////      medium.addType(lava);
+//      this.skyIslandData.add(medium);
+//      
+//      final SkyIslandData small = new SkyIslandData();
+//      small.setCount(64);
+//      small.setRadius(25);
+//      small.setRandomIslands(false);
+//      small.addType(forest);
+//      small.addType(cold_taiga);
+//      small.addType(desert);
+//      small.addType(mesa);
+//      small.addType(jungle);
+//      small.addType(extreme_hills);
+////      small.addType(end);
+////      small.addType(obsidian);
+////      small.addType(lava);
+//      this.skyIslandData.add(small);
+//      
+//      final SkyIslandData tiny = new SkyIslandData();
+//      tiny.setCount(128);
+//      tiny.setRadius(10);
+//      tiny.setRandomIslands(false);
+//      tiny.addType(forest);
+//      tiny.addType(cold_taiga);
+//      tiny.addType(desert);
+//      tiny.addType(mesa);
+//      tiny.addType(jungle);
+//      tiny.addType(extreme_hills);
+////      tiny.addType(end);
+////      tiny.addType(obsidian);
+////      tiny.addType(lava);
+//      this.skyIslandData.add(tiny);
     }
 
     @Override
     public Chunk generateChunk(int x, int z)
     {
-        this.islandPositions.clear();
+//        this.islandPositions.clear();
         this.rand.setSeed((long)x * 341873128712L + (long)z * 132897987541L);
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
@@ -228,48 +230,22 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         
-        for (final SkyIslandData data : this.skyIslandData)
+        final Iterator<Entry<SkyIslandData, List<BlockPos>>> iterator = this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
+        
+//        for (final Entry<SkyIslandData, List<BlockPos>> entry : )
+        while (iterator.hasNext())
         {
-            countLoop:
-            for (int i = 0; i < data.getCount(); i++)
+            final Entry<SkyIslandData, List<BlockPos>> entry = iterator.next();
+            final SkyIslandData data = entry.getKey();
+            final int chunkBlockX = chunkX * 16;
+            final int chunkBlockZ = chunkZ * 16;
+            
+            for (final BlockPos islandPos : entry.getValue())
             {
-                final double maxFeatureRadius = data.getRadius();
-                final double midHeight = maxFeatureRadius + this.mountainRand.nextInt((int) (220 - (maxFeatureRadius * 2)));
-                
-                final int regionCenterX = ((int)Math.floor(chunkX * 16D / regionSize)) * regionSize + regionSize / 2;
-                final int regionCenterZ = ((int)Math.floor(chunkZ * 16D / regionSize)) * regionSize + regionSize / 2;
-                
-                final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
-                
-                final int featureCenterX = this.mountainRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
-                final int featureCenterZ = this.mountainRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
-                
-                final BlockPos pos = new BlockPos(featureCenterX, 0, featureCenterZ);
-                
-                for (final Entry<Double, List<BlockPos>> set : this.islandPositions.entrySet())
-                {
-                    final double minDistance = set.getKey() + maxFeatureRadius + 25;
-                    
-                    for (final BlockPos islandPos : set.getValue())
-                    {
-                        if (pos.getDistance(islandPos.getX(), islandPos.getY(), islandPos.getZ()) < minDistance)
-                        {
-                            continue countLoop;
-                        }
-                    }
-                }
-                
-                if (!this.islandPositions.containsKey(maxFeatureRadius))
-                {
-                    this.islandPositions.put(maxFeatureRadius, new ArrayList<BlockPos>());
-                }
-                final List<BlockPos> positions = this.islandPositions.get(maxFeatureRadius);
-                positions.add(pos);
-                
-
-                
-                final int chunkBlockX = chunkX * 16;
-                final int chunkBlockZ = chunkZ * 16;
+                final int featureCenterX = islandPos.getX();
+                final int featureCenterZ = islandPos.getZ();
+                final int midHeight = islandPos.getY();
+                final int maxFeatureRadius = data.getRadius();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -288,46 +264,103 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                         
                         final double noise2 = this.terrainNoise.eval((realX) / noiseDistance, (realZ) / noiseDistance, 3, 0.5);
                         
-                        this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16D / regionSize)) * 132897987541L + (positions.size() - 1) * 362343535l + this.worldSeed);
+                        final SkyIslandType type;
                         
-                        final SkyIslandType type = data.getType(this.islandIndexRandom);
-                        
-                        for (double y = 0; y < midHeight; y++)
+                        if (data.isRandomIslands())
                         {
-                            if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
-                            {
-                                final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-//                                
-                                final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
-//                                final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
-                                
-                                final double height = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                
-                                if (height < y)
-                                {
-                                    primer.setBlockState((int) x, (int) y, (int) z, type.getMainBlock());
-                                }
-                            }
+                            this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16D / regionSize)) * 132897987541L + (entry.getValue().size() - 1) * 362343535l + this.worldSeed);
                             
-                            if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
+                            type = data.getType(this.islandIndexRandom);
+                        }
+                        else
+                        {
+                            type = data.getType(entry.getValue().size() - 1);
+                        }
+                        if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
+                        {
+                            for (double y = 0; y < midHeight; y++)
                             {
-                                final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-//                                
-                                final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
-//                                final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
-                                
-                                final double height = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
-                                
-                                if (height > y)
+                                //Top
                                 {
-                                    primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getMainBlock());
+                                    final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
+//                                    
+                                    final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
+//                                    final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
+                                    
+                                    final double height = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
+                                    
+                                    if (height < y)
+                                    {
+                                        primer.setBlockState((int) x, (int) y, (int) z, type.getMainBlock());
+                                    }
+                                }
+                                
+                                //Bottom
+                                {
+                                    final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
+//                                    
+                                    final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
+//                                    final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
+                                    
+                                    final double height = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
+                                    
+                                    if (height > y)
+                                    {
+                                        primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getMainBlock());
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            
+            
         }
+        
+//        for (final SkyIslandData data : this.skyIslandData)
+//        {
+//            countLoop:
+//            for (int i = 0; i < data.getCount(); i++)
+//            {
+//                final double maxFeatureRadius = data.getRadius();
+//                final double midHeight = maxFeatureRadius + this.mountainRand.nextInt((int) (220 - (maxFeatureRadius * 2)));
+//                
+//                final int regionCenterX = ((int)Math.floor(chunkX * 16D / regionSize)) * regionSize + regionSize / 2;
+//                final int regionCenterZ = ((int)Math.floor(chunkZ * 16D / regionSize)) * regionSize + regionSize / 2;
+//                
+//                final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
+//                
+//                final int featureCenterX = this.mountainRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
+//                final int featureCenterZ = this.mountainRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
+//                
+//                final BlockPos pos = new BlockPos(featureCenterX, 0, featureCenterZ);
+//                
+//                for (final Entry<Double, List<BlockPos>> set : this.islandPositions.entrySet())
+//                {
+//                    final double minDistance = set.getKey() + maxFeatureRadius + 25;
+//                    
+//                    for (final BlockPos islandPos : set.getValue())
+//                    {
+//                        if (pos.getDistance(islandPos.getX(), islandPos.getY(), islandPos.getZ()) < minDistance)
+//                        {
+//                            continue countLoop;
+//                        }
+//                    }
+//                }
+//                
+//                if (!this.islandPositions.containsKey(maxFeatureRadius))
+//                {
+//                    this.islandPositions.put(maxFeatureRadius, new ArrayList<BlockPos>());
+//                }
+//                final List<BlockPos> positions = this.islandPositions.get(maxFeatureRadius);
+//                positions.add(pos);
+//                
+//
+//                
+//                
+//            }
+//        }
     }
     
     public void replaceBiomeBlocks(int chunkX, int chunkZ, ChunkPrimer primer, Biome[] biomesIn)
@@ -350,32 +383,40 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
             {
                 final BlockPos pos = new BlockPos(chunkX * 16 + x, 0, chunkZ * 16 + z);
                 
-                for (final Entry<Double, List<BlockPos>> set : this.islandPositions.entrySet())
+                for (final Entry<SkyIslandData, List<BlockPos>> set : this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet())
                 {
+                    final SkyIslandData data = set.getKey();
                     int islandCount = -1;
-                    final double minDistance = set.getKey();
+                    final double minDistance = data.getRadius();
                     
                     for (final BlockPos islandPos : set.getValue())
                     {
                         islandCount++;
-                        if (pos.getDistance(islandPos.getX(), islandPos.getY(), islandPos.getZ()) < minDistance + 16)
+                        if (SkyIslandDataHandler.getDistance(pos, islandPos) < minDistance + 24)
                         {
-                            for (final SkyIslandData data : this.skyIslandData)
+                            final SkyIslandType type;
+                            
+                            if (data.isRandomIslands())
                             {
-                                if (data.getRadius() == set.getKey())
+                                this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
+                                
+                                type = data.getType(this.islandIndexRandom);
+                            }
+                            else
+                            {
+                                type = data.getType(islandCount);
+                            }
+                            
+                            if (type.isGenBiomeBlocks())
+                            {
+                                Biome biome = biomesIn[z + x * 16];
+                                
+                                if (biome != Biomes.VOID)
                                 {
-                                    this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
-                                    
-                                    final SkyIslandType type = data.getType(this.islandIndexRandom);
-                                    
-                                    if (type.isGenBiomeBlocks())
-                                    {
-                                        Biome biome = biomesIn[z + x * 16];
-                                        this.genBiomeTerrainBlocks(biome, this.world, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, this.depthBuffer[z + x * 16]);
-                                    }
-                                    continue x;
+                                    this.genBiomeTerrainBlocks(biome, this.world, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, this.depthBuffer[z + x * 16]);
                                 }
                             }
+                            continue x;
                         }
                     }
                 }
@@ -519,23 +560,30 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         final BlockPos pos = new BlockPos(i, 0, j);
         
         outer:
-        for (final Entry<Double, List<BlockPos>> set : this.islandPositions.entrySet())
+            for (final Entry<SkyIslandData, List<BlockPos>> set : this.handler.getIslandPositions(this.worldSeed, i, j).entrySet())
         {
+                final SkyIslandData data = set.getKey();
             int islandCount = -1;
-            final double minDistance = set.getKey();
+            final double minDistance = data.getRadius();
             
             for (final BlockPos islandPos : set.getValue())
             {
                 islandCount++;
-                if (pos.getDistance(islandPos.getX(), islandPos.getY(), islandPos.getZ()) < minDistance + 24)
+                if (SkyIslandDataHandler.getDistance(pos, islandPos) < minDistance + 16)
                 {
-                    for (final SkyIslandData data : this.skyIslandData)
-                    {
-                        if (data.getRadius() == set.getKey())
-                        {
-                            this.islandIndexRandom.setSeed((long)((int)Math.floor(x * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(z * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
+                    
+                            final SkyIslandType type;
                             
-                            final SkyIslandType type = data.getType(this.islandIndexRandom);
+                            if (data.isRandomIslands())
+                            {
+                                this.islandIndexRandom.setSeed((long)((int)Math.floor(x * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(z * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
+                                
+                                type = data.getType(this.islandIndexRandom);
+                            }
+                            else
+                            {
+                                type = data.getType(islandCount);
+                            }
                             
                             if (type.isGenDecorations())
                             {
@@ -547,8 +595,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                                 }
                             }
                             break outer;
-                        }
-                    }
+                        
                 }
             }
         }

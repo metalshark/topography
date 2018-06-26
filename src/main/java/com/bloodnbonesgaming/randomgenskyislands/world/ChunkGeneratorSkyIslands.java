@@ -2,6 +2,7 @@ package com.bloodnbonesgaming.randomgenskyislands.world;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
@@ -60,8 +61,6 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
 //    final int smallIslandCount = 64;
 //    final int tinyIslandCount = 128;
     
-
-    final int regionSize = 464;
     
     public ChunkGeneratorSkyIslands(final World world)
     {
@@ -174,7 +173,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
 
-        this.mountainRand.setSeed((long)((int)Math.floor(x * 16D / regionSize)) * 341873128712L + (long)((int)Math.floor(z * 16D / regionSize)) * 132897987541L + this.worldSeed);
+        this.mountainRand.setSeed((long)((int)Math.floor(x * 16D / this.handler.getRegionSize())) * 341873128712L + (long)((int)Math.floor(z * 16D / this.handler.getRegionSize())) * 132897987541L + this.worldSeed);
         
 //        this.generateMountainFeatures(x, z, chunkprimer);
 //        this.generateMediumIslands(x, z, chunkprimer);
@@ -230,21 +229,21 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         
-        final Iterator<Entry<SkyIslandData, List<BlockPos>>> iterator = this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
+        final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
 //        for (final Entry<SkyIslandData, List<BlockPos>> entry : )
         while (iterator.hasNext())
         {
-            final Entry<SkyIslandData, List<BlockPos>> entry = iterator.next();
+            final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> entry = iterator.next();
             final SkyIslandData data = entry.getKey();
             final int chunkBlockX = chunkX * 16;
             final int chunkBlockZ = chunkZ * 16;
             
-            for (final BlockPos islandPos : entry.getValue())
+            for (final Entry<BlockPos, SkyIslandType> islandPos : entry.getValue().entrySet())
             {
-                final int featureCenterX = islandPos.getX();
-                final int featureCenterZ = islandPos.getZ();
-                final int midHeight = islandPos.getY();
+                final int featureCenterX = islandPos.getKey().getX();
+                final int featureCenterZ = islandPos.getKey().getZ();
+                final int midHeight = islandPos.getKey().getY();
                 final int maxFeatureRadius = data.getRadius();
                 
                 for (double x = 0; x < 16; x++)
@@ -264,18 +263,8 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                         
                         final double noise2 = this.terrainNoise.eval((realX) / noiseDistance, (realZ) / noiseDistance, 3, 0.5);
                         
-                        final SkyIslandType type;
+                        final SkyIslandType type = islandPos.getValue();
                         
-                        if (data.isRandomIslands())
-                        {
-                            this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16D / regionSize)) * 132897987541L + (entry.getValue().size() - 1) * 362343535l + this.worldSeed);
-                            
-                            type = data.getType(this.islandIndexRandom);
-                        }
-                        else
-                        {
-                            type = data.getType(entry.getValue().size() - 1);
-                        }
                         if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
                         {
                             for (double y = 0; y < midHeight; y++)
@@ -383,37 +372,30 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
             {
                 final BlockPos pos = new BlockPos(chunkX * 16 + x, 0, chunkZ * 16 + z);
                 
-                for (final Entry<SkyIslandData, List<BlockPos>> set : this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet())
+                final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
+                
+                while (iterator.hasNext())
+//                for (final Entry<SkyIslandData, List<BlockPos>> set : this.handler.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet())
                 {
+                    final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = iterator.next();
                     final SkyIslandData data = set.getKey();
                     int islandCount = -1;
                     final double minDistance = data.getRadius();
                     
-                    for (final BlockPos islandPos : set.getValue())
+                    for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
                         islandCount++;
-                        if (SkyIslandDataHandler.getDistance(pos, islandPos) < minDistance + 24)
+                        if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) <= minDistance)
                         {
-                            final SkyIslandType type;
-                            
-                            if (data.isRandomIslands())
-                            {
-                                this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
-                                
-                                type = data.getType(this.islandIndexRandom);
-                            }
-                            else
-                            {
-                                type = data.getType(islandCount);
-                            }
+                            final SkyIslandType type = islandPos.getValue();
                             
                             if (type.isGenBiomeBlocks())
                             {
-                                Biome biome = biomesIn[z + x * 16];
+                                Biome biome = Biome.getBiome(type.getBiome());
                                 
                                 if (biome != Biomes.VOID)
                                 {
-                                    this.genBiomeTerrainBlocks(biome, this.world, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, this.depthBuffer[z + x * 16]);
+                                    this.genBiomeTerrainBlocks(biome, this.world, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, islandPos.getKey().getY(), 16);
                                 }
                             }
                             continue x;
@@ -431,15 +413,15 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     protected static final IBlockState ICE = Blocks.ICE.getDefaultState();
     protected static final IBlockState WATER = Blocks.WATER.getDefaultState();
     
-    public void genBiomeTerrainBlocks(Biome biome, World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, double noiseVal)
+    public void genBiomeTerrainBlocks(Biome biome, World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, int islandMid, double noiseVal)
     {
-        int i = 0;
+        int i = islandMid;
         IBlockState iblockstate = biome.topBlock;
         IBlockState iblockstate1 = biome.fillerBlock;
         int j = -1;
         int k = (int)(noiseVal / 3.0D + 3.0D + rand.nextDouble() * 0.25D);
-        int l = x & 15;
-        int i1 = z & 15;
+        int l = z & 15;
+        int i1 = x & 15;
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
         for (int j1 = 255; j1 >= 0; --j1)
@@ -560,30 +542,20 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         final BlockPos pos = new BlockPos(i, 0, j);
         
         outer:
-            for (final Entry<SkyIslandData, List<BlockPos>> set : this.handler.getIslandPositions(this.worldSeed, i, j).entrySet())
+            for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.handler.getIslandPositions(this.worldSeed, i, j).entrySet())
         {
                 final SkyIslandData data = set.getKey();
             int islandCount = -1;
             final double minDistance = data.getRadius();
             
-            for (final BlockPos islandPos : set.getValue())
+            for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
                 islandCount++;
-                if (SkyIslandDataHandler.getDistance(pos, islandPos) < minDistance + 16)
+                if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) < minDistance + 16)
                 {
                     
-                            final SkyIslandType type;
+                            final SkyIslandType type = islandPos.getValue();
                             
-                            if (data.isRandomIslands())
-                            {
-                                this.islandIndexRandom.setSeed((long)((int)Math.floor(x * 16.0D / regionSize)) * 341873128712L + (long)((int)Math.floor(z * 16.0D / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
-                                
-                                type = data.getType(this.islandIndexRandom);
-                            }
-                            else
-                            {
-                                type = data.getType(islandCount);
-                            }
                             
                             if (type.isGenDecorations())
                             {

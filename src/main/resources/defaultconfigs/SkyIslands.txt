@@ -1,0 +1,53 @@
+
+forest = new SkyIslandType()
+forest.setBiome("minecraft:forest")
+
+cold_taiga = new SkyIslandType()
+cold_taiga.setBiome("minecraft:taiga_cold")
+
+desert = new SkyIslandType()
+desert.setBiome("minecraft:desert")
+
+mesa = new SkyIslandType()
+mesa.setBiome("minecraft:mesa")
+
+jungle = new SkyIslandType()
+jungle.setBiome("minecraft:jungle")
+
+extreme_hills = new SkyIslandType()
+extreme_hills.setBiome("minecraft:extreme_hills")
+
+
+
+
+large = addSkyIslands(100, 1, false)
+large.addType(forest)
+large.addType(cold_taiga)
+large.addType(desert)
+large.addType(mesa)
+large.addType(jungle)
+large.addType(extreme_hills)
+
+medium = addSkyIslands(50, 32, false)
+medium.addType(forest)
+medium.addType(cold_taiga)
+medium.addType(desert)
+medium.addType(mesa)
+medium.addType(jungle)
+medium.addType(extreme_hills)
+
+small = addSkyIslands(25, 64, false)
+small.addType(forest)
+small.addType(cold_taiga)
+small.addType(desert)
+small.addType(mesa)
+small.addType(jungle)
+small.addType(extreme_hills)
+
+tiny = addSkyIslands(10, 128, false)
+tiny.addType(forest)
+tiny.addType(cold_taiga)
+tiny.addType(desert)
+tiny.addType(mesa)
+tiny.addType(jungle)
+tiny.addType(extreme_hills)

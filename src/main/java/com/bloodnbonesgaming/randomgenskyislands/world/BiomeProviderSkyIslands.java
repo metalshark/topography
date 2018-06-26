@@ -1,5 +1,6 @@
 package com.bloodnbonesgaming.randomgenskyislands.world;
 
+import com.bloodnbonesgaming.randomgenskyislands.IOHelper;
 import com.bloodnbonesgaming.randomgenskyislands.world.layer.GenLayerBiomeSkyIslands;
 
 import net.minecraft.world.World;
@@ -14,7 +15,7 @@ public class BiomeProviderSkyIslands extends BiomeProvider {
     {
         super();
         
-        this.skyIslandData = new SkyIslandDataHandler();
+        this.skyIslandData = IOHelper.loadDataHandler(new SkyIslandDataHandler(), SkyIslandDataHandler.classKeywords);
 
         final GenLayer layer = new GenLayerBiomeSkyIslands(world.getSeed(), this.skyIslandData);
         layer.initWorldGenSeed(world.getSeed());

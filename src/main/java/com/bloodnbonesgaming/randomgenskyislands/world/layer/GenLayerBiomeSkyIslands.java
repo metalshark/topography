@@ -19,8 +19,7 @@ public class GenLayerBiomeSkyIslands extends GenLayer
 {
     final SkyIslandDataHandler handler;
 //    List<Integer> biomes = new ArrayList<>();
-    final double regionSize = 464;
-    final Random biomeRand = new Random();
+//    final Random biomeRand = new Random();
     final long worldSeed;
     
 //    final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
@@ -148,7 +147,7 @@ public class GenLayerBiomeSkyIslands extends GenLayer
     {
         int[] returnInts = IntCache.getIntCache(width * depth);
         
-        this.biomeRand.setSeed((long)((int)Math.floor(chunkX / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ / regionSize)) * 132897987541L + this.worldSeed);
+//        this.biomeRand.setSeed((long)((int)Math.floor(chunkX / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ / regionSize)) * 132897987541L + this.worldSeed);
 //        final int biome = this.biomes.get(this.biomeRand.nextInt(biomes.size()));
 //        
 //        for (int i = 0; i < returnInts.length; i++)
@@ -196,7 +195,7 @@ public class GenLayerBiomeSkyIslands extends GenLayer
 //                
 //            }
 //        }
-        final Map<SkyIslandData, List<BlockPos>> islandPositions = this.handler.getIslandPositions(this.worldSeed, chunkX, chunkZ);
+        final Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = this.handler.getIslandPositions(this.worldSeed, chunkX, chunkZ);
         
         for (int x = 0; x < width; x++)
         {
@@ -205,31 +204,20 @@ public class GenLayerBiomeSkyIslands extends GenLayer
             {
                 final BlockPos pos = new BlockPos(chunkX + x, 0, chunkZ + z);
                 
-                for (final Entry<SkyIslandData, List<BlockPos>> set : islandPositions.entrySet())
+                for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : islandPositions.entrySet())
                 {
                     final SkyIslandData data = set.getKey();
                     int islandCount = -1;
                     final double minDistance = data.getRadius();
                     
-                    for (final BlockPos islandPos : set.getValue())
+                    for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
                         islandCount++;
-                        if (SkyIslandDataHandler.getDistance(pos, islandPos) <= minDistance)
+                        if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) <= minDistance)
                         {
-                            if (data.isRandomIslands())
-                            {
-                                this.islandIndexRandom.setSeed((long)((int)Math.floor(chunkX / regionSize)) * 341873128712L + (long)((int)Math.floor(chunkZ / regionSize)) * 132897987541L + (islandCount) * 362343535l + this.worldSeed);
-                                
-                                final SkyIslandType type = data.getType(this.islandIndexRandom);
-                                
-                                returnInts[x * width + z] = type.getBiome();
-                            }
-                            else
-                            {
-                                final SkyIslandType type = data.getType(islandCount);
-                                
-                                returnInts[x + z * width] = type.getBiome();
-                            }
+                            final SkyIslandType type = islandPos.getValue();
+                            
+                            returnInts[x + z * width] = type.getBiome();
                             continue x;
                         }
                     }
@@ -238,13 +226,6 @@ public class GenLayerBiomeSkyIslands extends GenLayer
             }
         }
         return returnInts;
-    }
-    
-    public double getDistance(final BlockPos pos, final BlockPos pos2)
-    {
-        double d0 = Math.abs(pos.getX() - pos2.getX());
-        double d2 = Math.abs(pos.getZ() - pos2.getZ());
-        return Math.sqrt(d0 * d0 + d2 * d2);
     }
 
 }

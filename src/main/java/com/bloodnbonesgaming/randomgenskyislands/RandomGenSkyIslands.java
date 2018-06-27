@@ -3,8 +3,10 @@ package com.bloodnbonesgaming.randomgenskyislands;
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
+import com.bloodnbonesgaming.randomgenskyislands.event.EventSubscriber;
 import com.bloodnbonesgaming.randomgenskyislands.world.WorldTypeSkyIslands;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -28,6 +30,7 @@ public class RandomGenSkyIslands extends BNBGamingMod
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
+        MinecraftForge.EVENT_BUS.register(new EventSubscriber());
     }
 
     @EventHandler

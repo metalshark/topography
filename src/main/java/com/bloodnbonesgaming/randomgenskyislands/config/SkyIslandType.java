@@ -21,6 +21,12 @@ public class SkyIslandType
         
     }
     
+    @ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID})
+    public SkyIslandType(final int biome)
+    {
+        this.biome = biome;
+    }
+    
     public IBlockState getMainBlock()
     {
         return mainBlock;

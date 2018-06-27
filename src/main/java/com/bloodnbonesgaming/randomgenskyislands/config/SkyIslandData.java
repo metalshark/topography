@@ -9,8 +9,7 @@ public class SkyIslandData
     private int count = 1;
     private int radius = 100;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
-    private boolean randomIslands = true;
-//    private int 
+    private boolean randomTypes = true;
     
     
     public int getCount()
@@ -47,11 +46,11 @@ public class SkyIslandData
     
     public boolean isRandomIslands()
     {
-        return randomIslands;
+        return randomTypes;
     }
     
-    public void setRandomIslands(boolean randomIslands)
+    public void setRandomTypes(boolean randomTypes)
     {
-        this.randomIslands = randomIslands;
+        this.randomTypes = randomTypes;
     }
 }

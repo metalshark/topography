@@ -218,18 +218,17 @@ public class SkyIslandDataHandler
     
     
     
-    public void setRegionSize(final double size)
+    public void setRegionSize(final int size)
     {
-        this.regionSize = size;
+        this.regionSize = size * 16;
     }
     
-//    @ScriptArgs(args = {ArgType.INT, ArgType.INT})
     public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
     {
         final SkyIslandData data = new SkyIslandData();
         data.setRadius(radius);
         data.setCount(count);
-        data.setRandomIslands(randomTypes);
+        data.setRandomTypes(randomTypes);
         
         this.skyIslandData.add(data);
         

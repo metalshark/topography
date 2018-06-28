@@ -12,7 +12,6 @@ import com.bloodnbonesgaming.randomgenskyislands.world.SkyIslandDataHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
-import net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 

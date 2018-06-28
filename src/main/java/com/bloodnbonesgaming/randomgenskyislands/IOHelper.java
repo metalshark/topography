@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.bloodnbonesgaming.lib.util.FileHelper;
 import com.bloodnbonesgaming.lib.util.script.ScriptUtil;
+import com.bloodnbonesgaming.randomgenskyislands.config.ConfigurationManager;
 import com.bloodnbonesgaming.randomgenskyislands.world.SkyIslandDataHandler;
 
 public class IOHelper
@@ -14,7 +15,12 @@ public class IOHelper
 //        return (ConfigurationManager) ScriptUtil.readScript(new File(ModInfo.MAIN_CONFIG_FILE), config, null);
 //    }
     
-    public static SkyIslandDataHandler loadDataHandler(final SkyIslandDataHandler handler, final Map<String, Class> classKeywords)
+    public static SkyIslandDataHandler loadDataHandler(final File file, final SkyIslandDataHandler handler, final Map<String, Class> classKeywords)
+    {
+        return (SkyIslandDataHandler) ScriptUtil.readScript(file, handler, classKeywords);
+    }
+    
+    public static void readMainFile(final ConfigurationManager config, final Map<String, Class> classKeywords)
     {
         final File file = new File(ModInfo.MAIN_CONFIG_FILE);
         
@@ -22,6 +28,6 @@ public class IOHelper
         {
             FileHelper.copyDirectoryFromJar(IOHelper.class, "/defaultconfigs/", "./config/randomgenskyislands/");
         }
-        return (SkyIslandDataHandler) ScriptUtil.readScript(file, handler, classKeywords);
+        ScriptUtil.readScript(file, config, classKeywords);
     }
 }

@@ -1,4 +1,8 @@
 
+//Sky islands are generated using a grid system similar to chunks but larger. This sets the size of each grid square, in chunks.
+setRegionSize(29)
+
+//Creates a new SkyIslandType. The argument is a biome id.
 forest = new SkyIslandType("minecraft:forest")
 
 cold_taiga = new SkyIslandType("minecraft:taiga_cold")
@@ -25,20 +29,11 @@ roofed_forest = new SkyIslandType("minecraft:roofed_forest")
 
 redwood_taiga = new SkyIslandType("minecraft:redwood_taiga")
 
-mutated_mesa = new SkyIslandType("minecraft:mutated_mesa")
-
-//lava = new SkyIslandType("minecraft:void")
-//lava.setMainBlock(<minecraft:lava>)
-//lava.disableBiomeBlockReplacement()
-//lava.disableDecorations()
-
-//water = new SkyIslandType("minecraft:void")
-//water.setMainBlock(<minecraft:water>)
-//water.disableBiomeBlockReplacement()
-//water.disableDecorations()
 
 
+//Adds sky islands. Arguments are radius, number of times to attempt to generate in each region, and whether each island should choose a random type (true), or if types should be used in order (false).
 large = addSkyIslands(100, 1, true)
+//Adds a SkyIslandType to the island generator.
 large.addType(forest)
 large.addType(cold_taiga)
 large.addType(desert)
@@ -52,7 +47,6 @@ large.addType(ice_plains)
 large.addType(savanna)
 large.addType(roofed_forest)
 large.addType(redwood_taiga)
-large.addType(mutated_mesa)
 
 medium = addSkyIslands(50, 32, true)
 medium.addType(forest)
@@ -68,7 +62,6 @@ medium.addType(ice_plains)
 medium.addType(savanna)
 medium.addType(roofed_forest)
 medium.addType(redwood_taiga)
-medium.addType(mutated_mesa)
 
 small = addSkyIslands(25, 64, true)
 small.addType(forest)
@@ -84,7 +77,6 @@ small.addType(ice_plains)
 small.addType(savanna)
 small.addType(roofed_forest)
 small.addType(redwood_taiga)
-small.addType(mutated_mesa)
 
 tiny = addSkyIslands(10, 128, true)
 tiny.addType(forest)
@@ -100,4 +92,3 @@ tiny.addType(ice_plains)
 tiny.addType(savanna)
 tiny.addType(roofed_forest)
 tiny.addType(redwood_taiga)
-tiny.addType(mutated_mesa)

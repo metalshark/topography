@@ -3,13 +3,12 @@ package com.bloodnbonesgaming.randomgenskyislands;
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
-import com.bloodnbonesgaming.randomgenskyislands.event.EventSubscriber;
-import com.bloodnbonesgaming.randomgenskyislands.world.WorldTypeSkyIslands;
+import com.bloodnbonesgaming.randomgenskyislands.proxy.CommonProxy;
 
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -24,19 +23,18 @@ public class RandomGenSkyIslands extends BNBGamingMod
     @Instance(ModInfo.MODID)
     public static RandomGenSkyIslands instance;
 
-//    @SidedProxy(clientSide = ModInfo.CLIENT_PROXY, serverSide = ModInfo.SERVER_PROXY)
-//    public static CommonProxy proxy;
+    @SidedProxy(clientSide = ModInfo.CLIENT_PROXY, serverSide = ModInfo.SERVER_PROXY)
+    public static CommonProxy proxy;
     
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
-        MinecraftForge.EVENT_BUS.register(new EventSubscriber());
+        RandomGenSkyIslands.proxy.registerEventHandlers();
     }
 
     @EventHandler
     public void init(final FMLInitializationEvent event)
     {
-        final WorldTypeSkyIslands skyIslands = new WorldTypeSkyIslands();
     }
 
     @EventHandler

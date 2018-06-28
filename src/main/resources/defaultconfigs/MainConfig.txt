@@ -1,0 +1,4 @@
+
+//Registers a WorldType. First argument is name, second is the name of the script file.
+registerWorldType("Sky Islands", "SkyIslands")
+registerWorldType("Material Islands", "Materials")

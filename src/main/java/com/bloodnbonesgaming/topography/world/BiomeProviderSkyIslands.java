@@ -1,9 +1,9 @@
-package com.bloodnbonesgaming.randomgenskyislands.world;
+package com.bloodnbonesgaming.topography.world;
 
 import java.io.File;
 
-import com.bloodnbonesgaming.randomgenskyislands.IOHelper;
-import com.bloodnbonesgaming.randomgenskyislands.world.layer.GenLayerBiomeSkyIslands;
+import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeProvider;

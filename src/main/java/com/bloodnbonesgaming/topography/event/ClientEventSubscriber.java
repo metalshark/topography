@@ -1,6 +1,6 @@
-package com.bloodnbonesgaming.randomgenskyislands.event;
+package com.bloodnbonesgaming.topography.event;
 
-import com.bloodnbonesgaming.randomgenskyislands.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraftforge.client.event.GuiOpenEvent;

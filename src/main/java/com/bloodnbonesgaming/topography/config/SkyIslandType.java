@@ -1,4 +1,4 @@
-package com.bloodnbonesgaming.randomgenskyislands.config;
+package com.bloodnbonesgaming.topography.config;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

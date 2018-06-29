@@ -1,6 +1,6 @@
-package com.bloodnbonesgaming.randomgenskyislands.proxy;
+package com.bloodnbonesgaming.topography.proxy;
 
-import com.bloodnbonesgaming.randomgenskyislands.event.ClientEventSubscriber;
+import com.bloodnbonesgaming.topography.event.ClientEventSubscriber;
 
 import net.minecraftforge.common.MinecraftForge;
 

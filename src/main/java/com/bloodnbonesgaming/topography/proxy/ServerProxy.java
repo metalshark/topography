@@ -1,7 +1,7 @@
-package com.bloodnbonesgaming.randomgenskyislands.proxy;
+package com.bloodnbonesgaming.topography.proxy;
 
-import com.bloodnbonesgaming.randomgenskyislands.config.ConfigurationManager;
-import com.bloodnbonesgaming.randomgenskyislands.event.ServerEventSubscriber;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.event.ServerEventSubscriber;
 
 import net.minecraftforge.common.MinecraftForge;
 

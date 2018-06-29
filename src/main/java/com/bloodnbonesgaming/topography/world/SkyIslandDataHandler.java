@@ -1,4 +1,4 @@
-package com.bloodnbonesgaming.randomgenskyislands.world;
+package com.bloodnbonesgaming.topography.world;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandData;
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandType;
+
+import java.util.Random;
 
 import net.minecraft.util.math.BlockPos;
 

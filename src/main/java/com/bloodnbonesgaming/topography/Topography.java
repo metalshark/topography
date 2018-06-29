@@ -1,10 +1,10 @@
-package com.bloodnbonesgaming.randomgenskyislands;
+package com.bloodnbonesgaming.topography;
 
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
-import com.bloodnbonesgaming.randomgenskyislands.config.ConfigurationManager;
-import com.bloodnbonesgaming.randomgenskyislands.proxy.CommonProxy;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -19,10 +19,10 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 @Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.11.1,)", acceptedMinecraftVersions = "[1.12,1.13)")
-public class RandomGenSkyIslands extends BNBGamingMod
+public class Topography extends BNBGamingMod
 {
     @Instance(ModInfo.MODID)
-    public static RandomGenSkyIslands instance;
+    public static Topography instance;
 
     @SidedProxy(clientSide = ModInfo.CLIENT_PROXY, serverSide = ModInfo.SERVER_PROXY)
     public static CommonProxy proxy;
@@ -30,7 +30,7 @@ public class RandomGenSkyIslands extends BNBGamingMod
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
-        RandomGenSkyIslands.proxy.registerEventHandlers();
+        Topography.proxy.registerEventHandlers();
     }
 
     @EventHandler
@@ -52,7 +52,7 @@ public class RandomGenSkyIslands extends BNBGamingMod
     @EventHandler
     public void serverAboutToSTart(final FMLServerAboutToStartEvent event)
     {
-        RandomGenSkyIslands.proxy.onServerAboutToStart();
+        Topography.proxy.onServerAboutToStart();
     }
 
     @EventHandler

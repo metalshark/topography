@@ -1,4 +1,4 @@
-package com.bloodnbonesgaming.randomgenskyislands.world;
+package com.bloodnbonesgaming.topography.world;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,8 +8,8 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandData;
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandType;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.BlockFalling;

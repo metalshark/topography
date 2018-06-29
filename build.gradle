@@ -33,8 +33,8 @@ configFile.withReader {
 }
 
 version = config.minecraft_version + "-" + config.mod_version
-group = "com.bloodnbonesgaming.randomgenskyislands"
-archivesBaseName = "RandomGenSkyIslands"
+group = "com.bloodnbonesgaming.topography"
+archivesBaseName = "Topography"
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
@@ -70,6 +70,6 @@ processResources
 
 jar {
 	manifest {
-		attributes 'FMLAT': 'randomgenskyislands_at.cfg'
+		attributes 'FMLAT': 'topography_at.cfg'
 	}
 }

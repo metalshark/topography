@@ -1,12 +1,12 @@
-package com.bloodnbonesgaming.randomgenskyislands.config;
+package com.bloodnbonesgaming.topography.config;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bloodnbonesgaming.randomgenskyislands.IOHelper;
-import com.bloodnbonesgaming.randomgenskyislands.ModInfo;
-import com.bloodnbonesgaming.randomgenskyislands.world.WorldTypeSkyIslands;
+import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.ModInfo;
+import com.bloodnbonesgaming.topography.world.WorldTypeSkyIslands;
 
 import net.minecraft.world.WorldType;
 

@@ -1,13 +1,13 @@
-package com.bloodnbonesgaming.randomgenskyislands.event;
+package com.bloodnbonesgaming.topography.event;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandData;
-import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandType;
-import com.bloodnbonesgaming.randomgenskyislands.world.BiomeProviderSkyIslands;
-import com.bloodnbonesgaming.randomgenskyislands.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.world.BiomeProviderSkyIslands;
+import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.BiomeProvider;

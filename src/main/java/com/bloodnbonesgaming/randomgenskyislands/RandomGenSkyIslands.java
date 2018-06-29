@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.randomgenskyislands;
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
+import com.bloodnbonesgaming.randomgenskyislands.config.ConfigurationManager;
 import com.bloodnbonesgaming.randomgenskyislands.proxy.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
@@ -45,11 +46,13 @@ public class RandomGenSkyIslands extends BNBGamingMod
     @EventHandler
     public void loadComplete(final FMLLoadCompleteEvent event)
     {
+        ConfigurationManager.setup();
     }
     
     @EventHandler
     public void serverAboutToSTart(final FMLServerAboutToStartEvent event)
     {
+        RandomGenSkyIslands.proxy.onServerAboutToStart();
     }
 
     @EventHandler

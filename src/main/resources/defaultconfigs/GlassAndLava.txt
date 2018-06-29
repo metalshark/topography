@@ -1,0 +1,29 @@
+
+//Sky islands are generated using a grid system similar to chunks but larger. This sets the size of each grid square, in chunks.
+setRegionSize(29)
+
+//Creates a new SkyIslandType. The argument is a biome id.
+glassNLava = new SkyIslandType("minecraft:void")
+//Sets the block the island is made of. Defaults to stone. Look at a block in world and use the command `/bnb block` to generate the syntax.
+glassNLava.setMainBlock(<minecraft:glass>)
+//Sets a block in a range. 0.0 is the center of the island, 1.0 is the outside of the island. Approximately.
+glassNLava.setBlockInRange(<minecraft:lava>, 0.0~0.5)
+//Disables biome block replacement
+glassNLava.disableBiomeBlockReplacement()
+//Disables biome decorations
+glassNLava.disableDecorations()
+//Disables initial animal spawning
+glassNLava.disableAnimals()
+
+
+
+//Adds sky islands. Arguments are radius, number of times to attempt to generate in each region, and whether each island should choose a random type (true), or if types should be used in order (false).
+medium = addSkyIslands(50, 32, true)
+//Adds a SkyIslandType to the island generator.
+medium.addType(glassNLava)
+
+small = addSkyIslands(25, 64, true)
+small.addType(glassNLava)
+
+tiny = addSkyIslands(10, 128, true)
+tiny.addType(glassNLava)

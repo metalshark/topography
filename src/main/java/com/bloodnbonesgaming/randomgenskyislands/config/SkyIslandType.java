@@ -1,9 +1,13 @@
 package com.bloodnbonesgaming.randomgenskyislands.config;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.script.ArgType;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
 
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -15,6 +19,8 @@ public class SkyIslandType
     private boolean genBiomeBlocks = true;
     private boolean genDecorations = true;
     private int biome = Biome.getIdForBiome(Biomes.VOID);
+    private final Map<MinMaxBounds, IBlockState> boundsToState = new LinkedHashMap<MinMaxBounds, IBlockState>();
+    private boolean genAnimals = true;
     
     public SkyIslandType()
     {
@@ -47,6 +53,11 @@ public class SkyIslandType
     {
         return genDecorations;
     }
+    
+    public boolean genAnimals()
+    {
+        return this.genAnimals;
+    }
 //    public void setGenDecorations(boolean genDecorations)
 //    {
 //        this.genDecorations = genDecorations;
@@ -75,5 +86,22 @@ public class SkyIslandType
     public void disableDecorations()
     {
         this.genDecorations = false;
+    }
+    
+    public void disableAnimals()
+    {
+        this.genAnimals = false;
+    }
+    
+    public void setBlockInRange(final ItemBlockData data, final MinMaxBounds bounds) throws Exception
+    {
+        final IBlockState state = data.buildBlockState();
+        
+        this.boundsToState.put(bounds, state);
+    }
+
+    public Map<MinMaxBounds, IBlockState> getBoundsToStateMap()
+    {
+        return boundsToState;
     }
 }

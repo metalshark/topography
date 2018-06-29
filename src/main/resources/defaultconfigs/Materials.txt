@@ -10,31 +10,38 @@ lapis.setMainBlock(<minecraft:lapis_block>)
 lapis.disableBiomeBlockReplacement()
 //Disables biome decorations
 lapis.disableDecorations()
+//Disables initial animal spawning
+lapis.disableAnimals()
 
 iron = new SkyIslandType("minecraft:void")
 iron.setMainBlock(<minecraft:iron_block>)
 iron.disableBiomeBlockReplacement()
 iron.disableDecorations()
+iron.disableAnimals()
 
 gold = new SkyIslandType("minecraft:void")
 gold.setMainBlock(<minecraft:gold_block>)
 gold.disableBiomeBlockReplacement()
 gold.disableDecorations()
+gold.disableAnimals()
 
 diamond = new SkyIslandType("minecraft:void")
 diamond.setMainBlock(<minecraft:diamond_block>)
 diamond.disableBiomeBlockReplacement()
 diamond.disableDecorations()
+diamond.disableAnimals()
 
 emerald = new SkyIslandType("minecraft:void")
 emerald.setMainBlock(<minecraft:emerald_block>)
 emerald.disableBiomeBlockReplacement()
 emerald.disableDecorations()
+emerald.disableAnimals()
 
 redstone = new SkyIslandType("minecraft:void")
 redstone.setMainBlock(<minecraft:redstone_block>)
 redstone.disableBiomeBlockReplacement()
 redstone.disableDecorations()
+redstone.disableAnimals()
 
 
 

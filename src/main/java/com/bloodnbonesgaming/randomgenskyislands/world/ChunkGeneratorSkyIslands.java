@@ -11,6 +11,7 @@ import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandData;
 import com.bloodnbonesgaming.randomgenskyislands.config.SkyIslandType;
 
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
@@ -20,6 +21,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
@@ -263,41 +265,76 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                         
                         final double noise2 = this.terrainNoise.eval((realX) / noiseDistance, (realZ) / noiseDistance, 3, 0.5);
                         
-                        final SkyIslandType type = islandPos.getValue();
-                        
                         if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
                         {
+                            final SkyIslandType type = islandPos.getValue();
+                            final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
+                            
                             for (double y = 0; y < midHeight; y++)
                             {
-                                //Top
-                                {
-                                    final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-//                                    
-                                    final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
-//                                    final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
-                                    
-                                    final double height = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                    
-                                    if (height < y)
+                                final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
+                                final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
+                                
+                                final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
+                                final double topHeight = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
+                                //bottomHeight value is min height of bottom. max height is midHeight --- bottomHeight to midHeight
+                                //topHeight is the max height of the top + midHeight. Min is 0 + midHeight --- midHeight to topHeight + midHeight
+                                
+                                final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
+//                                final IBlockState block = type.getMainBlock();
+                                
+                                final double distance = Math.floor(((topHeight + midHeight) - bottomHeight) / 2);
+                                IBlockState state = type.getMainBlock();
+                                
+//                                for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
+//                                {
+//                                    if (bounds.getKey().test((float) (Math.floor(Math.abs(y - mid) + 1) / distance)))
+//                                    {
+//                                        state = Blocks.LAVA.getDefaultState();
+//                                    }
+//                                }
+//                                final IBlockState block = Blocks.GLASS.getDefaultState();
+//                                RandomGenSkyIslands.instance.getLog().info(midHeight + " " + bottomHeight + " " + topHeight);
+                                //Bottom
+                                {                                    
+                                    for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                     {
-                                        primer.setBlockState((int) x, (int) y, (int) z, type.getMainBlock());
+                                        if (bounds.getKey().test((float) (Math.floor(Math.abs(y - mid) + 1) / distance)))
+                                        {
+                                            state = bounds.getValue();
+                                        }
+                                    }
+                                    
+                                    if (bottomHeight < y)
+                                    {
+                                        primer.setBlockState((int) x, (int) y, (int) z, state);
                                     }
                                 }
                                 
-                                //Bottom
-                                {
-                                    final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-//                                    
-                                    final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
-//                                    final double skewedNoise = this.terrainNoise.eval((realX) / 32.0, (realZ) / 32.0, 3, 0.5);
-                                    
-                                    final double height = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
-                                    
-                                    if (height > y)
+                                //Top
+                                {//                                                                        
+                                    for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                     {
-                                        primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getMainBlock());
+                                        if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
+                                        {
+                                            state = bounds.getValue();
+                                        }
                                     }
-                                }
+                                    
+                                    if (topHeight > y)
+                                    {
+                                        primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+                                    }
+                                }//(larger - smaller) / 2 + smaller
+//                                int distance = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 / 2);
+//                                
+////                                if (y == Math.floor(midHeight - ((topHeight + midHeight) - bottomHeight)))
+////                                if (Math.sqrt((xDistance + zDistance) / 1.5 + Math.pow(Math.abs(mid - y), 2)) < maxFeatureRadius / 4)
+//                                if (Math.abs(y - mid) < distance)
+////                                if (Math.sqrt((xDistance + zDistance) * 1.5) < maxFeatureRadius / 4 && Math.abs(mid - y) < maxFeatureRadius / 4)
+//                                {
+//                                    primer.setBlockState((int) x, (int) y, (int) z, Blocks.LAVA.getDefaultState());
+//                                }
                             }
                         }
                     }
@@ -540,34 +577,31 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
 //            biome.decorate(this.world, this.rand, new BlockPos(i, 0, j));
 //        }
         final BlockPos pos = new BlockPos(i, 0, j);
-        
-        outer:
-            for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.handler.getIslandPositions(this.worldSeed, i, j).entrySet())
+
+        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.handler.getIslandPositions(this.worldSeed, i, j).entrySet())
         {
-                final SkyIslandData data = set.getKey();
-            int islandCount = -1;
+            final SkyIslandData data = set.getKey();
             final double minDistance = data.getRadius();
-            
+
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
-                islandCount++;
                 if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) < minDistance + 16)
                 {
-                    
-                            final SkyIslandType type = islandPos.getValue();
-                            
-                            
-                            if (type.isGenDecorations())
-                            {
-                                Biome typeBiome = Biome.getBiome(type.getBiome());
-                                
-                                if (typeBiome != Biomes.VOID)
-                                {
-                                    typeBiome.decorate(this.world, this.rand, new BlockPos(i, 0, j));
-                                }
-                            }
-                            break outer;
-                        
+                    final SkyIslandType type = islandPos.getValue();
+                    Biome typeBiome = Biome.getBiome(type.getBiome());
+
+                    if (type.isGenDecorations())
+                    {
+                        if (typeBiome != Biomes.VOID)
+                        {
+                            typeBiome.decorate(this.world, this.rand, new BlockPos(i, 0, j));
+                        }
+                    }
+                    if (type.genAnimals())
+                    {
+                        WorldEntitySpawner.performWorldGenSpawning(this.world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
+                    }
+                    break outer;
                 }
             }
         }

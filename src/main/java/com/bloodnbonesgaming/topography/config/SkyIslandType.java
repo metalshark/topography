@@ -45,10 +45,7 @@ public class SkyIslandType
     {
         return genBiomeBlocks;
     }
-//    public void setGenBiomeBlocks(boolean genBiomeBlocks)
-//    {
-//        this.genBiomeBlocks = genBiomeBlocks;
-//    }
+    
     public boolean isGenDecorations()
     {
         return genDecorations;
@@ -58,10 +55,7 @@ public class SkyIslandType
     {
         return this.genAnimals;
     }
-//    public void setGenDecorations(boolean genDecorations)
-//    {
-//        this.genDecorations = genDecorations;
-//    }
+    
     public int getBiome()
     {
         return biome;

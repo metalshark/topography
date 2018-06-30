@@ -18,7 +18,8 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
-@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.11.1,)", acceptedMinecraftVersions = "[1.12,1.13)")
+@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.11.1,)",
+        acceptedMinecraftVersions = "[1.12,1.13)")
 public class Topography extends BNBGamingMod
 {
     @Instance(ModInfo.MODID)
@@ -26,7 +27,7 @@ public class Topography extends BNBGamingMod
 
     @SidedProxy(clientSide = ModInfo.CLIENT_PROXY, serverSide = ModInfo.SERVER_PROXY)
     public static CommonProxy proxy;
-    
+
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
@@ -48,7 +49,7 @@ public class Topography extends BNBGamingMod
     {
         ConfigurationManager.setup();
     }
-    
+
     @EventHandler
     public void serverAboutToSTart(final FMLServerAboutToStartEvent event)
     {

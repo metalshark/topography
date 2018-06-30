@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography;
 
-public class ModInfo {
+public class ModInfo
+{
     public static final String MODID = "topography";
     public static final String MOD_NAME = "Topography";
     public static final String VERSION = "@VERSION@";

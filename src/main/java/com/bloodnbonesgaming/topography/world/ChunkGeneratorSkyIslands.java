@@ -597,7 +597,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                             typeBiome.decorate(this.world, this.rand, new BlockPos(i, 0, j));
                         }
                     }
-                    if (type.genAnimals())
+                    if (type.genAnimals() && net.minecraftforge.event.terraingen.TerrainGen.populate(this, this.world, this.rand, x, z, flag, net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate.EventType.ANIMALS))
                     {
                         WorldEntitySpawner.performWorldGenSpawning(this.world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
                     }

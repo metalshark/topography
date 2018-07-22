@@ -11,6 +11,8 @@ public class SkyIslandData
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
     private boolean randomTypes = true;
     
+    private int minCount = 0;
+    
     
     public int getCount()
     {
@@ -52,5 +54,15 @@ public class SkyIslandData
     public void setRandomTypes(boolean randomTypes)
     {
         this.randomTypes = randomTypes;
+    }
+    
+    public int getMinCount()
+    {
+        return this.minCount;
+    }
+    
+    public void setMinCount(final int count)
+    {
+        this.minCount = count;
     }
 }

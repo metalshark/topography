@@ -4,6 +4,7 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.EventSubscriber;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 
 public class CommonProxy
 {
@@ -12,7 +13,7 @@ public class CommonProxy
         MinecraftForge.EVENT_BUS.register(new EventSubscriber());
     }
     
-    public void onServerAboutToStart()
+    public void onServerAboutToStart(FMLServerAboutToStartEvent event)
     {
         ConfigurationManager.setup();
     }

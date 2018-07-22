@@ -41,7 +41,7 @@ minecraft {
 	mappings = "snapshot_20170624"
 	runDir = "run"
 
-    replaceIn "randomgenskyislands/ModInfo.java"
+    replaceIn "topography/ModInfo.java"
     replace "@VERSION@", "${config.mod_version}"
 }
 

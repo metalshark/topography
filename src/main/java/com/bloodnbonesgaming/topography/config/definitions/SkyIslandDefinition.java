@@ -1,20 +1,25 @@
-package com.bloodnbonesgaming.topography.world;
+package com.bloodnbonesgaming.topography.config.definitions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.world.BiomeProviderSkyIslands;
+import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorSkyIslands;
 import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeProvider;
+import net.minecraft.world.gen.IChunkGenerator;
 
-public class SkyIslandDataHandler
+public class SkyIslandDefinition extends DimensionDefinition
 {
     private final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
     private Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
@@ -23,17 +28,12 @@ public class SkyIslandDataHandler
 
     private int currentRegionX = -100000000;
     private int currentRegionZ = -100000000;
-
-    public static final Map<String, Class> classKeywords = new HashMap<String, Class>();
-
-    static
+    
+    public SkyIslandDefinition()
     {
-        SkyIslandDataHandler.classKeywords.put("SkyIslandType", SkyIslandType.class);
-        SkyIslandDataHandler.classKeywords.put("DecoratorScattered", DecoratorScattered.class);
-    }
-
-    public SkyIslandDataHandler()
-    {
+        super();
+        
+        this.classKeywords.put("SkyIslandType", SkyIslandType.class);
     }
 
     private void generateIslandPositions(final long worldSeed)
@@ -65,7 +65,7 @@ public class SkyIslandDataHandler
 
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
-                        if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) < minDistance)
+                        if (SkyIslandDefinition.getDistance(pos, islandPos.getKey()) < minDistance)
                         {
                             continue countLoop;
                         }
@@ -129,5 +129,17 @@ public class SkyIslandDataHandler
         this.skyIslandData.add(data);
 
         return data;
+    }
+
+    @Override
+    public BiomeProvider getBiomeProvider(World world)
+    {
+        return new BiomeProviderSkyIslands(world, this);
+    }
+
+    @Override
+    public IChunkGenerator getChunkGenerator(World world)
+    {
+        return new ChunkGeneratorSkyIslands(world);
     }
 }

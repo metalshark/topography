@@ -1,11 +1,15 @@
 package com.bloodnbonesgaming.topography.config;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.script.ArgType;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
+import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
+import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -21,15 +25,17 @@ public class SkyIslandType
     private int biome = Biome.getIdForBiome(Biomes.VOID);
     private final Map<MinMaxBounds, IBlockState> boundsToState = new LinkedHashMap<MinMaxBounds, IBlockState>();
     private boolean genAnimals = true;
+    private final List<DecorationData> decorators = new ArrayList<DecorationData>();
     
     public SkyIslandType()
     {
-        
+//        this.decorators.put(new DecoratorScattered(Blocks.BEDROCK.getDefaultState()), 64);
     }
     
     @ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID})
     public SkyIslandType(final int biome)
     {
+        this();
         this.biome = biome;
     }
     
@@ -97,5 +103,15 @@ public class SkyIslandType
     public Map<MinMaxBounds, IBlockState> getBoundsToStateMap()
     {
         return boundsToState;
+    }
+    
+    public void addDecorator(final DecoratorScattered decorator, final int count, final int regionSize)
+    {
+        this.decorators.add(new DecorationData(decorator, count, regionSize));
+    }
+    
+    public List<DecorationData> getDecorators()
+    {
+        return this.decorators;
     }
 }

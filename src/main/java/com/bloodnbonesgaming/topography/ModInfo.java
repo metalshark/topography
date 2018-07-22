@@ -9,4 +9,5 @@ public class ModInfo
     public static final String CLIENT_PROXY = "com.bloodnbonesgaming.topography.proxy.ClientProxy";
     public static final String MAIN_CONFIG_FILE = "./config/topography/MainConfig.txt";
     public static final String SCRIPT_FOLDER = "./config/topography/";
+    public static final String STRUCTURE_FOLDER = "./config/topography/structures/";
 }

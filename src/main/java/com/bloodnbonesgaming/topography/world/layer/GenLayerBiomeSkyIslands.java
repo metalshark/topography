@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.config.definitions.SkyIslandDefinition;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 
 import net.minecraft.init.Biomes;
@@ -15,15 +16,15 @@ import net.minecraft.world.gen.layer.IntCache;
 
 public class GenLayerBiomeSkyIslands extends GenLayer
 {
-    final SkyIslandDataHandler handler;
+    final SkyIslandDefinition handler;
     final long worldSeed;
 
 
-    public GenLayerBiomeSkyIslands(long p_i2125_1_, final SkyIslandDataHandler handler)
+    public GenLayerBiomeSkyIslands(long p_i2125_1_, final SkyIslandDefinition skyIslandData)
     {
         super(p_i2125_1_);
         this.worldSeed = p_i2125_1_;
-        this.handler = handler;
+        this.handler = skyIslandData;
     }
 
     @Override

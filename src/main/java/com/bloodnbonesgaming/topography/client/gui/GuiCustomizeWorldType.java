@@ -46,7 +46,6 @@ public class GuiCustomizeWorldType extends GuiScreen
             {
                 case 300:
                     this.parent.chunkProviderSettingsJson = presets.get(this.list.getIndex()).getName();
-                    ConfigurationManager.getInstance().registerDimensions(presets.get(this.list.getIndex()).getName());
                     this.mc.displayGuiScreen(this.parent);
                     break;
             }

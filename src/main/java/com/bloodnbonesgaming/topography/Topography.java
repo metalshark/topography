@@ -4,12 +4,10 @@ import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
-import net.minecraft.world.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -22,6 +20,9 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.12.0,)",
         acceptedMinecraftVersions = "[1.12,1.13)")
@@ -32,6 +33,8 @@ public class Topography extends BNBGamingMod
 
     @SidedProxy(clientSide = ModInfo.CLIENT_PROXY, serverSide = ModInfo.SERVER_PROXY)
     public static CommonProxy proxy;
+    
+    public static final SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.MODID);
 
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
@@ -50,6 +53,7 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void postInit(final FMLPostInitializationEvent event)
     {
+        network.registerMessage(PacketSyncPreset.class, PacketSyncPreset.class, 0, Side.CLIENT);
     }
 
     @EventHandler
@@ -78,5 +82,6 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void serverStopped(final FMLServerStoppedEvent event)
     {
+        ConfigurationManager.cleanUp();
     }
 }

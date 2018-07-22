@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 
 import net.minecraft.world.DimensionType;
@@ -22,11 +23,25 @@ public class ConfigurationManager {
     private final Map<Integer, DimensionType> dimensionMapCopy = new HashMap<Integer, DimensionType>();
     private static final Map<Integer, DimensionType> dimensionTypes = new HashMap<Integer, DimensionType>();
     
+    private String generatorSettings = null;
+    
     private static ConfigurationManager instance;
     
     public static ConfigurationManager getInstance()
     {
         return ConfigurationManager.instance;
+    }
+    
+    public static void setGeneratorSettings(final String settings)
+    {
+        ConfigurationManager.setup();
+        ConfigurationManager.getInstance().generatorSettings = settings;
+        Topography.instance.getLog().info("Settings: " + settings);
+    }
+    
+    public String getGeneratorSettings()
+    {
+        return this.generatorSettings;
     }
     
     public static void setup()
@@ -36,7 +51,7 @@ public class ConfigurationManager {
         ConfigurationManager.instance.readWorldTypes();
     }
     
-    private static void cleanUp()
+    public static void cleanUp()
     {
         if (ConfigurationManager.instance != null)
         {
@@ -65,10 +80,10 @@ public class ConfigurationManager {
         }
     }
     
-    public void registerDimensions(final String name)
+    public void registerDimensions()
     {
         this.loadDimensionMap();
-        final ConfigPreset preset = this.presets.get(name);
+        final ConfigPreset preset = this.getPreset();
         
         if (preset != null)
         {
@@ -144,4 +159,19 @@ public class ConfigurationManager {
 //        
 //        this.worldTypes.add(new WorldTypeSkyIslands(name, file));
 //    }
+    
+    public ConfigPreset getPreset()
+    {
+        ConfigPreset preset = this.presets.get(this.generatorSettings);
+        
+        if (preset == null)
+        {
+            for (final ConfigPreset value : this.presets.values())
+            {
+                preset = value;
+                break;
+            }
+        }
+        return preset;
+    }
 }

@@ -4,8 +4,11 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.ClientEventSubscriber;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 
@@ -31,20 +34,26 @@ public class ClientProxy extends CommonProxy
             
             if (worldType instanceof WorldTypeCustomizable)
             {
-                String settings = server.worldSettings.getGeneratorOptions();
+                ISaveHandler isavehandler = Minecraft.getMinecraft().getSaveLoader().getSaveLoader(server.getFolderName(), false);
+                WorldInfo worldinfo = isavehandler.loadWorldInfo();
                 
-                ConfigurationManager.setup();
-                
-                if (settings.isEmpty())
+                if (worldinfo != null)
                 {
-                    for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
+                    String settings = worldinfo.getGeneratorOptions();ConfigurationManager.setup();
+                    
+                    if (settings.isEmpty())
                     {
-                        settings = name;
-                        break;
+                        for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
+                        {
+                            settings = name;
+                            break;
+                        }
                     }
+                    server.worldSettings.setGeneratorOptions(settings);
+                    
+                    ConfigurationManager.setGeneratorSettings(settings);
+                    ConfigurationManager.getInstance().registerDimensions();
                 }
-                server.worldSettings.setGeneratorOptions(settings);
-                ConfigurationManager.getInstance().registerDimensions(settings);
             }
         }
     }

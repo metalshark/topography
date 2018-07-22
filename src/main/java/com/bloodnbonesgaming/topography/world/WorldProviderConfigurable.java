@@ -47,19 +47,12 @@ public class WorldProviderConfigurable extends WorldProvider
         }
         this.type = DimensionManager.getProviderType(this.getDimension());
         this.hasSkyLight = true;
+
+        Topography.instance.getLog().info("GenSettings: " +  this.generatorSettings);
+        final ConfigPreset preset = ConfigurationManager.getInstance().getPreset();
+        this.generatorSettings = preset.getName();
         
-        if (this.generatorSettings.isEmpty())
-        {
-            for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
-            {
-                this.generatorSettings = name;
-                break;
-            }
-        }
-        
-        final ConfigPreset preset = ConfigurationManager.getInstance().getPresets().get(this.generatorSettings);
-        
-        Topography.instance.getLog().info("Preset: " + this.generatorSettings);
+        Topography.instance.getLog().info("Preset: " + preset.getName());
         new Exception().printStackTrace();
         if (preset != null)
         {

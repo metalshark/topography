@@ -43,8 +43,8 @@ public class ServerProxy extends CommonProxy
                 }
                 
                 final String settings = server.getStringProperty("generator-settings", backup);
-                
-                ConfigurationManager.getInstance().registerDimensions(settings);
+                ConfigurationManager.setGeneratorSettings(settings);
+                ConfigurationManager.getInstance().registerDimensions();
             }
         }
     }

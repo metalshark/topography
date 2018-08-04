@@ -69,6 +69,14 @@ public class EventSubscriber
                     
                     if (structure != null)
                     {
+                        for (int x = -3; x < 4; x++)
+                        {
+                            for (int z = -4; z < 4; z++)
+                            {
+                                event.getWorld().getChunkProvider().provideChunk(x, z);
+                            }
+                        }
+                        
                         final Template template = IOHelper.loadStructureTemplate(structure);
     
                         Topography.instance.getLog().info("Spawning structure");

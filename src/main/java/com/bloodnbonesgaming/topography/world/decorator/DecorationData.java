@@ -2,7 +2,7 @@ package com.bloodnbonesgaming.topography.world.decorator;
 
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.config.definitions.SkyIslandDefinition;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -35,8 +35,8 @@ public class DecorationData
         return count;
     }
     
-    public void generateForSkyIsland(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandDefinition handler)
+    public void generateForSkyIsland(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandGenerator generator)
     {
-        this.decorator.generateForSkyIsland(this.count, seed, chunkX, chunkZ, primer, center, data, type, handler, this.regionSize);
+        this.decorator.generateForSkyIsland(this.count, seed, chunkX, chunkZ, primer, center, data, type, generator, this.regionSize);
     }
 }

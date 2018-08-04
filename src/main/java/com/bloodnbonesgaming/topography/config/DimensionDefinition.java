@@ -5,17 +5,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bloodnbonesgaming.lib.util.script.ArgType;
+import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
+import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
+import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorVoid;
 import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
+import com.bloodnbonesgaming.topography.world.generator.CellInterpolationTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.CellNoiseGenerator;
+import com.bloodnbonesgaming.topography.world.generator.DeformedSphereGenerator;
+import com.bloodnbonesgaming.topography.world.generator.FluidPocketGenerator;
+import com.bloodnbonesgaming.topography.world.generator.HangingCrystalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.LayerGenerator;
+import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaFireGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaGlowstoneGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaLavaPocketGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaQuartzGenerator;
 
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 
-public abstract class DimensionDefinition
+public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
     private String spawnStructure;
@@ -23,20 +37,48 @@ public abstract class DimensionDefinition
     private boolean enviromentalFog = false;
     private Float celestialAngle;
     private boolean renderSky = true;
+    private boolean renderClouds = true;
     private final List<IGenerator> generators = new ArrayList<IGenerator>();
     private boolean skylight = true;
+    
+    
+    private Integer singleBiome = null;
     
     private final StructureHandler structureHandler = new StructureHandler();
     
     public DimensionDefinition()
     {
+        this.classKeywords.put("ScatteredBlockGenerator", ScatteredBlockGenerator.class);
+        this.classKeywords.put("FluidPocketGenerator", FluidPocketGenerator.class);
+        this.classKeywords.put("HangingCrystalGenerator", HangingCrystalGenerator.class);
+        this.classKeywords.put("VanillaFireGenerator", VanillaFireGenerator.class);
+        this.classKeywords.put("VanillaLavaPocketGenerator", VanillaLavaPocketGenerator.class);
+        this.classKeywords.put("VanillaGlowstoneGenerator", VanillaGlowstoneGenerator.class);
+        this.classKeywords.put("VanillaQuartzGenerator", VanillaQuartzGenerator.class);
         this.classKeywords.put("DecoratorScattered", DecoratorScattered.class);
+        this.classKeywords.put("DeformedSphereGenerator", DeformedSphereGenerator.class);
         this.classKeywords.put("CellNoiseGenerator", CellNoiseGenerator.class);
         this.classKeywords.put("LayerGenerator", LayerGenerator.class);
+        this.classKeywords.put("SkyIslandGenerator", SkyIslandGenerator.class);
+        this.classKeywords.put("SkyIslandType", SkyIslandType.class);
+        
+
+        this.classKeywords.put("CellInterpolationTestGenerator", CellInterpolationTestGenerator.class);
     }
     
-    public abstract BiomeProvider getBiomeProvider(final World world);
-    public abstract IChunkGenerator getChunkGenerator(final World world);
+    public BiomeProvider getBiomeProvider(final World world)
+    {
+        if (this.singleBiome != null)
+        {
+            return new BiomeProviderConfigurable(world, this.singleBiome, this);
+        }
+        return new BiomeProviderConfigurable(world, this);
+    }
+    
+    public IChunkGenerator getChunkGenerator(final World world)
+    {
+        return new ChunkGeneratorVoid(world, world.getSeed(), this);
+    }
     
     public void setSpawnStructure(final String structure)
     {
@@ -88,6 +130,16 @@ public abstract class DimensionDefinition
         this.renderSky = false;
     }
     
+    public boolean renderClouds()
+    {
+        return this.renderClouds;
+    }
+    
+    public void disableClouds()
+    {
+        this.renderClouds = false;
+    }
+    
     public StructureHandler getStructureHandler()
     {
         return this.structureHandler;
@@ -116,5 +168,11 @@ public abstract class DimensionDefinition
     public boolean skylight()
     {
         return this.skylight;
+    }
+    
+    @ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID})
+    public void setSingleBiome(final int biome)
+    {
+        this.singleBiome = biome;
     }
 }

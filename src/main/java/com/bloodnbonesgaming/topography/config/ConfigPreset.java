@@ -4,30 +4,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.world.DimensionType;
-
 public class ConfigPreset
 {
     private final String name;
     private final String image;
+    private final String description;
     
-    private final Map<Integer, ScriptData> scripts = new HashMap<Integer, ScriptData>();
+    private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     
     public ConfigPreset(final String name, final String image)
     {
-        this.name = name;
-        this.image = image;
+        this(name, image, null);
     }
     
-    public void registerDimension(final int dimension, final String script, final String type) throws Exception
+    public ConfigPreset(final String name, final String image, final String description)
     {
-        final DimensionTypes dimensionType = DimensionTypes.getType(type);
-        
-        if (dimensionType == null)
-        {
-            throw new Exception("No DimensionType for '" + type + "'");
-        }
-        this.scripts.put(dimension, new ScriptData(script, type));
+        this.name = name;
+        this.image = image;
+        this.description = description;
+    }
+    
+    public void registerDimension(final int dimension, final String script) throws Exception
+    {
+        this.scripts.put(dimension, script);
     }
 
     public String getName()
@@ -35,7 +34,7 @@ public class ConfigPreset
         return name;
     }
 
-    public ScriptData getScript(final int dimension)
+    public String getScript(final int dimension)
     {
         return this.scripts.get(dimension);
     }
@@ -50,5 +49,8 @@ public class ConfigPreset
         return image;
     }
     
-    
+    public String getDescription()
+    {
+        return this.description;
+    }
 }

@@ -14,12 +14,14 @@ public class GuiOptionsList extends GuiScrollingList
     final FontRenderer fontRenderer;
     private int selectedIndex = 0;
     final List<ConfigPreset> presets;
+    final GuiCustomizeWorldType parent;
 
-    public GuiOptionsList(Minecraft client, FontRenderer fontRenderer, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, List<ConfigPreset> presets)
+    public GuiOptionsList(Minecraft client, FontRenderer fontRenderer, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, List<ConfigPreset> presets, GuiCustomizeWorldType parent)
     {
         super(client, width, height, top, bottom, left, fontRenderer.FONT_HEIGHT + 11, screenWidth, screenHeight);
         this.fontRenderer = fontRenderer;
         this.presets = presets;
+        this.parent = parent;
     }
     
     public int getIndex()
@@ -37,6 +39,7 @@ public class GuiOptionsList extends GuiScrollingList
     protected void elementClicked(int index, boolean doubleClick)
     {
         this.selectedIndex = index;
+        this.parent.onListSelected(presets.get(index));
     }
 
     @Override
@@ -64,7 +67,7 @@ public class GuiOptionsList extends GuiScrollingList
             trimmed = trimmed.trim().concat("...");
         }
         
-        fontRenderer.drawStringWithShadow(trimmed, this.left + 3, slotTop + 4, 0xff0000);
+        fontRenderer.drawStringWithShadow(trimmed, this.left + 3, slotTop + 4, 0xFFFFFF);
     }
     
 }

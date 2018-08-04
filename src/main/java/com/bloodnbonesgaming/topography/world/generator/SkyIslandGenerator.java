@@ -1,6 +1,8 @@
-package com.bloodnbonesgaming.topography.world.chunkgenerator;
+package com.bloodnbonesgaming.topography.world.generator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,40 +10,164 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.config.definitions.SkyIslandDefinition;
-import com.bloodnbonesgaming.topography.world.BiomeProviderSkyIslands;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
-import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
+import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.SpawnListEntry;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
+import net.minecraft.world.gen.layer.GenLayer;
 
-public class ChunkGeneratorSkyIslands implements IChunkGenerator
+public class SkyIslandGenerator implements IGenerator
 {
+
+    @Override
+    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    {
+        final long seed = world.getSeed();
+        this.terrainNoise = new OpenSimplexNoiseGeneratorOctaves(seed);
+        
+        this.rand.setSeed((long)chunkX * 341873128712L + (long)chunkZ * 132897987541L);
+
+        this.mountainRand.setSeed((long)((int)Math.floor(chunkX * 16D / this.getRegionSize())) * 341873128712L + (long)((int)Math.floor(chunkZ * 16D / this.getRegionSize())) * 132897987541L + seed);
+        
+        this.generateIslands(seed, chunkX, chunkZ, primer);
+        
+        this.replaceBiomeBlocks(seed, chunkX, chunkZ, primer);
+                
+        this.genDecorations(seed, chunkX, chunkZ, primer);
+
+        
+    }
+
+    private final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
+    private Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
+    private final Random islandPositionRandom = new Random();
+    private double regionSize = 464;
+
+    private int currentRegionX = -100000000;
+    private int currentRegionZ = -100000000;
+    
+
+    private void generateIslandPositions(final long worldSeed)
+    {
+        this.islandPositionRandom.setSeed((long) (this.currentRegionX) * 341873128712L
+                + (long) (this.currentRegionZ) * 132897987541L + worldSeed);
+        this.islandPositions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
+        for (final SkyIslandData data : this.skyIslandData)
+        {
+            int genCount = 0;
+            countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
+            {
+                final double maxFeatureRadius = data.getRadius();
+                final double midHeight = maxFeatureRadius + this.islandPositionRandom.nextInt((int) (220 - (maxFeatureRadius * 2)));
+
+                final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
+                final int regionCenterZ = (int) ((this.currentRegionZ) * regionSize + regionSize / 2);
+
+                final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
+
+                final int featureCenterX = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
+                final int featureCenterZ = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
+
+                final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
+
+                for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.islandPositions.entrySet())
+                {
+                    final double minDistance = set.getKey().getRadius() + maxFeatureRadius + 25;
+
+                    for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
+                    {
+                        if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance)
+                        {
+                            continue countLoop;
+                        }
+                    }
+                }
+
+                if (!this.islandPositions.containsKey(data))
+                {
+                    this.islandPositions.put(data, new LinkedHashMap<BlockPos, SkyIslandType>());
+                }
+                if (data.isRandomIslands())
+                {
+                    final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
+                    positions.put(pos, data.getType(this.islandPositionRandom.nextInt(128)));
+                }
+                else
+                {
+                    final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
+                    positions.put(pos, data.getType(genCount));
+                }
+                genCount++;
+            }
+        }
+    }
+
+    public Map<SkyIslandData, Map<BlockPos, SkyIslandType>> getIslandPositions(final long worldSeed, final int x, final int z)
+    {
+        if (((int) Math.floor(Math.floor(x / 16.0D) * 16D / this.regionSize)) != this.currentRegionX || ((int) Math.floor(Math.floor(z / 16.0D) * 16D / this.regionSize)) != this.currentRegionZ)
+        {
+            this.currentRegionX = ((int) Math.floor(Math.floor(x / 16.0D) * 16D / this.regionSize));
+            this.currentRegionZ = ((int) Math.floor(Math.floor(z / 16.0D) * 16D / this.regionSize));
+            this.generateIslandPositions(worldSeed);
+        }
+        return this.islandPositions;
+    }
+
+    public static double getDistance(final BlockPos pos, final BlockPos pos2)
+    {
+        double d0 = pos.getX() - pos2.getX();
+        double d2 = pos.getZ() - pos2.getZ();
+        return Math.sqrt(d0 * d0 + d2 * d2);
+    }
+
+    public double getRegionSize()
+    {
+        return this.regionSize;
+    }
+
+    public void setRegionSize(final int size)
+    {
+        this.regionSize = size * 16;
+    }
+
+    public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
+    {
+        final SkyIslandData data = new SkyIslandData();
+        data.setRadius(radius);
+        data.setCount(count);
+        data.setRandomTypes(randomTypes);
+
+        this.skyIslandData.add(data);
+
+        return data;
+    }
+    
+    
+    
+    
+    
+    
+    //ChunkGenerator
     final Random rand = new Random();
-    final World world;
-    final long worldSeed;
-    Biome[] biomesForGeneration;
-    protected final OpenSimplexNoiseGeneratorOctaves terrainNoise;
+    
+    protected OpenSimplexNoiseGeneratorOctaves terrainNoise;
     final Random mountainRand = new Random();
     double[] smallNoiseArray = new double[825];
     double[] largeNoiseArray = new double[65536];
@@ -50,50 +176,6 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     protected NoiseGeneratorPerlin surfaceNoise = new NoiseGeneratorPerlin(this.rand, 4);
     protected double[] depthBuffer = new double[256];
     
-    
-    final SkyIslandDefinition definition;
-    
-    
-    public ChunkGeneratorSkyIslands(final World world)
-    {
-        this.worldSeed = world.getSeed();
-        this.world = world;
-        this.definition = ((BiomeProviderSkyIslands) this.world.getBiomeProvider()).getHandler();
-        terrainNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
-    }
-
-    @Override
-    public Chunk generateChunk(int x, int z)
-    {
-        this.rand.setSeed((long)x * 341873128712L + (long)z * 132897987541L);
-        ChunkPrimer chunkprimer = new ChunkPrimer();
-
-        this.mountainRand.setSeed((long)((int)Math.floor(x * 16D / this.definition.getRegionSize())) * 341873128712L + (long)((int)Math.floor(z * 16D / this.definition.getRegionSize())) * 132897987541L + this.worldSeed);
-        
-        this.generateIslands(x, z, chunkprimer);
-        
-        this.biomesForGeneration = this.world.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
-
-        if (net.minecraftforge.event.ForgeEventFactory.onReplaceBiomeBlocks(this, x, z, chunkprimer, this.world))
-        {
-            this.replaceBiomeBlocks(x, z, chunkprimer, this.biomesForGeneration);
-        }
-        
-        this.definition.getStructureHandler().generateStructures(this.world, x, z, chunkprimer);
-        
-        this.genDecorations(x, z, chunkprimer);
-
-        Chunk chunk = new Chunk(this.world, chunkprimer, x, z);
-        byte[] abyte = chunk.getBiomeArray();
-
-        for (int i = 0; i < abyte.length; ++i)
-        {
-            abyte[i] = (byte)Biome.getIdForBiome(this.biomesForGeneration[i]);
-        }
-
-        chunk.generateSkylightMap();
-        return chunk;
-    }
     
     private void generateNoise(final double[] array, final int arraySizeX, final int arraySizeY, final int arraySizeZ, final int x, final int y, final int z, final int xCoordinateScale, final int yCoordinateScale, final int zCoordinateScale)
     {
@@ -112,12 +194,12 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         }
     }
     
-    public void generateIslands(final int chunkX, final int chunkZ, final ChunkPrimer primer)
+    public void generateIslands(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         
-        final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.definition.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
+        final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
         while (iterator.hasNext())
         {
@@ -208,7 +290,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         }
     }
     
-    public void replaceBiomeBlocks(int chunkX, int chunkZ, ChunkPrimer primer, Biome[] biomesIn)
+    public void replaceBiomeBlocks(final long seed, int chunkX, int chunkZ, ChunkPrimer primer)
     {
         for (int x = 0; x < 16; x++)
         {
@@ -217,7 +299,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
             {
                 final BlockPos pos = new BlockPos(chunkX * 16 + x, 0, chunkZ * 16 + z);
                 
-                final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.definition.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet().iterator();
+                final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
                 
                 while (iterator.hasNext())
                 {
@@ -237,7 +319,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                                 
                                 if (biome != Biomes.VOID)
                                 {
-                                    this.genBiomeTerrainBlocks(biome, this.world, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, islandPos.getKey().getY(), 16);
+                                    this.genBiomeTerrainBlocks(biome, this.rand, primer, chunkX * 16 + x, chunkZ * 16 + z, islandPos.getKey().getY(), 16);
                                 }
                             }
                             continue x;
@@ -255,7 +337,7 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     protected static final IBlockState ICE = Blocks.ICE.getDefaultState();
     protected static final IBlockState WATER = Blocks.WATER.getDefaultState();
     
-    public void genBiomeTerrainBlocks(Biome biome, World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, int islandMid, double noiseVal)
+    public void genBiomeTerrainBlocks(Biome biome, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, int islandMid, double noiseVal)
     {
         int i = islandMid;
         IBlockState iblockstate = biome.topBlock;
@@ -333,24 +415,24 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         }
     }
     
-    private void genDecorations(final int chunkX, final int chunkZ, final ChunkPrimer primer)
+    private void genDecorations(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
         final BlockPos pos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
 
-        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.definition.getIslandPositions(this.worldSeed, chunkX * 16, chunkZ * 16).entrySet())
+        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet())
         {
             final SkyIslandData data = set.getKey();
             final double minDistance = data.getRadius();
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
-                if (SkyIslandDefinition.getDistance(pos, islandPos.getKey()) < minDistance + 16)
+                if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance + 16)
                 {
                     final SkyIslandType type = islandPos.getValue();
                     
                     for (final DecorationData decoration : type.getDecorators())
                     {
-                        decoration.generateForSkyIsland(this.worldSeed, chunkX, chunkZ, primer, islandPos.getKey(), data, type, this.definition);
+                        decoration.generateForSkyIsland(seed, chunkX, chunkZ, primer, islandPos.getKey(), data, type, this);
                     }
                     break outer;
                 }
@@ -359,25 +441,22 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
     }
 
     @Override
-    public void populate(int x, int z)
+    public void populate(World world, int chunkX, int chunkZ, Random rand)
     {
+        final long seed = world.getSeed();
         BlockFalling.fallInstantly = true;
-        int i = x * 16;
-        int j = z * 16;
+        int i = chunkX * 16;
+        int j = chunkZ * 16;
         BlockPos blockpos = new BlockPos(i, 0, j);
-        this.rand.setSeed(this.world.getSeed());
+        this.rand.setSeed(seed);
         long k = this.rand.nextLong() / 2L * 2L + 1L;
         long l = this.rand.nextLong() / 2L * 2L + 1L;
-        this.rand.setSeed((long)x * k + (long)z * l ^ this.world.getSeed());
+        this.rand.setSeed((long)chunkX * k + (long)chunkZ * l ^ seed);
         boolean flag = false;
-
-        net.minecraftforge.event.ForgeEventFactory.onChunkPopulate(true, this, this.world, this.rand, x, z, flag);
         
-        this.definition.getStructureHandler().populateStructures(this.world, this.rand, new ChunkPos(x, z));
-
         final BlockPos pos = new BlockPos(i, 0, j);
 
-        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.definition.getIslandPositions(this.worldSeed, i, j).entrySet())
+        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j).entrySet())
         {
             final SkyIslandData data = set.getKey();
             final double minDistance = data.getRadius();
@@ -393,12 +472,12 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
                     {
                         if (typeBiome != Biomes.VOID)
                         {
-                            typeBiome.decorate(this.world, this.rand, new BlockPos(i, 0, j));
+                            typeBiome.decorate(world, this.rand, new BlockPos(i, 0, j));
                         }
                     }
-                    if (type.genAnimals() && net.minecraftforge.event.terraingen.TerrainGen.populate(this, this.world, this.rand, x, z, flag, net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate.EventType.ANIMALS))
+                    if (type.genAnimals())
                     {
-                        WorldEntitySpawner.performWorldGenSpawning(this.world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
+                        WorldEntitySpawner.performWorldGenSpawning(world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
                     }
                     break outer;
                 }
@@ -407,62 +486,33 @@ public class ChunkGeneratorSkyIslands implements IChunkGenerator
         
         blockpos = blockpos.add(8, 0, 8);
 
-            if (net.minecraftforge.event.terraingen.TerrainGen.populate(this, this.world, this.rand, x, z, flag, net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate.EventType.ICE))
             {
                 for (int k2 = 0; k2 < 16; ++k2)
                 {
                     for (int j3 = 0; j3 < 16; ++j3)
                     {
-                        BlockPos blockpos1 = this.world.getPrecipitationHeight(blockpos.add(k2, 0, j3));
+                        BlockPos blockpos1 = world.getPrecipitationHeight(blockpos.add(k2, 0, j3));
                         BlockPos blockpos2 = blockpos1.down();
 
-                        if (this.world.canBlockFreezeWater(blockpos2))
+                        if (world.canBlockFreezeWater(blockpos2))
                         {
-                            this.world.setBlockState(blockpos2, Blocks.ICE.getDefaultState(), 2);
+                            world.setBlockState(blockpos2, Blocks.ICE.getDefaultState(), 2);
                         }
 
-                        if (this.world.canSnowAt(blockpos1, true))
+                        if (world.canSnowAt(blockpos1, true))
                         {
-                            this.world.setBlockState(blockpos1, Blocks.SNOW_LAYER.getDefaultState(), 2);
+                            world.setBlockState(blockpos1, Blocks.SNOW_LAYER.getDefaultState(), 2);
                         }
                     }
                 }
             }
 
-        net.minecraftforge.event.ForgeEventFactory.onChunkPopulate(false, this, this.world, this.rand, x, z, flag);
-
         BlockFalling.fallInstantly = false;
     }
 
     @Override
-    public boolean generateStructures(Chunk chunkIn, int x, int z)
+    public GenLayer getLayer(World world, GenLayer parent)
     {
-        return false;
-    }
-
-    @Override
-    public List<SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
-    {
-        Biome biome = this.world.getBiome(pos);
-
-        return this.definition.getStructureHandler().getPossibleCreatures(creatureType, this.world, pos, biome.getSpawnableList(creatureType));
-    }
-
-    @Override
-    public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
-    {
-        return this.definition.getStructureHandler().getNearestStructurePos(worldIn, structureName, position, findUnexplored);
-    }
-
-    @Override
-    public void recreateStructures(Chunk chunkIn, int x, int z)
-    {
-        this.definition.getStructureHandler().recreateStructures(this.world, chunkIn, x, z);
-    }
-
-    @Override
-    public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos)
-    {
-        return this.definition.getStructureHandler().isInsideStructure(worldIn, structureName, pos);
+        return new GenLayerBiomeSkyIslands(world.getSeed(), this);
     }
 }

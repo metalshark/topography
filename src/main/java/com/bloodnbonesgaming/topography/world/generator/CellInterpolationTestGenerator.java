@@ -16,26 +16,25 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
-public class CellNoiseGenerator implements IGenerator
+public class CellInterpolationTestGenerator implements IGenerator
 {
     final FastNoise noise = new FastNoise();
     protected OpenSimplexNoiseGeneratorOctaves skewNoise;
     double[] smallNoiseArray = new double[825];
     double[] largeNoiseArray = new double[65536];
     IBlockState state = Blocks.AIR.getDefaultState();
-    boolean invert = false;
     boolean closeTop = false;
     boolean openTop = true;
     
-    public CellNoiseGenerator()
+    public CellInterpolationTestGenerator()
     {        
         noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.005f);
+        noise.SetFrequency(1);
         noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
         noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
     }
     
-    public CellNoiseGenerator(final ItemBlockData data) throws Exception
+    public CellInterpolationTestGenerator(final ItemBlockData data) throws Exception
     {
         this();
         this.state = data.buildBlockState();
@@ -67,9 +66,10 @@ public class CellNoiseGenerator implements IGenerator
                 for (int yI = 0; yI < arraySizeY; yI++)
                 {
                     int index = (xI * arraySizeX + zI) * arraySizeY + yI;
-                    float skew = (float) (this.skewNoise.eval((x + xI * xCoordinateScale) / 32.0, (y + yI * yCoordinateScale) / 32.0, (z + zI * zCoordinateScale) / 32.0, 3, 0.5) * 16);
+//                    float skew = (float) (this.skewNoise.eval((x + xI * xCoordinateScale) / 32.0, (y + yI * yCoordinateScale) / 32.0, (z + zI * zCoordinateScale) / 32.0, 3, 0.5) * 16);
 
-                    double noise = this.noise.GetNoise((x + xI * xCoordinateScale) + skew, (y + yI * yCoordinateScale) + skew, (z + zI * zCoordinateScale) + skew);
+//                    double noise = this.noise.GetNoise((x + xI * xCoordinateScale) + skew, (y + yI * yCoordinateScale) + skew, (z + zI * zCoordinateScale) + skew);
+                    double noise = this.noise.GetNoise((x + xI * 4) / 4.0f * 0.064f, (y + yI * 8) / 8.0f * 0.128f, (z + zI * 4) / 4.0f * 0.064f);
                     
                     array[index] = noise;
                 }
@@ -114,9 +114,8 @@ public class CellNoiseGenerator implements IGenerator
                         }
                     }
                     
-//                    if (!invert)
-//                    {
-                        if (value + scale > -0.15)
+                    {
+                        if (value + scale > -0.18)
                         {
 //                            float skew = (float) (this.skewNoise.eval(realX / 32.0, y / 32.0, realZ / 32.0, 3, 0.5) * 8);
 //
@@ -141,33 +140,10 @@ public class CellNoiseGenerator implements IGenerator
                         {
                             continue;
                         }
-//                    }
-//                    else
-//                    {
-//                        float skew = (float) (this.skewNoise.eval(realX / 32.0, y / 32.0, realZ / 32.0, 3, 0.5) * 16);
-//
-//                        if (value < -0.85 && noise2.GetNoise(realX + skew, y + skew, realZ + skew) < -0.85)
-//                        {
-//                            continue;
-//                        }
-//                        else
-//                        {
-//                            primer.setBlockState(x, y, z, state);
-//                        }
-//                    }
+                    }
                 }
             }
         }
-    }
-    
-    public void invert()
-    {
-        this.invert = true;
-    }
-
-    @Override
-    public void populate(World world, int chunkX, int chunkZ, Random rand)
-    {        
     }
 
     @Override
@@ -175,4 +151,12 @@ public class CellNoiseGenerator implements IGenerator
     {
         return null;
     }
+
+    @Override
+    public void populate(World world, int chunkX, int chunkZ, Random rand)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

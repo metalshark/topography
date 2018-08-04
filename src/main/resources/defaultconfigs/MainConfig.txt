@@ -1,7 +1,0 @@
-
-//If this file is deleted, a new set of default configs will be generated.
-
-//Registers a WorldType. First argument is name, second is the name of the script file.
-registerWorldType("Sky Islands", "SkyIslands")
-registerWorldType("Material Islands", "Materials")
-registerWorldType("Glass And Lava", "GlassAndLava")

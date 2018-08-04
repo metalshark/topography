@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.config.definitions.SkyIslandDefinition;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
@@ -16,15 +16,15 @@ import net.minecraft.world.gen.layer.IntCache;
 
 public class GenLayerBiomeSkyIslands extends GenLayer
 {
-    final SkyIslandDefinition handler;
+    final SkyIslandGenerator generator;
     final long worldSeed;
 
 
-    public GenLayerBiomeSkyIslands(long p_i2125_1_, final SkyIslandDefinition skyIslandData)
+    public GenLayerBiomeSkyIslands(long p_i2125_1_, final SkyIslandGenerator generator)
     {
         super(p_i2125_1_);
         this.worldSeed = p_i2125_1_;
-        this.handler = skyIslandData;
+        this.generator = generator;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class GenLayerBiomeSkyIslands extends GenLayer
     {
         int[] returnInts = IntCache.getIntCache(width * depth);
         
-        final Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = this.handler.getIslandPositions(this.worldSeed, chunkX, chunkZ);
+        final Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = this.generator.getIslandPositions(this.worldSeed, chunkX, chunkZ);
         
         for (int x = 0; x < width; x++)
         {

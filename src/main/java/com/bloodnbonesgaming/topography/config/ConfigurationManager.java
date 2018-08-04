@@ -144,6 +144,13 @@ public class ConfigurationManager {
         return preset;
     }
     
+    public ConfigPreset registerPreset(final String name, final String image, final String description)
+    {
+        final ConfigPreset preset = new ConfigPreset(name, image, description);
+        this.presets.put(name, preset);
+        return preset;
+    }
+    
 //    public void registerWorldType(final String name, final String script) throws Exception
 //    {
 //        if (name.length() > 16)

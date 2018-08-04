@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.client.renderer.CloudRendererDisabled;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererDisabled;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
-import com.bloodnbonesgaming.topography.config.ScriptData;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -53,11 +53,12 @@ public class WorldProviderConfigurable extends WorldProvider
         this.generatorSettings = preset.getName();
         
         Topography.instance.getLog().info("Preset: " + preset.getName());
-        new Exception().printStackTrace();
+//        new Exception().printStackTrace();
         if (preset != null)
         {
-            ScriptData data = preset.getScript(this.getDimension());
-            this.definition = IOHelper.loadDimensionDefinition(data.getScript(), data.getType());
+            String script = preset.getScript(this.getDimension());
+            this.definition = new DimensionDefinition();
+            IOHelper.loadDimensionDefinition(script, definition);
             this.biomeProvider = this.definition.getBiomeProvider(this.world);
             this.hasSkyLight = this.definition.skylight();
         }
@@ -130,6 +131,16 @@ public class WorldProviderConfigurable extends WorldProvider
         if (!this.definition.renderSky())
             return SkyRendererDisabled.instance;
         return super.getSkyRenderer();
+    }
+    
+    @Override
+    @Nullable
+    @SideOnly(Side.CLIENT)
+    public IRenderHandler getCloudRenderer()
+    {
+        if (!this.definition.renderClouds())
+            return CloudRendererDisabled.instance;
+        return super.getCloudRenderer();
     }
 
 }

@@ -1,3 +1,5 @@
+//This class was created by Jordan Peck and was taken from https://github.com/Auburns/FastNoise_Java.
+
 // FastNoise.java
 //
 // MIT License
@@ -36,7 +38,7 @@ public class FastNoise {
     public enum Interp {Linear, Hermite, Quintic}
     public enum FractalType {FBM, Billow, RigidMulti}
     public enum CellularDistanceFunction {Euclidean, Manhattan, Natural}
-    public enum CellularReturnType {CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div}
+    public enum CellularReturnType {CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div, Distance3Div}
 
     private int m_seed = 1337;
     private float m_frequency = (float) 0.01;
@@ -1806,6 +1808,7 @@ public class FastNoise {
 
         float distance = 999999;
         float distance2 = 999999;
+        float distance3 = 999999;
 
         switch (m_cellularDistanceFunction) {
             case Euclidean:
@@ -1820,6 +1823,7 @@ public class FastNoise {
 
                             float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
+                            distance3 = Math.max(Math.min(distance3, newDistance), distance2);
                             distance2 = Math.max(Math.min(distance2, newDistance), distance);
                             distance = Math.min(distance, newDistance);
                         }
@@ -1838,6 +1842,7 @@ public class FastNoise {
 
                             float newDistance = Math.abs(vecX) + Math.abs(vecY) + Math.abs(vecZ);
 
+                            distance3 = Math.max(Math.min(distance3, newDistance), distance2);
                             distance2 = Math.max(Math.min(distance2, newDistance), distance);
                             distance = Math.min(distance, newDistance);
                         }
@@ -1856,6 +1861,7 @@ public class FastNoise {
 
                             float newDistance = (Math.abs(vecX) + Math.abs(vecY) + Math.abs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
+                            distance3 = Math.max(Math.min(distance3, newDistance), distance2);
                             distance2 = Math.max(Math.min(distance2, newDistance), distance);
                             distance = Math.min(distance, newDistance);
                         }
@@ -1877,6 +1883,8 @@ public class FastNoise {
                 return distance2 * distance - 1;
             case Distance2Div:
                 return distance / distance2 - 1;
+            case Distance3Div:
+                return distance / distance3 - 1;
             default:
                 return 0;
         }

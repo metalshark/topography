@@ -1,15 +1,17 @@
 package com.bloodnbonesgaming.topography;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import com.bloodnbonesgaming.lib.util.FileHelper;
 import com.bloodnbonesgaming.lib.util.script.ScriptUtil;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
-import com.bloodnbonesgaming.topography.config.DimensionTypes;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 
 import net.minecraft.nbt.CompressedStreamTools;
@@ -18,11 +20,6 @@ import net.minecraft.world.gen.structure.template.Template;
 
 public class IOHelper
 {
-    public static SkyIslandDataHandler loadDataHandler(final File file, final SkyIslandDataHandler handler, final Map<String, Class> classKeywords)
-    {
-        return (SkyIslandDataHandler) ScriptUtil.readScript(file, handler, classKeywords);
-    }
-
     public static void readMainFile(final ConfigurationManager config, final Map<String, Class> classKeywords)
     {
         final File file = new File(ModInfo.MAIN_CONFIG_FILE);
@@ -63,10 +60,28 @@ public class IOHelper
         return null;
     }
     
-    public static DimensionDefinition loadDimensionDefinition(final String name, final String type)
+    public static BufferedImage loadImage(final String name)
     {
-        DimensionDefinition definition = DimensionTypes.getDefinition(type);
+        final File file = new File(ModInfo.SCRIPT_FOLDER + name + ".png");
         
-        return (DimensionDefinition) ScriptUtil.readScript(new File(ModInfo.SCRIPT_FOLDER + name + ".txt"), definition, definition.classKeywords);
+        if (file.exists())
+        {
+            try
+            {
+//                final FileInputStream stream = new FileInputStream(file);
+                return ImageIO.read(file);
+                
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+    
+    public static boolean loadDimensionDefinition(final String name, final DimensionDefinition definition)
+    {        
+        return ScriptUtil.readScript(new File(ModInfo.SCRIPT_FOLDER + name + ".txt"), definition, definition.classKeywords);
     }
 }

@@ -1,9 +1,15 @@
 package com.bloodnbonesgaming.topography.client.gui;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
+import com.bloodnbonesgaming.topography.client.gui.element.GuiElementText;
+import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
+import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStretch;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 
@@ -11,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.I18n;
 
 public class GuiCustomizeWorldType extends GuiScreen
@@ -19,6 +26,8 @@ public class GuiCustomizeWorldType extends GuiScreen
     final GuiCreateWorld parent;
     private GuiOptionsList list;
     private List<ConfigPreset> presets;
+    private GuiElementTexture texture;
+    private final List<GuiElementText> description = new ArrayList<GuiElementText>();
     
     public GuiCustomizeWorldType(GuiScreen parent)
     {
@@ -31,10 +40,9 @@ public class GuiCustomizeWorldType extends GuiScreen
         ConfigurationManager.setup();
         this.presets = new ArrayList<ConfigPreset>(ConfigurationManager.getInstance().getPresets().values());
         
-        this.done = this.addButton(new GuiButton(300, this.width / 2 + 98, this.height - 27, 90, 20, I18n.format("gui.done")));
-        int distanceFromTopBottom = this.height / 5;
-        int distanceFromLeft = this.width / 10;
-        this.list = new GuiOptionsList(Minecraft.getMinecraft(), this.fontRenderer, this.width / 2 - distanceFromLeft, this.height - distanceFromTopBottom * 2, distanceFromTopBottom, this.height - distanceFromTopBottom, 25, this.width, this.height, this.presets);
+        this.done = this.addButton(new GuiButton(300, 98, this.height - 27, 90, 20, I18n.format("gui.done")));
+        this.list = new GuiOptionsList(Minecraft.getMinecraft(), this.fontRenderer, (int) Math.ceil(this.width / 2.0), this.height - 50, 0, this.height - 50, 0, this.width, this.height, this.presets, this);
+        this.onListSelected(this.presets.get(0));
     }
     
     @Override
@@ -58,5 +66,52 @@ public class GuiCustomizeWorldType extends GuiScreen
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.list.drawScreen(mouseX, mouseY, partialTicks);
+        for (final GuiElementText text : this.description)
+        {
+            text.render(this.fontRenderer, this.width, this.height);
+        }
+        if (this.texture != null)
+        {
+            this.texture.render(Minecraft.getMinecraft(), this.width, this.height);
+        }
+    }
+    
+    public void onListSelected(final ConfigPreset preset)
+    {
+        //Set description
+        this.description.clear();
+        final String description = preset.getDescription();
+        
+        if (description != null)
+        {
+            List<String> list = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(description, this.width / 2 - 5);
+            int index = 0;
+            int totalHeight = (list.size() + 1) * this.fontRenderer.FONT_HEIGHT;
+            
+            for (final String string : list)
+            {
+                index++;
+                final GuiElementText text = new GuiElementText(EnumGuiLocation.CENTER, string);
+                text.setAbsYOffset(this.fontRenderer.FONT_HEIGHT * index - totalHeight);
+                text.setAbsXOffset(fontRenderer.getStringWidth(string) / 2 + 5);
+                
+                this.description.add(text);
+            }
+        }
+        
+        //Set texture
+        this.texture = null;
+        final String imageName = preset.getImage();
+        
+        if (!imageName.isEmpty())
+        {
+            final BufferedImage image = IOHelper.loadImage(imageName);
+            
+            if (image != null)
+            {
+                this.texture = new GuiElementTextureStretch(EnumGuiLocation.BOTTOM_RIGHT, this.mc.getTextureManager().getDynamicTextureLocation("presetImage", new DynamicTexture(image)), image.getWidth(), image.getHeight());
+                this.texture.setRelRender(0.5, 0.5);
+            }
+        }
     }
 }

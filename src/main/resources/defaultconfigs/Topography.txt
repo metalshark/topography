@@ -1,0 +1,27 @@
+//If this file is deleted, a new set of default configs will be generated.
+
+//Registers a preset. First argument is name, second is the image name, third is a description.
+SF4 = registerPreset("Sky Factory IIII", "images/SF4", "Insert memes.")
+SF4.registerDimension(0, "SF4/Dirt Tree")
+SF4.registerDimension(-1, "SF4/Cell Nether")
+
+SF4 = registerPreset("Sky Factory IIII with Lava Floor", "images/SF4", "Insert memes.")
+SF4.registerDimension(0, "SF4/Dirt Tree with Lava Floor")
+SF4.registerDimension(-1, "SF4/Cell Nether")
+
+SF4 = registerPreset("Sky Factory IIII on Chunk", "images/SF4", "Insert memes.")
+SF4.registerDimension(0, "SF4/Dirt Tree on Chunk")
+SF4.registerDimension(-1, "SF4/Cell Nether")
+
+basicSkyIslands = registerPreset("Basic Sky Islands", "")
+basicSkyIslands.registerDimension(0, "Sky Islands/Basic Sky Islands")
+
+materialSkyIslands = registerPreset("Material Sky Islands", "")
+materialSkyIslands.registerDimension(0, "Sky Islands/Material Sky Islands")
+
+glassLavaSkyIslands = registerPreset("Glass n Lava Sky Islands", "")
+glassLavaSkyIslands.registerDimension(0, "Sky Islands/Glass n Lava Sky Islands")
+
+bnb2 = registerPreset("BnB 2.0", "")
+bnb2.registerDimension(0, "Sky Islands/Basic Sky Islands")
+bnb2.registerDimension(-1, "BnB2/Icy Cell Nether")

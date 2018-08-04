@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
-import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.config.definitions.SkyIslandDefinition;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +24,7 @@ public class DecoratorScattered
         this.decoration = data.buildBlockState();
     }
     
-    public void generateForSkyIsland(final int count, final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandDefinition handler, final int regionSize)
+    public void generateForSkyIsland(final int count, final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandGenerator generator, final int regionSize)
     {
         final int radius = data.getRadius();
         final int regionStartX = (int) (Math.floor(chunkX * 16D / regionSize) * regionSize);

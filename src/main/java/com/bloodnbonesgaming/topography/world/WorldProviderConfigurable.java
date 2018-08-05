@@ -26,7 +26,6 @@ public class WorldProviderConfigurable extends WorldProvider
 {
     private DimensionType type;
     private DimensionDefinition definition;
-    private IRenderHandler skyRenderer;
 
     @Override
     public DimensionType getDimensionType()
@@ -143,4 +142,21 @@ public class WorldProviderConfigurable extends WorldProvider
         return super.getCloudRenderer();
     }
 
+    @Override
+    protected void generateLightBrightnessTable()
+    {
+        final float[] table = this.definition.getLightBrightnessTable();
+        
+        if (table != null)
+        {
+            for (int i = 0; i <= 15; ++i)
+            {
+                this.lightBrightnessTable[i] = table[i];
+            }
+        }
+        else
+        {
+            super.generateLightBrightnessTable();
+        }
+    }
 }

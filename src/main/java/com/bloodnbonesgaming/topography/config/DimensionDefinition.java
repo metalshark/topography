@@ -40,6 +40,7 @@ public class DimensionDefinition
     private boolean renderClouds = true;
     private final List<IGenerator> generators = new ArrayList<IGenerator>();
     private boolean skylight = true;
+    private float[] lightBrightnessTable = null;
     
     
     private Integer singleBiome = null;
@@ -174,5 +175,15 @@ public class DimensionDefinition
     public void setSingleBiome(final int biome)
     {
         this.singleBiome = biome;
+    }
+    
+    public float[] getLightBrightnessTable()
+    {
+        return this.lightBrightnessTable;
+    }
+    
+    public void setLightBrightnessTable(final float[] table)
+    {
+        this.lightBrightnessTable = table;
     }
 }

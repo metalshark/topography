@@ -159,4 +159,10 @@ public class WorldProviderConfigurable extends WorldProvider
             super.generateLightBrightnessTable();
         }
     }
+    
+    @Override
+    public boolean shouldClientCheckLighting()
+    {
+        return this.definition.resetRelightChecks();
+    }
 }

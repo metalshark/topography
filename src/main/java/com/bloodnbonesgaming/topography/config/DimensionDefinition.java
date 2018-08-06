@@ -41,6 +41,7 @@ public class DimensionDefinition
     private final List<IGenerator> generators = new ArrayList<IGenerator>();
     private boolean skylight = true;
     private float[] lightBrightnessTable = null;
+    private boolean resetRelightChecks = false;
     
     
     private Integer singleBiome = null;
@@ -185,5 +186,15 @@ public class DimensionDefinition
     public void setLightBrightnessTable(final float[] table)
     {
         this.lightBrightnessTable = table;
+    }
+    
+    public boolean resetRelightChecks()
+    {
+        return this.resetRelightChecks;
+    }
+    
+    public void enableRelightChecks()
+    {
+        this.resetRelightChecks = true;
     }
 }

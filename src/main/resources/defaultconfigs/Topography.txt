@@ -9,6 +9,10 @@ SF4 = registerPreset("Sky Factory IIII with Lava Floor", "images/SF4", "Insert m
 SF4.registerDimension(0, "SF4/Dirt Tree with Lava Floor")
 SF4.registerDimension(-1, "SF4/Cell Nether")
 
+SF4 = registerPreset("Sky Factory IIII with Water Floor", "images/SF4", "Insert memes. Lots of them. /n All the memes. Memes. Memes. Memes. Memes. n/ Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes. Memes.")
+SF4.registerDimension(0, "SF4/Dirt Tree with Water Floor")
+SF4.registerDimension(-1, "SF4/Cell Nether")
+
 SF4 = registerPreset("Sky Factory IIII on Chunk", "images/SF4", "Insert memes.")
 SF4.registerDimension(0, "SF4/Dirt Tree on Chunk")
 SF4.registerDimension(-1, "SF4/Cell Nether")

@@ -60,7 +60,8 @@ public class ChunkGeneratorVoid implements IChunkGenerator
         }
 
         chunk.generateSkylightMap();
-        chunk.resetRelightChecks();
+        if (this.definition.resetRelightChecks())
+            chunk.resetRelightChecks();
 //        chunk.checkLight();
         return chunk;
     }

@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
@@ -22,7 +23,9 @@ import net.minecraft.client.resources.I18n;
 
 public class GuiCustomizeWorldType extends GuiScreen
 {
+    private Random rand = new Random();
     private GuiButton done;
+    private GuiButton random;
     final GuiCreateWorld parent;
     private GuiOptionsList list;
     private List<ConfigPreset> presets;
@@ -41,6 +44,7 @@ public class GuiCustomizeWorldType extends GuiScreen
         this.presets = new ArrayList<ConfigPreset>(ConfigurationManager.getInstance().getPresets().values());
         
         this.done = this.addButton(new GuiButton(300, 98, this.height - 27, 90, 20, I18n.format("gui.done")));
+        this.random = this.addButton(new GuiButton(301, 8, this.height - 27, 90, 20, "Random"));//TODO localize
         this.list = new GuiOptionsList(Minecraft.getMinecraft(), this.fontRenderer, (int) Math.ceil(this.width / 2.0), this.height - 50, 0, this.height - 50, 0, this.width, this.height, this.presets, this);
         this.onListSelected(this.presets.get(0));
     }
@@ -55,6 +59,18 @@ public class GuiCustomizeWorldType extends GuiScreen
                 case 300:
                     this.parent.chunkProviderSettingsJson = presets.get(this.list.getIndex()).getName();
                     this.mc.displayGuiScreen(this.parent);
+                    break;
+                case 301:
+                    if (this.presets.size() > 1)
+                    {
+                        int index = this.list.getIndex();
+                        
+                        for (int i = 0; i < 10 && index == this.list.getIndex(); i++)
+                        {
+                            index = this.rand.nextInt(this.presets.size());
+                        }
+                        this.list.elementClicked(index, false);
+                    }
                     break;
             }
         }

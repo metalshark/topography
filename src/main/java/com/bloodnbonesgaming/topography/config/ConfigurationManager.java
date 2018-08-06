@@ -93,7 +93,7 @@ public class ConfigurationManager {
                 
                 if (!ConfigurationManager.dimensionTypes.containsKey(dimension))
                 {
-                    type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, -12345 + dimension, WorldProviderConfigurable.class, dimension == 0);
+                    type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurable.class, dimension == 0);
                     ConfigurationManager.dimensionTypes.put(dimension, type);
                 }
                 else

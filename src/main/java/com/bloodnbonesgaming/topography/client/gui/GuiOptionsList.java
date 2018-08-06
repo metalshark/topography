@@ -36,7 +36,7 @@ public class GuiOptionsList extends GuiScrollingList
     }
 
     @Override
-    protected void elementClicked(int index, boolean doubleClick)
+    public void elementClicked(int index, boolean doubleClick)
     {
         this.selectedIndex = index;
         this.parent.onListSelected(presets.get(index));

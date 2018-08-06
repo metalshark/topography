@@ -51,7 +51,7 @@ public class ChunkGeneratorVoid implements IChunkGenerator
         
         this.definition.getStructureHandler().generateStructures(this.worldObj, x, z, chunkprimer);
         
-        Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
+        final Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
         byte[] abyte = chunk.getBiomeArray();
 
         for (int i = 0; i < abyte.length; ++i)

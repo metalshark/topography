@@ -22,6 +22,7 @@ public class ConfigurationManager {
     final Map<String, ConfigPreset> presets = new LinkedHashMap<String, ConfigPreset>();
     private final Map<Integer, DimensionType> dimensionMapCopy = new HashMap<Integer, DimensionType>();
     private static final Map<Integer, DimensionType> dimensionTypes = new HashMap<Integer, DimensionType>();
+    private final List<Integer> registeredDimensions = new ArrayList<Integer>();
     
     private String generatorSettings = null;
     
@@ -53,6 +54,7 @@ public class ConfigurationManager {
     
     public static void cleanUp()
     {
+        Topography.instance.getLog().info("Cleaning up");
         if (ConfigurationManager.instance != null)
         {
             for (final WorldType type : ConfigurationManager.instance.worldTypes)
@@ -60,28 +62,33 @@ public class ConfigurationManager {
                 WorldType.WORLD_TYPES[type.getId()] = null;
             }
             
-            for (final Entry<Integer, DimensionType> set : ConfigurationManager.dimensionTypes.entrySet())
+            for (final Integer id : ConfigurationManager.instance.registeredDimensions)
             {
-                if (DimensionManager.isDimensionRegistered(set.getKey()))
+                if (DimensionManager.isDimensionRegistered(id))
                 {
-                    if (!ConfigurationManager.instance.dimensionMapCopy.containsKey(set.getKey()))
+                    if (!ConfigurationManager.instance.dimensionMapCopy.containsKey(id))
                     {
-                        DimensionManager.unregisterDimension(set.getKey());
+                        Topography.instance.getLog().info("Unregistering Dimension " + id);
+                        DimensionManager.unregisterDimension(id);
                     }
-                    else if (DimensionManager.getProviderType(set.getKey()) != ConfigurationManager.instance.dimensionMapCopy.get(set.getKey()))
+                    else if (DimensionManager.getProviderType(id) != ConfigurationManager.instance.dimensionMapCopy.get(id))
                     {
-                        DimensionManager.unregisterDimension(set.getKey());
-                        DimensionManager.registerDimension(set.getKey(), ConfigurationManager.instance.dimensionMapCopy.get(set.getKey()));
+                        Topography.instance.getLog().info("Unregistering Dimension " + id);
+                        DimensionManager.unregisterDimension(id);
+                        Topography.instance.getLog().info("Registering Dimension " + id);
+                        DimensionManager.registerDimension(id, ConfigurationManager.instance.dimensionMapCopy.get(id));
                     }
                 }
             }
             
             ConfigurationManager.instance = null;
         }
+        Topography.instance.getLog().info("Done clean-up");
     }
     
     public void registerDimensions()
     {
+        Topography.instance.getLog().info("Re-Registering dimensions");
         this.loadDimensionMap();
         final ConfigPreset preset = this.getPreset();
         
@@ -103,24 +110,31 @@ public class ConfigurationManager {
                 
                 if (DimensionManager.isDimensionRegistered(dimension))
                 {
+                    Topography.instance.getLog().info("Unregistering Dimension " + dimension);
                     DimensionManager.unregisterDimension(dimension);
                 }
+                Topography.instance.getLog().info("Registering Dimension " + dimension);
                 DimensionManager.registerDimension(dimension, type);
+                this.registeredDimensions.add(dimension);
             }
         }
+        Topography.instance.getLog().info("Done Re-Registering dimensions");
     }
     
     private void loadDimensionMap()
     {
+        Topography.instance.getLog().info("Caching dimensions");
         for (final DimensionType type : DimensionType.values())
         {
             final int[] dimensions = DimensionManager.getDimensions(type);
             
             for (int i = 0; i < dimensions.length; i++)
             {
+                Topography.instance.getLog().info("Caching Dimension " + dimensions[i]);
                 this.dimensionMapCopy.put(dimensions[i], type);
             }
         }
+        Topography.instance.getLog().info("Done caching dimensions");
     }
     
     

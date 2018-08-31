@@ -57,7 +57,7 @@ public class GuiCustomizeWorldType extends GuiScreen
             switch (button.id)
             {
                 case 300:
-                    this.parent.chunkProviderSettingsJson = presets.get(this.list.getIndex()).getName();
+                    this.parent.chunkProviderSettingsJson = "{\"Topography-Preset\":\"" + presets.get(this.list.getIndex()).getName() + "\"}";
                     this.mc.displayGuiScreen(this.parent);
                     break;
                 case 301:

@@ -1,8 +1,12 @@
 package com.bloodnbonesgaming.topography.proxy;
 
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.ServerEventSubscriber;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.WorldType;
@@ -27,25 +31,41 @@ public class ServerProxy extends CommonProxy
         {
             final DedicatedServer server = (DedicatedServer) event.getServer();
             
-            String s1 = server.getStringProperty("level-type", "DEFAULT");
-            WorldType worldType = WorldType.parseWorldType(s1);
-            
-            if (worldType instanceof WorldTypeCustomizable)
-            {
-                ConfigurationManager.setup();
+//            String s1 = server.getStringProperty("level-type", "DEFAULT");
+//            WorldType worldType = WorldType.parseWorldType(s1);
+//            
+//            if (worldType instanceof WorldTypeCustomizable)
+//            {
+//                ConfigurationManager.setup();
+//                
+//                String backup = "";
+//                
+//                for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
+//                {
+//                    backup = name;
+//                    break;
+//                }
                 
-                String backup = "";
+                String settings = server.getStringProperty("generator-settings", "");
                 
-                for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
+                if (!settings.isEmpty())
                 {
-                    backup = name;
-                    break;
+                    final JsonParser parser = new JsonParser();
+                    Topography.instance.getLog().info("reading json " + settings);
+                    JsonElement element = parser.parse(settings);
+                    if (element.isJsonObject())
+                    {
+                        JsonObject obj = (JsonObject) element;
+                        JsonElement member = obj.get("Topography-Preset");
+                        if (member != null)
+                        {
+                            settings = member.getAsString();
+                        }
+                    }
+                    ConfigurationManager.setGeneratorSettings(settings);
+                    ConfigurationManager.getInstance().registerDimensions();
                 }
-                
-                final String settings = server.getStringProperty("generator-settings", backup);
-                ConfigurationManager.setGeneratorSettings(settings);
-                ConfigurationManager.getInstance().registerDimensions();
-            }
+//            }
         }
     }
 }

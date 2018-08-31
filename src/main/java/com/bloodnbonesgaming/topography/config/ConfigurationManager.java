@@ -94,6 +94,7 @@ public class ConfigurationManager {
         
         if (preset != null)
         {
+            Topography.instance.getLog().info("dim preset " + preset.getName());
             for (final int dimension : preset.getDimensions())
             {
                 final DimensionType type;
@@ -161,6 +162,20 @@ public class ConfigurationManager {
     public ConfigPreset registerPreset(final String name, final String image, final String description)
     {
         final ConfigPreset preset = new ConfigPreset(name, image, description);
+        this.presets.put(name, preset);
+        return preset;
+    }
+    
+    public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType)
+    {
+        final ConfigPreset preset = new ConfigPreset(name, image, description, worldType);
+        this.presets.put(name, preset);
+        return preset;
+    }
+    
+    public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType, final String generatorOptions)
+    {
+        final ConfigPreset preset = new ConfigPreset(name, image, description, worldType, generatorOptions);
         this.presets.put(name, preset);
         return preset;
     }

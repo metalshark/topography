@@ -26,8 +26,8 @@ public class EventSubscriber
     @SubscribeEvent
     public void onCreateWorldSpawn(final WorldEvent.CreateSpawnPosition event)
     {
-        if (event.getWorld().getWorldType() instanceof WorldTypeCustomizable)
-        {
+//        if (event.getWorld().getWorldType() instanceof WorldTypeCustomizable)
+//        {
             final WorldProvider provider = event.getWorld().provider;
             
             if (provider instanceof WorldProviderConfigurable)
@@ -87,13 +87,14 @@ public class EventSubscriber
                         
                         if (spawn != null)
                         {
+                            event.getWorld().getGameRules().setOrCreateGameRule("spawnRadius", "0");
                             event.getWorld().getWorldInfo().setSpawn(spawn.add(0, 64, 0));
                             event.setCanceled(true);
                         }
                     }
                 }
             }
-        }
+//        }
     }
     
     @SubscribeEvent

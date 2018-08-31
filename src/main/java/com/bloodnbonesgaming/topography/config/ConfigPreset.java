@@ -9,6 +9,8 @@ public class ConfigPreset
     private final String name;
     private final String image;
     private final String description;
+    private final String worldType;
+    private final String generatorSettings;
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     
@@ -19,9 +21,21 @@ public class ConfigPreset
     
     public ConfigPreset(final String name, final String image, final String description)
     {
+        this(name, image, description, null, null);
+    }
+    
+    public ConfigPreset(final String name, final String image, final String description, final String worldType)
+    {
+        this(name, image, description, worldType, null);
+    }
+    
+    public ConfigPreset(final String name, final String image, final String description, final String worldType, final String generatorOptions)
+    {
         this.name = name;
         this.image = image;
         this.description = description;
+        this.worldType = worldType;
+        this.generatorSettings = generatorOptions;
     }
     
     public void registerDimension(final int dimension, final String script) throws Exception
@@ -52,5 +66,15 @@ public class ConfigPreset
     public String getDescription()
     {
         return this.description;
+    }
+    
+    public String getWorldType()
+    {
+        return this.worldType;
+    }
+    
+    public String getGeneratorOptions()
+    {
+        return this.generatorSettings;
     }
 }

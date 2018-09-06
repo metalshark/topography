@@ -55,24 +55,15 @@ public class ClientProxy extends CommonProxy
                         if (member != null)
                         {
                             settings = member.getAsString();
-                        }
-                    }
-                    ConfigurationManager.setup();
-                    
-                    if (settings.isEmpty())
-                    {
-                        for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
-                        {
-                            settings = name;
-                            break;
+                            ConfigurationManager.setup();
+                            ConfigurationManager.setGeneratorSettings(settings);
+                            ConfigurationManager.getInstance().registerDimensions();
                         }
                     }
 //                    server.worldSettings.setGeneratorOptions(settings);
 //                    Topography.instance.getLog().info("Replacing WorldType");
 //                    server.worldSettings.terrainType = WorldType.parseWorldType("compactsky");
                     
-                    ConfigurationManager.setGeneratorSettings(settings);
-                    ConfigurationManager.getInstance().registerDimensions();
                 }
             }
         }

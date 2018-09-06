@@ -50,11 +50,15 @@ public class WorldTypeCustomizable extends WorldType
         return this.getName();
     }
     
-    public GuiCreateWorld gui = null;
+    public static GuiCreateWorld gui = null;
     
     @Override
     public void onGUICreateWorldPress()
     {        
+        if (gui.chunkProviderSettingsJson.isEmpty())
+        {
+            gui.chunkProviderSettingsJson = "{\"Topography-Preset\":\"" + ConfigurationManager.getInstance().getPreset().getName() + "\"}";
+        }
         String settings = gui.chunkProviderSettingsJson;
         ConfigurationManager.setup();
         final JsonParser parser = new JsonParser();

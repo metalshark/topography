@@ -27,7 +27,7 @@ public class ServerProxy extends CommonProxy
     {
         super.onServerAboutToStart(event);
         
-        if (event.getServer() instanceof DedicatedServer)
+        if (event.getServer() instanceof DedicatedServer && event.getServer().isDedicatedServer())
         {
             final DedicatedServer server = (DedicatedServer) event.getServer();
             

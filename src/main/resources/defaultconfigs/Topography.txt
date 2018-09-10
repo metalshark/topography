@@ -1,5 +1,8 @@
 //If this file is deleted, a new set of default configs will be generated.
 
+//Sets the Topography WorldType as default
+setAsDefaultWorldType()
+
 //Registers a preset. First argument is name, second is the image name, third is a description, fourth is WorldType, fifth is generator options Json.
 basicSkyIslands = registerPreset("Basic Sky Islands", "images/Sky Islands", "Sky Islands of various biomes and sizes.")
 basicSkyIslands.registerDimension(0, "Sky Islands/Basic Sky Islands")
@@ -13,7 +16,7 @@ glassLavaSkyIslands.registerDimension(0, "Sky Islands/Glass n Lava Sky Islands")
 cell = registerPreset("Cell Nether", "images/Closed Roof Cell Nether", "Nether generation using cell noise.")
 cell.registerDimension(-1, "Cell Nether/Cell Nether")
 
-BoP = registerPreset("Biomes o Plenty with Cell Nether", "images/Open Roof Cell Nether", "Requires Biomes o Plenty. Is really just here as an example of how to use Topography dimensions and a WorldType from another mod at the same time.", "BIOMESOP")
+BoP = registerPreset("Biomes o Plenty with Cell Nether", "images/Closed Roof Cell Nether", "Requires Biomes o Plenty. Is really just here as an example of how to use Topography dimensions and a WorldType from another mod at the same time.", "BIOMESOP")
 BoP.registerDimension(-1, "Cell Nether/Cell Nether")
 
 SF4 = registerPreset("Sky Factory IIII", "images/Open Roof Cell Nether", "Insert memes.")

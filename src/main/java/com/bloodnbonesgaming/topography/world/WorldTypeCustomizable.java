@@ -62,9 +62,11 @@ public class WorldTypeCustomizable extends WorldType
         String settings = gui.chunkProviderSettingsJson;
         ConfigurationManager.setup();
         final JsonParser parser = new JsonParser();
-        {
-            JsonElement element = parser.parse(settings);
+        
+        try {
             Topography.instance.getLog().info("reading json " + settings);
+            JsonElement element = parser.parse(settings);
+            
             if (element.isJsonObject())
             {
                 Topography.instance.getLog().info("Is obj");
@@ -76,6 +78,9 @@ public class WorldTypeCustomizable extends WorldType
                     settings = member.getAsString();
                 }
             }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
         }
         if (settings.isEmpty())
         {

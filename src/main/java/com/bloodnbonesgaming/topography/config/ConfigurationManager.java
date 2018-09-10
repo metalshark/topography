@@ -26,6 +26,8 @@ public class ConfigurationManager {
     
     private String generatorSettings = null;
     
+    private boolean defaultWorldType = false;
+    
     private static ConfigurationManager instance;
     
     public static ConfigurationManager getInstance()
@@ -178,6 +180,16 @@ public class ConfigurationManager {
         final ConfigPreset preset = new ConfigPreset(name, image, description, worldType, generatorOptions);
         this.presets.put(name, preset);
         return preset;
+    }
+    
+    public void setAsDefaultWorldType()
+    {
+        this.defaultWorldType = true;
+    }
+    
+    public boolean defaultWorldType()
+    {
+        return this.defaultWorldType;
     }
     
 //    public void registerWorldType(final String name, final String script) throws Exception

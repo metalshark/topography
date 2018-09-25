@@ -28,7 +28,7 @@ public class WorldTypeCustomizable extends WorldType
     public void onCustomizeButton(net.minecraft.client.Minecraft mc, net.minecraft.client.gui.GuiCreateWorld guiCreateWorld)
     {
         mc.displayGuiScreen(new GuiCustomizeWorldType(guiCreateWorld));
-        this.gui = guiCreateWorld;
+        WorldTypeCustomizable.gui = guiCreateWorld;
     }
 
     @Override
@@ -132,6 +132,10 @@ public class WorldTypeCustomizable extends WorldType
                     gui.chunkProviderSettingsJson = newOptions;
                 }
             }
+        }
+        if (preset.hardcore())
+        {
+            gui.hardCoreMode = true;
         }
 //        gui.chunkProviderSettingsJson = "{\"Topography-Preset\":\"" + settings + "\",\"schema\":\"test002\"}";
         

@@ -42,6 +42,7 @@ public class DimensionDefinition
     private boolean skylight = true;
     private float[] lightBrightnessTable = null;
     private boolean resetRelightChecks = false;
+    private final List<EntityEffect> entityEffects = new ArrayList<EntityEffect>();
     
     
     private Integer singleBiome = null;
@@ -196,5 +197,22 @@ public class DimensionDefinition
     public void enableRelightChecks()
     {
         this.resetRelightChecks = true;
+    }
+    
+    public List<EntityEffect> getEntityEffects()
+    {
+        return this.entityEffects;
+    }
+    
+    public EntityEffect addEntityEffect()
+    {
+        return this.addEntityEffect(0);
+    }
+    
+    public EntityEffect addEntityEffect(final int frequency)
+    {
+        final EntityEffect effect = new EntityEffect(frequency);
+        this.entityEffects.add(effect);
+        return effect;
     }
 }

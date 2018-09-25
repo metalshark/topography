@@ -39,11 +39,11 @@ public class WorldProviderConfigurable extends WorldProvider
 //        this.nether = true;
 //        this.hasSkyLight = false;
         
-        if (this.getDimension() != 0)
-        {
-            final World world = DimensionManager.getWorld(0);
-            this.generatorSettings = world.getWorldInfo().getGeneratorOptions();
-        }
+//        if (this.getDimension() != 0)
+//        {
+//            final World world = DimensionManager.getWorld(0);
+//            this.generatorSettings = world.getWorldInfo().getGeneratorOptions();
+//        }
         this.type = DimensionManager.getProviderType(this.getDimension());
         this.hasSkyLight = true;
 
@@ -60,6 +60,11 @@ public class WorldProviderConfigurable extends WorldProvider
             IOHelper.loadDimensionDefinition(script, definition);
             this.biomeProvider = this.definition.getBiomeProvider(this.world);
             this.hasSkyLight = this.definition.skylight();
+            
+            if (preset.hardcore())
+            {
+                this.world.getWorldInfo().setHardcore(true);
+            }
         }
         else
         {

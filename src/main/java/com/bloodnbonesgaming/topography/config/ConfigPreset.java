@@ -12,6 +12,8 @@ public class ConfigPreset
     private final String worldType;
     private final String generatorSettings;
     
+    private boolean enableHardcore;
+    
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     
     public ConfigPreset(final String name, final String image)
@@ -76,5 +78,15 @@ public class ConfigPreset
     public String getGeneratorOptions()
     {
         return this.generatorSettings;
+    }
+    
+    public boolean hardcore()
+    {
+        return this.enableHardcore;
+    }
+    
+    public void enableHardcore()
+    {
+        this.enableHardcore = true;
     }
 }

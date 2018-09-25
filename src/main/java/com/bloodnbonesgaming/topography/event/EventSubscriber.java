@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.config.EntityEffect;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -122,4 +124,18 @@ public class EventSubscriber
 //            }
 //        }
 //    }
+    
+    @SubscribeEvent
+    public void onEntityTick(final LivingUpdateEvent event)
+    {
+        if (event.getEntityLiving().world.provider instanceof WorldProviderConfigurable)
+        {
+            final WorldProviderConfigurable provider = (WorldProviderConfigurable) event.getEntityLiving().world.provider;
+            
+            for (final EntityEffect effect : provider.getDefinition().getEntityEffects())
+            {
+                effect.apply(event.getEntityLiving());
+            }
+        }
+    }
 }

@@ -59,7 +59,6 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void loadComplete(final FMLLoadCompleteEvent event)
     {
-//        ConfigurationManager.setup();
     }
 
     @EventHandler

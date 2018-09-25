@@ -13,6 +13,9 @@ materialSkyIslands.registerDimension(0, "Sky Islands/Material Sky Islands")
 glassLavaSkyIslands = registerPreset("Glass n Lava Sky Islands", "images/Glass and Lava Sky Islands", "Sky Islands made up of glass with lava cores.")
 glassLavaSkyIslands.registerDimension(0, "Sky Islands/Glass n Lava Sky Islands")
 
+hungryDarkness = registerPreset("Hungry Darkness", "images/Sky Islands", "Sky Islands of various biomes and sizes, but darkness below light level 7 deals damage to entities, including players.")
+hungryDarkness.registerDimension(0, "Sky Islands/Hungry Darkness")
+
 cell = registerPreset("Cell Nether", "images/Closed Roof Cell Nether", "Nether generation using cell noise.")
 cell.registerDimension(-1, "Cell Nether/Cell Nether")
 
@@ -34,6 +37,11 @@ SF4.registerDimension(-1, "SF4/Cell Nether")
 SF4 = registerPreset("Sky Factory IIII on Chunk", "images/Open Roof Cell Nether", "")
 SF4.registerDimension(0, "SF4/Dirt Tree on Chunk")
 SF4.registerDimension(-1, "SF4/Cell Nether")
+
+SF4 = registerPreset("Sky Factory IIII Hardcore", "images/Open Roof Cell Nether", "")
+SF4.registerDimension(0, "SF4/Hardcore")
+SF4.registerDimension(-1, "SF4/Cell Nether")
+SF4.enableHardcore()
 
 bnb2 = registerPreset("BnB 2.0", "The nether in this preset requires NetherEx and Thermal Foundation.")
 bnb2.registerDimension(0, "Sky Islands/Basic Sky Islands")

@@ -10,11 +10,11 @@ import java.util.UUID;
 
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.util.EDamageSource;
+import com.bloodnbonesgaming.topography.util.EntityType;
 import com.bloodnbonesgaming.topography.util.ExtendedDamageSource;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,6 +27,7 @@ public class EntityEffect
 {
     private final int frequency;
     private List<ResourceLocation> effectedEntities = new ArrayList<ResourceLocation>();
+    private List<EntityType> types = new ArrayList<EntityType>();
     private MinMaxBounds lightLevel = MinMaxBounds.UNBOUNDED;
     private Boolean canSeeSky = null;
     
@@ -62,9 +63,20 @@ public class EntityEffect
     
     private boolean acceptableEntity(final EntityLivingBase entity)
     {
-        if (!effectedEntities.isEmpty())
+        if (!this.types.isEmpty())
         {
-            for (final ResourceLocation location : effectedEntities)
+            for (final EntityType type : this.types)
+            {
+                if (type.isAcceptable(entity))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (!this.effectedEntities.isEmpty())
+        {
+            for (final ResourceLocation location : this.effectedEntities)
             {
                 if (location.getResourcePath().equalsIgnoreCase("player"))
                 {
@@ -131,9 +143,33 @@ public class EntityEffect
             if (instance != null && !instance.hasModifier(attribute.getValue()))
             {
                 instance.applyModifier(attribute.getValue());
+                
+                if (attribute.getKey().equals("generic.maxHealth"))
+                {
+                    entity.heal(entity.getMaxHealth());
+                }
             }
         }
     }
+    
+    
+    
+    
+    
+    public void addEntityType(final String string) throws Exception
+    {
+        final EntityType type = EntityType.valueOf(string.toUpperCase());
+        
+        if (type != null)
+        {
+            this.types.add(type);
+        }
+        else
+        {
+            throw new Exception(string + " is not a valid entity type!");
+        }
+    }
+    
     
     
     

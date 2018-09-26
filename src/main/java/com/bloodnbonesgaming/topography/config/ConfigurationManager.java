@@ -23,6 +23,7 @@ public class ConfigurationManager {
     private final Map<Integer, DimensionType> dimensionMapCopy = new HashMap<Integer, DimensionType>();
     private static final Map<Integer, DimensionType> dimensionTypes = new HashMap<Integer, DimensionType>();
     private final List<Integer> registeredDimensions = new ArrayList<Integer>();
+    private final LockHandler locks = new LockHandler();
     
     private String generatorSettings = null;
     
@@ -52,6 +53,7 @@ public class ConfigurationManager {
         ConfigurationManager.cleanUp();
         ConfigurationManager.instance = new ConfigurationManager();
         ConfigurationManager.instance.readWorldTypes();
+        ConfigurationManager.instance.loadLockHandler();
     }
     
     public static void cleanUp()
@@ -221,5 +223,25 @@ public class ConfigurationManager {
             }
         }
         return preset;
+    }
+    
+    public LockHandler getLockHandler()
+    {
+        return this.locks;
+    }
+    
+    private void loadLockHandler()
+    {
+        IOHelper.loadUnlockFile(this.locks);
+    }
+    
+    public boolean unlockPreset(final String preset)
+    {
+        if (this.locks.unlock(preset))
+        {
+            IOHelper.saveUnlockFile(this.locks);
+            return true;
+        }
+        return false;
     }
 }

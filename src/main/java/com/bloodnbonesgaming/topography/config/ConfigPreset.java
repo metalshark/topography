@@ -15,6 +15,7 @@ public class ConfigPreset
     private boolean enableHardcore;
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
+    private boolean locked = false;
     
     public ConfigPreset(final String name, final String image)
     {
@@ -88,5 +89,15 @@ public class ConfigPreset
     public void enableHardcore()
     {
         this.enableHardcore = true;
+    }
+    
+    public void lock()
+    {
+        this.locked = true;
+    }
+    
+    public boolean locked()
+    {
+        return this.locked ? !ConfigurationManager.getInstance().getLockHandler().unlocked(this.name) : false;
     }
 }

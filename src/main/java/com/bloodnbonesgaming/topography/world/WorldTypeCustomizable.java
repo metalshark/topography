@@ -1,5 +1,7 @@
 package com.bloodnbonesgaming.topography.world;
 
+import java.util.Map.Entry;
+
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.GuiCustomizeWorldType;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
@@ -84,10 +86,13 @@ public class WorldTypeCustomizable extends WorldType
         }
         if (settings.isEmpty())
         {
-            for (final String name : ConfigurationManager.getInstance().getPresets().keySet())
+            for (final Entry<String, ConfigPreset> entry : ConfigurationManager.getInstance().getPresets().entrySet())
             {
-                settings = name;
-                break;
+                if (!entry.getValue().locked())
+                {
+                    settings = entry.getKey();
+                    break;
+                }
             }
         }
         ConfigurationManager.setGeneratorSettings(settings);
@@ -136,6 +141,7 @@ public class WorldTypeCustomizable extends WorldType
         if (preset.hardcore())
         {
             gui.hardCoreMode = true;
+            gui.gameMode = "hardcore";
         }
 //        gui.chunkProviderSettingsJson = "{\"Topography-Preset\":\"" + settings + "\",\"schema\":\"test002\"}";
         

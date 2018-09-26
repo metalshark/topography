@@ -12,7 +12,7 @@ import com.bloodnbonesgaming.lib.util.FileHelper;
 import com.bloodnbonesgaming.lib.util.script.ScriptUtil;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
-import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.config.LockHandler;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -83,5 +83,27 @@ public class IOHelper
     public static boolean loadDimensionDefinition(final String name, final DimensionDefinition definition)
     {        
         return ScriptUtil.readScript(new File(ModInfo.SCRIPT_FOLDER + name + ".txt"), definition, definition.classKeywords);
+    }
+    
+    public static boolean loadUnlockFile(final LockHandler handler)
+    {
+        final File file = new File(ModInfo.UNLOCK_FILE);
+        
+        if (!file.exists())
+        {
+            return false;
+        }
+        return ScriptUtil.readScript(new File(ModInfo.UNLOCK_FILE), handler, null);
+    }
+    
+    public static void saveUnlockFile(final LockHandler handler)
+    {
+        final File file = new File(ModInfo.UNLOCK_FILE);
+        
+        if (!file.exists())
+        {
+            file.getParentFile().mkdirs();
+        }
+        FileHelper.writeText(file, handler.getUnlocks());
     }
 }

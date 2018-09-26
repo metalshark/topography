@@ -67,7 +67,12 @@ public class GuiCustomizeWorldType extends GuiScreen
                         
                         for (int i = 0; i < 10 && index == this.list.getIndex(); i++)
                         {
-                            index = this.rand.nextInt(this.presets.size());
+                            int randInt = this.rand.nextInt(this.presets.size());
+                            
+                            if (!this.presets.get(randInt).locked())
+                            {
+                                index = randInt;
+                            }
                         }
                         this.list.elementClicked(index, false);
                     }
@@ -129,5 +134,7 @@ public class GuiCustomizeWorldType extends GuiScreen
                 this.texture.setRelRender(0.5, 0.5);
             }
         }
+        //Lock
+        this.done.enabled = !preset.locked();
     }
 }

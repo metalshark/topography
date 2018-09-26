@@ -10,4 +10,5 @@ public class ModInfo
     public static final String MAIN_CONFIG_FILE = "./config/topography/Topography.txt";
     public static final String SCRIPT_FOLDER = "./config/topography/";
     public static final String STRUCTURE_FOLDER = "./config/topography/structures/";
+    public static final String UNLOCK_FILE = "./topography/data/unlocks.txt";
 }

@@ -104,7 +104,6 @@ public class EventSubscriber
                         
                         if (spawn != null)
                         {
-                        	Topography.instance.getLog().info(spawn.toString());
                             event.getWorld().getGameRules().setOrCreateGameRule("spawnRadius", "0");
                             event.getWorld().getWorldInfo().setSpawn(spawn.add(0, 64, 0));
                             event.setCanceled(true);

@@ -70,11 +70,6 @@ public class WorldProviderConfigurable extends WorldProvider
         {
             this.biomeProvider = new BiomeProvider(this.world.getWorldInfo());
         }
-        
-        
-        Topography.instance.getLog().info("Sunset: " + this.calculateCelestialAngle(11616, 0) + " " + this.calculateCelestialAngle(13800, 0));
-        Topography.instance.getLog().info("Sunrise: " + this.calculateCelestialAngle(22550, 0) + " " + this.calculateCelestialAngle(450, 0));
-        Topography.instance.getLog().info("24000 " + this.calculateCelestialAngle(24000, 0) + " 0 " + this.calculateCelestialAngle(0, 0));
     }
     
     public DimensionDefinition getDefinition()

@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.proxy;
 
-import com.bloodnbonesgaming.lib.util.JsonHelper;
+import java.io.File;
+
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.ClientEventSubscriber;
@@ -9,10 +10,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandSenderWrapper;
+import net.minecraft.command.FunctionObject;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 
 public class ClientProxy extends CommonProxy
@@ -32,10 +38,7 @@ public class ClientProxy extends CommonProxy
         if (event.getServer() instanceof IntegratedServer)
         {
             final IntegratedServer server = (IntegratedServer) event.getServer();
-                        
-//            WorldType worldType = server.worldSettings.getTerrainType();
-//            
-//            if (worldType instanceof WorldTypeCustomizable)
+            
             if (ConfigurationManager.getInstance() != null)
             {
                 ISaveHandler isavehandler = Minecraft.getMinecraft().getSaveLoader().getSaveLoader(server.getFolderName(), false);
@@ -58,12 +61,23 @@ public class ClientProxy extends CommonProxy
                             ConfigurationManager.setup();
                             ConfigurationManager.setGeneratorSettings(settings);
                             ConfigurationManager.getInstance().registerDimensions();
+                            
+//                    		final File regionFile = new File("./saves/" + server.getFolderName() + "/region");
+//                    		
+//                    		if (!regionFile.exists() || regionFile.listFiles() == null)
+//                    		{
+//                    			Topography.instance.getLog().info("Region folder doesn't exist or has no files.");
+//                    			
+//                    			final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialServerFunction();
+//                    			
+//                    			if (function != null)
+//                    			{
+//                                	FunctionObject functionobject = server.getFunctionManager().getFunction(function);
+//                                	server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(server).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+//                    			}
+//                    		}
                         }
                     }
-//                    server.worldSettings.setGeneratorOptions(settings);
-//                    Topography.instance.getLog().info("Replacing WorldType");
-//                    server.worldSettings.terrainType = WorldType.parseWorldType("compactsky");
-                    
                 }
             }
         }

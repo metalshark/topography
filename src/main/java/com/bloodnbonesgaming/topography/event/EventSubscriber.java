@@ -7,21 +7,36 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.EntityEffect;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
+import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import net.minecraft.command.CommandSenderWrapper;
+import net.minecraft.command.FunctionObject;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class EventSubscriber
 {
@@ -89,6 +104,7 @@ public class EventSubscriber
                         
                         if (spawn != null)
                         {
+                        	Topography.instance.getLog().info(spawn.toString());
                             event.getWorld().getGameRules().setOrCreateGameRule("spawnRadius", "0");
                             event.getWorld().getWorldInfo().setSpawn(spawn.add(0, 64, 0));
                             event.setCanceled(true);
@@ -137,5 +153,80 @@ public class EventSubscriber
                 effect.apply(event.getEntityLiving());
             }
         }
+    }
+    
+    @SubscribeEvent
+    public void playerLoginEvent(final PlayerLoggedInEvent event)
+    {
+    	if (!event.player.world.isRemote)
+    	{
+    		if (ConfigurationManager.getInstance() != null)
+    		{
+    			final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialPlayerFunction();
+    			
+    			if (function != null)
+    			{
+            		final NBTTagCompound nbt = event.player.getEntityData();
+            		
+            		if (!nbt.hasKey(EntityPlayer.PERSISTED_NBT_TAG))
+            		{
+            			nbt.setTag(EntityPlayer.PERSISTED_NBT_TAG, new NBTTagCompound());
+            		}
+            		
+            		final NBTTagCompound persistent = nbt.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+            		
+            		if (!persistent.hasKey("topography_initial"))
+            		{
+            			final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+            			
+                        FunctionObject functionobject = server.getFunctionManager().getFunction(function);
+                        server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+            			persistent.setBoolean("topography_initial", true);
+            		}
+    			}
+    		}
+    	}
+    }
+    
+    @SubscribeEvent
+    public void onWorldTick(final WorldTickEvent event)
+    {
+    	if (event.phase == TickEvent.Phase.START)
+    	{
+    		if (event.world.provider.getDimension() == 0)
+            {
+    			if (!WorldSavedDataTopography.exists(event.world))
+				{
+    				String settings = event.world.getWorldInfo().getGeneratorOptions();
+                    
+                	if (!settings.isEmpty())
+                	{
+                        final JsonParser parser = new JsonParser();
+                        JsonElement element = parser.parse(settings);
+                        
+                        if (element.isJsonObject())
+                        {
+                            if (((JsonObject) element).has("Topography-Preset"))
+                            {
+                            	final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialServerFunction();
+                    			
+                    			if (function != null)
+                    			{
+                    				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+                        			
+                                    FunctionObject functionobject = server.getFunctionManager().getFunction(function);
+                                    
+                                    if (functionobject != null)
+                                    {
+                                    	Topography.instance.getLog().info("Running initial server function.");
+    	                                server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(server).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+                                    }
+                    			}
+                            }
+                        }
+                	}
+				}
+            }
+    	}
     }
 }

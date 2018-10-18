@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.util.ResourceLocation;
+
 public class ConfigPreset
 {
     private final String name;
@@ -13,6 +15,8 @@ public class ConfigPreset
     private final String generatorSettings;
     
     private boolean enableHardcore;
+    private ResourceLocation initialPlayerFunction = null;
+    private ResourceLocation initialServerFunction = null;
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     private boolean locked = false;
@@ -99,5 +103,25 @@ public class ConfigPreset
     public boolean locked()
     {
         return this.locked ? !ConfigurationManager.getInstance().getLockHandler().unlocked(this.name) : false;
+    }
+    
+    public void setInitialPlayerFunction(final String function)
+    {
+    	this.initialPlayerFunction = new ResourceLocation(function);
+    }
+    
+    public ResourceLocation getInitialPlayerFunction()
+    {
+    	return this.initialPlayerFunction;
+    }
+    
+    public void setInitialServerFunction(final String function)
+    {
+    	this.initialServerFunction = new ResourceLocation(function);
+    }
+    
+    public ResourceLocation getInitialServerFunction()
+    {
+    	return this.initialServerFunction;
     }
 }

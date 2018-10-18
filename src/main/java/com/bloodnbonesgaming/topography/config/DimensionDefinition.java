@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.bloodnbonesgaming.lib.util.script.ArgType;
+import com.bloodnbonesgaming.lib.util.script.ClientOnly;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
+import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
 import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorVoid;
@@ -43,7 +45,9 @@ public class DimensionDefinition
     private float[] lightBrightnessTable = null;
     private boolean resetRelightChecks = false;
     private final List<EntityEffect> entityEffects = new ArrayList<EntityEffect>();
+    private boolean canRespawn = true;
     
+    private SkyRendererCustom skyRenderer = null;
     
     private Integer singleBiome = null;
     
@@ -215,4 +219,25 @@ public class DimensionDefinition
         this.entityEffects.add(effect);
         return effect;
     }
+
+	public boolean canRespawn() {
+		return this.canRespawn;
+	}
+	
+	public void disableRespawning() {
+		this.canRespawn = false;
+	}
+	
+	@ClientOnly
+	public SkyRendererCustom getSkyRenderer()
+	{
+		return this.skyRenderer;
+	}
+	
+	@ClientOnly
+	public SkyRendererCustom setSkyRenderer()
+	{
+		this.skyRenderer = new SkyRendererCustom();
+		return this.skyRenderer;
+	}
 }

@@ -13,6 +13,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptUtil;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.LockHandler;
+import com.bloodnbonesgaming.topography.util.FixedTemplate;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -46,7 +47,7 @@ public class IOHelper
                 
 //                if (nbt != null)
                 {
-                    final Template template = new Template();
+                    final Template template = new FixedTemplate();
                     template.read(nbt);
                     
                     return template;

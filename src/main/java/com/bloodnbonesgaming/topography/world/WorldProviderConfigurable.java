@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.renderer.CloudRendererDisabled;
+import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererDisabled;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
@@ -13,7 +14,6 @@ import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
@@ -72,7 +72,9 @@ public class WorldProviderConfigurable extends WorldProvider
         }
         
         
-        
+        Topography.instance.getLog().info("Sunset: " + this.calculateCelestialAngle(11616, 0) + " " + this.calculateCelestialAngle(13800, 0));
+        Topography.instance.getLog().info("Sunrise: " + this.calculateCelestialAngle(22550, 0) + " " + this.calculateCelestialAngle(450, 0));
+        Topography.instance.getLog().info("24000 " + this.calculateCelestialAngle(24000, 0) + " 0 " + this.calculateCelestialAngle(0, 0));
     }
     
     public DimensionDefinition getDefinition()
@@ -134,6 +136,16 @@ public class WorldProviderConfigurable extends WorldProvider
     {
         if (!this.definition.renderSky())
             return SkyRendererDisabled.instance;
+        else
+        {
+        	final SkyRendererCustom renderer = this.definition.getSkyRenderer();
+        	
+        	if (renderer != null)
+        	{
+        		return renderer;
+        	}
+        }
+//        return SkyRendererTexture.instance;
         return super.getSkyRenderer();
     }
     
@@ -169,5 +181,10 @@ public class WorldProviderConfigurable extends WorldProvider
     public boolean shouldClientCheckLighting()
     {
         return this.definition.resetRelightChecks();
+    }
+    
+    @Override
+    public boolean canRespawnHere() {
+    	return this.definition.canRespawn();
     }
 }

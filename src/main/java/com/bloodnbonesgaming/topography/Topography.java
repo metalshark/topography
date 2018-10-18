@@ -72,12 +72,13 @@ public class Topography extends BNBGamingMod
     public void serverStarting(final FMLServerStartingEvent event) throws IOException
     {
         event.registerServerCommand(new TopographyCommand());
+        Topography.instance.getLog().info("StartingEvent");
     }
 
     @EventHandler
     public void serverStarted(final FMLServerStartedEvent event) throws IOException
     {
-        
+        Topography.instance.getLog().info("StartedEvent");
     }
 
     @EventHandler

@@ -24,6 +24,13 @@ public class SkyRendererCustom  extends IRenderHandler {
 		}
 	}
 	
+	public SkyboxRenderer addSkybox(final String singleTexture)
+	{
+		final SkyboxRenderer skybox = new SkyboxRenderer(singleTexture);
+		this.renderObjects.add(skybox);
+		return skybox;
+	}
+	
 	public SkyboxRenderer addSkybox(final String topTexture, final String bottomTexture, final String northTexture, final String southTexture, final String eastTexture, final String westTexture)
 	{
 		final SkyboxRenderer skybox = new SkyboxRenderer(topTexture, bottomTexture, northTexture, southTexture, eastTexture, westTexture);

@@ -79,37 +79,6 @@ public class EventSubscriber
                         break;
                     }
                 }
-    
-                if (!event.getWorld().getWorldInfo().isInitialized())
-                {
-                    final String structure = worldProvider.getDefinition().getSpawnStructure();
-                    
-                    if (structure != null)
-                    {
-                        for (int x = -3; x < 4; x++)
-                        {
-                            for (int z = -4; z < 4; z++)
-                            {
-                                event.getWorld().getChunkProvider().provideChunk(x, z);
-                            }
-                        }
-                        
-                        final Template template = IOHelper.loadStructureTemplate(structure);
-    
-                        Topography.instance.getLog().info("Spawning structure");
-    
-                        template.addBlocksToWorld(event.getWorld(), new BlockPos(0, 64, 0), new PlacementSettings(), 0);
-                        
-                        final BlockPos spawn = StructureHelper.getSpawn(template);
-                        
-                        if (spawn != null)
-                        {
-                            event.getWorld().getGameRules().setOrCreateGameRule("spawnRadius", "0");
-                            event.getWorld().getWorldInfo().setSpawn(spawn.add(0, 64, 0));
-                            event.setCanceled(true);
-                        }
-                    }
-                }
             }
 //        }
     }
@@ -219,6 +188,36 @@ public class EventSubscriber
                                     {
                                     	Topography.instance.getLog().info("Running initial server function.");
     	                                server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(server).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+                                    }
+                    			}
+                    			if (event.world.provider instanceof WorldProviderConfigurable)
+                    			{
+                    				final String structure = ((WorldProviderConfigurable)event.world.provider).getDefinition().getSpawnStructure();
+                                    
+                                    if (structure != null)
+                                    {
+                                        for (int x = -3; x < 4; x++)
+                                        {
+                                            for (int z = -4; z < 4; z++)
+                                            {
+                                                event.world.getChunkProvider().provideChunk(x, z);
+                                            }
+                                        }
+                                        
+                                        final Template template = IOHelper.loadStructureTemplate(structure);
+                    
+                                        Topography.instance.getLog().info("Spawning structure");
+                    
+                                        template.addBlocksToWorld(event.world, new BlockPos(0, 64, 0), new PlacementSettings(), 0);
+                                        
+                                        final BlockPos spawn = StructureHelper.getSpawn(template);
+                                        
+                                        if (spawn != null)
+                                        {
+                                            event.world.getGameRules().setOrCreateGameRule("spawnRadius", "0");
+                                            event.world.getWorldInfo().setSpawn(spawn.add(0, 64, 0));
+//                                            event.setCanceled(true);
+                                        }
                                     }
                     			}
                             }

@@ -393,7 +393,7 @@ public class SkyboxRenderer extends SkyRenderObject {
 	        double yStartPos = height / this.singleTexture.getHeight();
 	        double xEndPos = width * 2 / this.singleTexture.getWidth();
 	        double yEndPos = height * 2 / this.singleTexture.getHeight();
-	        Topography.instance.getLog().info(xStartPos + " " + yStartPos + " " + xEndPos + " " + yEndPos + " " + width + " " + height);
+//	        Topography.instance.getLog().info(xStartPos + " " + yStartPos + " " + xEndPos + " " + yEndPos + " " + width + " " + height);
 	
 			bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 	

@@ -65,6 +65,21 @@ public class WorldProviderConfigurable extends WorldProvider
             {
                 this.world.getWorldInfo().setHardcore(true);
             }
+            
+            if (this.world.isRemote)
+            {
+            	if (!this.definition.renderSky())
+                    this.setSkyRenderer(SkyRendererDisabled.instance);
+                else
+                {
+                	final SkyRendererCustom renderer = this.definition.getSkyRenderer();
+                	
+                	if (renderer != null)
+                	{
+                		this.setSkyRenderer(renderer);
+                	}
+                }
+            }
         }
         else
         {
@@ -124,25 +139,24 @@ public class WorldProviderConfigurable extends WorldProvider
         return super.calculateCelestialAngle(worldTime, partialTicks);
     }
     
-    @Override
-    @Nullable
-    @SideOnly(Side.CLIENT)
-    public net.minecraftforge.client.IRenderHandler getSkyRenderer()
-    {
-        if (!this.definition.renderSky())
-            return SkyRendererDisabled.instance;
-        else
-        {
-        	final SkyRendererCustom renderer = this.definition.getSkyRenderer();
-        	
-        	if (renderer != null)
-        	{
-        		return renderer;
-        	}
-        }
-//        return SkyRendererTexture.instance;
-        return super.getSkyRenderer();
-    }
+//    @Override
+//    @Nullable
+//    @SideOnly(Side.CLIENT)
+//    public net.minecraftforge.client.IRenderHandler getSkyRenderer()
+//    {
+//        if (!this.definition.renderSky())
+//            return SkyRendererDisabled.instance;
+//        else
+//        {
+//        	final SkyRendererCustom renderer = this.definition.getSkyRenderer();
+//        	
+//        	if (renderer != null)
+//        	{
+//        		return renderer;
+//        	}
+//        }
+//        return super.getSkyRenderer();
+//    }
     
     @Override
     @Nullable

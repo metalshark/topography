@@ -9,6 +9,7 @@ import com.bloodnbonesgaming.lib.util.script.ArgType;
 import com.bloodnbonesgaming.lib.util.script.ClientOnly;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
+import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
 import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorVoid;
@@ -34,7 +35,7 @@ import net.minecraft.world.gen.IChunkGenerator;
 public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
-    private String spawnStructure;
+    private SpawnStructure spawnStructure;
     private Integer fogColor;
     private boolean enviromentalFog = false;
     private Float celestialAngle;
@@ -89,10 +90,15 @@ public class DimensionDefinition
     
     public void setSpawnStructure(final String structure)
     {
-        this.spawnStructure = structure;
+        this.setSpawnStructure(structure, 64);
     }
     
-    public String getSpawnStructure()
+    public void setSpawnStructure(final String structure, final int height)
+    {
+        this.spawnStructure = new SpawnStructure(structure, height);
+    }
+    
+    public SpawnStructure getSpawnStructure()
     {
         return this.spawnStructure;
     }

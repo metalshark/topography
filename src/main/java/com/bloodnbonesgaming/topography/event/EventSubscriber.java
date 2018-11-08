@@ -11,6 +11,7 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.EntityEffect;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
@@ -192,7 +193,7 @@ public class EventSubscriber
                     			}
                     			if (event.world.provider instanceof WorldProviderConfigurable)
                     			{
-                    				final String structure = ((WorldProviderConfigurable)event.world.provider).getDefinition().getSpawnStructure();
+                    				final SpawnStructure structure = ((WorldProviderConfigurable)event.world.provider).getDefinition().getSpawnStructure();
                                     
                                     if (structure != null)
                                     {
@@ -204,18 +205,18 @@ public class EventSubscriber
                                             }
                                         }
                                         
-                                        final Template template = IOHelper.loadStructureTemplate(structure);
+                                        final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
                     
                                         Topography.instance.getLog().info("Spawning structure");
                     
-                                        template.addBlocksToWorld(event.world, new BlockPos(0, 64, 0), new PlacementSettings(), 0);
+                                        template.addBlocksToWorld(event.world, new BlockPos(0, structure.getHeight(), 0), new PlacementSettings(), 0);
                                         
                                         final BlockPos spawn = StructureHelper.getSpawn(template);
                                         
                                         if (spawn != null)
                                         {
                                             event.world.getGameRules().setOrCreateGameRule("spawnRadius", "0");
-                                            event.world.getWorldInfo().setSpawn(spawn.add(0, 64, 0));
+                                            event.world.getWorldInfo().setSpawn(spawn.add(0, structure.getHeight(), 0));
 //                                            event.setCanceled(true);
                                         }
                                     }

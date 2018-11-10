@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.Topography;
@@ -28,6 +30,8 @@ public class ConfigurationManager {
     private String generatorSettings = null;
     
     private boolean defaultWorldType = false;
+
+    private ExecutorService executor;
     
     private static ConfigurationManager instance;
     
@@ -84,7 +88,15 @@ public class ConfigurationManager {
                     }
                 }
             }
-            
+            if (ConfigurationManager.instance.executor != null)
+            {
+                ConfigurationManager.instance.executor.shutdown();
+                try {
+					ConfigurationManager.instance.executor.awaitTermination(1, TimeUnit.MINUTES);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+            }
             ConfigurationManager.instance = null;
         }
         Topography.instance.getLog().info("Done clean-up");
@@ -243,5 +255,14 @@ public class ConfigurationManager {
             return true;
         }
         return false;
+    }
+    
+    public ExecutorService getExecutor()
+    {
+    	if (this.executor == null)
+    	{
+    		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    	}
+    	return this.executor;
     }
 }

@@ -1,20 +1,16 @@
 package com.bloodnbonesgaming.topography.world.generator;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.topography.util.InterpolationTest;
 import com.bloodnbonesgaming.topography.util.noise.FastNoise;
-import com.bloodnbonesgaming.topography.util.noise.ThreadedFastNoise;
+import com.bloodnbonesgaming.topography.util.noise.RunnableFastNoise;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -27,7 +23,7 @@ public class CellNoiseGenerator implements IGenerator
 {
     final FastNoise noise = new FastNoise();
     protected OpenSimplexNoiseGeneratorOctaves skewNoise;
-    double[] smallNoiseArray = new double[825];
+    double[] smallNoiseArray = new double[10449];
     double[] largeNoiseArray = new double[65536];
     IBlockState state = Blocks.AIR.getDefaultState();
     boolean invert = false;
@@ -92,19 +88,66 @@ public class CellNoiseGenerator implements IGenerator
     {
     	long start = System.currentTimeMillis();
     	
-    	List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
+//    	List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
+//    	
+//    	for (int i = 0; i < 16; i++)
+//    	{
+//    		callables.add(Executors.callable(new ThreadedFastNoise(primer, state, world.getSeed(), i * 16, chunkX, chunkZ, openTop, closeTop)));
+//    	}
+//    	try {
+//			this.service.invokeAll(callables);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
     	
-    	for (int i = 0; i < 16; i++)
-    	{
-    		callables.add(Executors.callable(new ThreadedFastNoise(primer, state, world.getSeed(), i * 16, chunkX, chunkZ, openTop, closeTop)));
-    	}
-    	try {
-			this.service.invokeAll(callables);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	
+    	RunnableFastNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
+    	InterpolationTest.interpolate(this.smallNoiseArray, this.largeNoiseArray, 9, 129, 9, 2, 2, 2);
     	System.out.println(System.currentTimeMillis() - start);
+        
+        for (int x = 0; x < 16; x++)
+        {
+            final int realX = x + chunkX * 16;
+            
+            for (int z = 0; z < 16; z++)
+            {
+                final int realZ = z + chunkZ * 16;
+                
+                for (int y = 0; y < 256; y++)
+                {
+                    final double value = this.largeNoiseArray[(x * 16 + z) * 256 + y];
+                    
+                    double scale = 0;
+                    
+                    if (this.closeTop)
+                    {
+                        if (y >= 224)
+                        {
+                            scale = (32 - (256 - y)) / 32.0;
+                        }
+                    }
+                    else if (this.openTop)
+                    {
+                        if (y >= 224)
+                        {
+                            scale = -((32 - (256 - y)) / 64.0);
+                        }
+                    }
+                        if (value + scale > -0.15)
+                        {
+                            {
+                                IBlockState block = this.state;
+                                
+                                primer.setBlockState(x, y, z, block);
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                }
+            }
+        }
+    	
     }
     
     public void invert()

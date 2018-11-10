@@ -1,13 +1,20 @@
 package com.bloodnbonesgaming.topography.world.generator;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.util.noise.FastNoise;
+import com.bloodnbonesgaming.topography.util.noise.ThreadedFastNoise;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -26,6 +33,7 @@ public class CellNoiseGenerator implements IGenerator
     boolean invert = false;
     boolean closeTop = false;
     boolean openTop = true;
+    final ExecutorService service = Executors.newFixedThreadPool(4);
     
     public CellNoiseGenerator()
     {        
@@ -33,6 +41,8 @@ public class CellNoiseGenerator implements IGenerator
         noise.SetFrequency(0.005f);
         noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
         noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+        System.out.println("Processors: " + Runtime.getRuntime().availableProcessors());
+        
     }
     
     public CellNoiseGenerator(final ItemBlockData data) throws Exception
@@ -80,84 +90,21 @@ public class CellNoiseGenerator implements IGenerator
     @Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
     {
-        this.noise.SetSeed((int) world.getSeed());
-        this.skewNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
-        this.generateNoise(smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
-        NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
-        
-        for (int x = 0; x < 16; x++)
-        {
-            final int realX = x + chunkX * 16;
-            
-            for (int z = 0; z < 16; z++)
-            {
-                final int realZ = z + chunkZ * 16;
-                
-                for (int y = 0; y < 256; y++)
-                {
-                    final double value = this.largeNoiseArray[(x * 16 + z) * 256 + y];
-                    
-                    double scale = 0;
-                    
-                    if (this.closeTop)
-                    {
-                        if (y >= 224)
-                        {
-                            scale = (32 - (256 - y)) / 32.0;
-                        }
-                    }
-                    else if (this.openTop)
-                    {
-                        if (y >= 224)
-                        {
-                            scale = -((32 - (256 - y)) / 64.0);
-                        }
-                    }
-                    
-//                    if (!invert)
-//                    {
-                        if (value + scale > -0.15)
-                        {
-//                            float skew = (float) (this.skewNoise.eval(realX / 32.0, y / 32.0, realZ / 32.0, 3, 0.5) * 8);
-//
-//                            float value2 = noise2.GetNoise(realX + skew, y + skew, realZ + skew) + scale;
-                            
-//                            if (value2 < -0.85)
-                            {
-                                IBlockState block = this.state;
-                                
-//                                for (final Entry<MinMaxBounds, IBlockState> entry : this.blocks.entrySet())
-//                                {
-//                                    if (entry.getKey().test(value2))
-//                                    {
-//                                        block = entry.getValue();
-//                                        break;
-//                                    }
-//                                }
-                                primer.setBlockState(x, y, z, block);
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
-//                    }
-//                    else
-//                    {
-//                        float skew = (float) (this.skewNoise.eval(realX / 32.0, y / 32.0, realZ / 32.0, 3, 0.5) * 16);
-//
-//                        if (value < -0.85 && noise2.GetNoise(realX + skew, y + skew, realZ + skew) < -0.85)
-//                        {
-//                            continue;
-//                        }
-//                        else
-//                        {
-//                            primer.setBlockState(x, y, z, state);
-//                        }
-//                    }
-                }
-            }
-        }
+    	long start = System.currentTimeMillis();
+    	
+    	List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
+    	
+    	for (int i = 0; i < 16; i++)
+    	{
+    		callables.add(Executors.callable(new ThreadedFastNoise(primer, state, world.getSeed(), i * 16, chunkX, chunkZ, openTop, closeTop)));
+    	}
+    	try {
+			this.service.invokeAll(callables);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    	
+    	System.out.println(System.currentTimeMillis() - start);
     }
     
     public void invert()
@@ -174,5 +121,10 @@ public class CellNoiseGenerator implements IGenerator
     public GenLayer getLayer(World world, GenLayer parent)
     {
         return null;
+    }
+    
+    public static synchronized void setBlock(final int x, final int y, final int z, final ChunkPrimer primer, final IBlockState state)
+    {
+    	primer.setBlockState(x, y, z, state);
     }
 }

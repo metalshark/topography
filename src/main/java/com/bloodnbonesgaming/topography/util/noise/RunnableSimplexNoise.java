@@ -34,7 +34,7 @@ public class RunnableSimplexNoise implements Runnable{
 			for (int z = 0; z < 9; z++)
 			{
 //				float skew = (float) (this.skewNoise.eval((x + xI * xCoordinateScale) / 32.0, (y + yI * yCoordinateScale) / 32.0, (z + zI * zCoordinateScale) / 32.0, 3, 0.5) * 16);
-				final double value = this.noise.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5);
+				final double value = this.noise.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 1, 0.5);
 				
 				RunnableSimplexNoise.addToArray(value, (x * 9 + z) * 129 + this.height);
 			}

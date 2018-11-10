@@ -9,20 +9,16 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 
 public class RunnableFastNoise implements Runnable{
 	
-	final FastNoise noise = new FastNoise();
+	final FastNoise noise;
 	
 	final int startX;
 	final int startY;
 	final int startZ;
 	final int height;
 
-	public RunnableFastNoise(final long seed, final double[] array, final int height, final int startX, final int startY, final int startZ)
+	public RunnableFastNoise(final long seed, final double[] array, final FastNoise noise, final int height, final int startX, final int startY, final int startZ)
 	{
-		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.005f);
-        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
-        this.noise.SetSeed((int) seed);
+		this.noise = noise;
         this.startX = startX;
         this.startY = startY;
         this.startZ = startZ;
@@ -54,10 +50,16 @@ public class RunnableFastNoise implements Runnable{
 	{
 		RunnableFastNoise.array = array;
 		final List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
+		FastNoise noise = new FastNoise();
+		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
+        noise.SetFrequency(0.005f);
+        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+        noise.SetSeed((int) seed);
 		
 		for (int y = 0; y < 129; y++)
 		{
-			callables.add(Executors.callable(new RunnableFastNoise(seed, null, y, startX, startY, startZ)));
+			callables.add(Executors.callable(new RunnableFastNoise(seed, null, noise, y, startX, startY, startZ)));
 		}
 		
 		try {

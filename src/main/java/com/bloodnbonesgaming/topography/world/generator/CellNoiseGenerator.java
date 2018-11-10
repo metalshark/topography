@@ -10,7 +10,7 @@ import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.util.InterpolationTest;
 import com.bloodnbonesgaming.topography.util.noise.FastNoise;
-import com.bloodnbonesgaming.topography.util.noise.RunnableFastNoise;
+import com.bloodnbonesgaming.topography.util.noise.RunnableSimplexNoise;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -24,6 +24,7 @@ public class CellNoiseGenerator implements IGenerator
     final FastNoise noise = new FastNoise();
     protected OpenSimplexNoiseGeneratorOctaves skewNoise;
     double[] smallNoiseArray = new double[10449];
+    double[] skewNoiseArray = new double[10449];
     double[] largeNoiseArray = new double[65536];
     IBlockState state = Blocks.AIR.getDefaultState();
     boolean invert = false;
@@ -99,10 +100,11 @@ public class CellNoiseGenerator implements IGenerator
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
-    	
-    	RunnableFastNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
+
+    	RunnableSimplexNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
     	InterpolationTest.interpolate(this.smallNoiseArray, this.largeNoiseArray, 9, 129, 9, 2, 2, 2);
     	System.out.println(System.currentTimeMillis() - start);
+//    	RunnableFastNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
         
         for (int x = 0; x < 16; x++)
         {
@@ -118,21 +120,21 @@ public class CellNoiseGenerator implements IGenerator
                     
                     double scale = 0;
                     
-                    if (this.closeTop)
-                    {
-                        if (y >= 224)
-                        {
-                            scale = (32 - (256 - y)) / 32.0;
-                        }
-                    }
-                    else if (this.openTop)
-                    {
-                        if (y >= 224)
-                        {
-                            scale = -((32 - (256 - y)) / 64.0);
-                        }
-                    }
-                        if (value + scale > -0.15)
+//                    if (this.closeTop)
+//                    {
+//                        if (y >= 224)
+//                        {
+//                            scale = (32 - (256 - y)) / 32.0;
+//                        }
+//                    }
+//                    else if (this.openTop)
+//                    {
+//                        if (y >= 224)
+//                        {
+//                            scale = -((32 - (256 - y)) / 64.0);
+//                        }
+//                    }
+                        if (value + scale > 0.5)
                         {
                             {
                                 IBlockState block = this.state;

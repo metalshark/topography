@@ -5,24 +5,21 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
+import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 
-public class RunnableFastNoise implements Runnable{
+public class RunnableSimplexNoise implements Runnable{
 	
-	final FastNoise noise = new FastNoise();
+    protected OpenSimplexNoiseGeneratorOctaves noise;
 	
 	final int startX;
 	final int startY;
 	final int startZ;
 	final int height;
 
-	public RunnableFastNoise(final long seed, final double[] array, final int height, final int startX, final int startY, final int startZ)
+	public RunnableSimplexNoise(final long seed, final double[] array, final int height, final OpenSimplexNoiseGeneratorOctaves noise, final int startX, final int startY, final int startZ)
 	{
-		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.005f);
-        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
-        this.noise.SetSeed((int) seed);
+		this.noise = noise;
         this.startX = startX;
         this.startY = startY;
         this.startZ = startZ;
@@ -36,9 +33,10 @@ public class RunnableFastNoise implements Runnable{
 		{
 			for (int z = 0; z < 9; z++)
 			{
-				final double value = this.noise.GetNoise(x * 2 + this.startX, this.height * 2 + this.startY, z * 2 + this.startZ);
+//				float skew = (float) (this.skewNoise.eval((x + xI * xCoordinateScale) / 32.0, (y + yI * yCoordinateScale) / 32.0, (z + zI * zCoordinateScale) / 32.0, 3, 0.5) * 16);
+				final double value = this.noise.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5);
 				
-				RunnableFastNoise.addToArray(value, (x * 9 + z) * 129 + this.height);
+				RunnableSimplexNoise.addToArray(value, (x * 9 + z) * 129 + this.height);
 			}
 		}
 	}
@@ -47,17 +45,19 @@ public class RunnableFastNoise implements Runnable{
 	
 	public static synchronized void addToArray(final double value, final int arrayIndex)
 	{
-		RunnableFastNoise.array[arrayIndex] = value;
+		RunnableSimplexNoise.array[arrayIndex] = value;
 	}
 	
 	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ)
 	{
-		RunnableFastNoise.array = array;
+		RunnableSimplexNoise.array = array;
 		final List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
+
+		OpenSimplexNoiseGeneratorOctaves noise = new OpenSimplexNoiseGeneratorOctaves(seed);
 		
 		for (int y = 0; y < 129; y++)
 		{
-			callables.add(Executors.callable(new RunnableFastNoise(seed, null, y, startX, startY, startZ)));
+			callables.add(Executors.callable(new RunnableSimplexNoise(seed, null, y, noise, startX, startY, startZ)));
 		}
 		
 		try {

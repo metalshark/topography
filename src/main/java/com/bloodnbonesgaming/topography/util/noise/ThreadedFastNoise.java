@@ -65,7 +65,7 @@ public class ThreadedFastNoise implements Runnable{
                     }
                     if (value + scale > -0.15)
                     {
-                    	CellNoiseGenerator.setBlock(x, y, z, primer, state);
+//                    	CellNoiseGenerator.setBlock(x, y, z, primer, state);
                     }
                     else
                     {

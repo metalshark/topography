@@ -16,18 +16,16 @@ public class RunnableSimplexNoise implements Runnable{
 	final int startY;
 	final int startZ;
 	final int height;
-	final int layerCount;
 	final double[] layerArray;
 
-	public RunnableSimplexNoise(final long seed, final double[] array, final int height, final OpenSimplexNoiseGeneratorOctaves noise, final int startX, final int startY, final int startZ, final int layerCount)
+	public RunnableSimplexNoise(final long seed, final int height, final OpenSimplexNoiseGeneratorOctaves noise, final int startX, final int startY, final int startZ)
 	{
 		this.noise = noise;
         this.startX = startX;
         this.startY = startY;
         this.startZ = startZ;
         this.height = height;
-        this.layerCount = layerCount;
-        this.layerArray = new double[81 * layerCount];
+        this.layerArray = new double[81];
 	}
 	
 	@Override
@@ -37,15 +35,10 @@ public class RunnableSimplexNoise implements Runnable{
 		{
 			for (int z = 0; z < 9; z++)
 			{
-				for (int y = 0; y < this.layerCount; y++)
-				{
-					final double value = this.noise.eval((x * 2 + this.startX) / 32.0, ((this.height + y) * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5);
-//					RunnableSimplexNoise.addToArray(value, (x * 9 + z) * 129 + this.height);
-					this.layerArray[(x * 9 + z) * this.layerCount + y] = value;
-				}
+				this.layerArray[x * 9 + z] = this.noise.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5);
 			}
 		}
-		RunnableSimplexNoise.addToArray(this.layerArray, this.height, this.layerCount);
+		RunnableSimplexNoise.addToArray(this.layerArray, this.height);
 	}
 	
 	private static double[] array = null;
@@ -55,16 +48,13 @@ public class RunnableSimplexNoise implements Runnable{
 		RunnableSimplexNoise.array[arrayIndex] = value;
 	}
 	
-	public static synchronized void addToArray(final double[] layerArray, final int layerHeight, final int layerCount)
+	public static synchronized void addToArray(final double[] layerArray, final int layerHeight)
 	{
 		for (int x = 0; x < 9; x++)
 		{
 			for (int z = 0; z < 9; z++)
 			{
-				for (int y = 0; y < layerCount; y++)
-				{
-					RunnableSimplexNoise.array[(x * 9 + z) * 129 + layerHeight + y] = layerArray[(x * 9 + z) * layerCount + y];
-				}
+				RunnableSimplexNoise.array[(x * 9 + z) * 129 + layerHeight] = layerArray[x * 9 + z];
 			}
 		}
 	}
@@ -76,16 +66,9 @@ public class RunnableSimplexNoise implements Runnable{
 
 		OpenSimplexNoiseGeneratorOctaves noise = new OpenSimplexNoiseGeneratorOctaves(seed);
 		
-		for (int y = 0; y < 129; y+=10)
+		for (int y = 0; y < 129; y++)
 		{
-			if (y + 10 < 129)
-			{
-				callables.add(Executors.callable(new RunnableSimplexNoise(seed, null, y, noise, startX, startY, startZ, 10)));
-			}
-			else
-			{
-				callables.add(Executors.callable(new RunnableSimplexNoise(seed, null, y, noise, startX, startY, startZ, 129-y)));
-			}
+			callables.add(Executors.callable(new RunnableSimplexNoise(seed, y, noise, startX, startY, startZ)));
 		}
 		
 		try {

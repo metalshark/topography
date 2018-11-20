@@ -2,6 +2,7 @@ package com.bloodnbonesgaming.topography.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaGlowstone
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaLavaPocketGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaQuartzGenerator;
 
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
@@ -36,7 +38,6 @@ public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
     private SpawnStructure spawnStructure;
-    private Integer fogColor;
     private boolean enviromentalFog = false;
     private Float celestialAngle;
     private boolean renderSky = true;
@@ -47,8 +48,11 @@ public class DimensionDefinition
     private boolean resetRelightChecks = false;
     private final List<EntityEffect> entityEffects = new ArrayList<EntityEffect>();
     private boolean canRespawn = true;
+    private boolean captureTeleports = false;
     
     private SkyRendererCustom skyRenderer = null;
+    
+    private final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fog = new LinkedHashMap<Integer, Map<MinMaxBounds, MinMaxBounds>>();
     
     private Integer singleBiome = null;
     
@@ -105,12 +109,28 @@ public class DimensionDefinition
     
     public void setFogColor(final int color)
     {
-        this.fogColor = color;
+    	this.addFogColor(color);
     }
     
-    public Integer getFogColor()
+    public void addFogColor(final int color)
     {
-        return this.fogColor;
+        this.addFogColor(color, new MinMaxBounds(0.0F, 1.0F), new MinMaxBounds(1.0F, 1.0F));
+    }
+    
+    public void addFogColor(final int color, final MinMaxBounds angle, final MinMaxBounds alpha)
+    {
+    	if (!this.fog.containsKey(color))
+    	{
+        	this.fog.put(color, new LinkedHashMap<MinMaxBounds, MinMaxBounds>());
+    	}
+    	final Map<MinMaxBounds, MinMaxBounds> map = this.fog.get(color);
+    	
+    	map.put(angle, alpha);
+    }
+    
+    public Map<Integer, Map<MinMaxBounds, MinMaxBounds>> getFog()
+    {
+    	return this.fog;
     }
     
     public void enableEnviromentalFog()
@@ -245,5 +265,15 @@ public class DimensionDefinition
 	{
 		this.skyRenderer = new SkyRendererCustom();
 		return this.skyRenderer;
+	}
+	
+	public void captureTeleports()
+	{
+		this.captureTeleports = true;
+	}
+	
+	public boolean shouldCaptureTeleports()
+	{
+		return this.captureTeleports;
 	}
 }

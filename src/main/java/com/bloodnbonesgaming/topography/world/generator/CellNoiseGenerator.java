@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.util.InterpolationTest;
@@ -23,7 +24,7 @@ import net.minecraft.world.gen.layer.GenLayer;
 
 public class CellNoiseGenerator implements IGenerator
 {
-    double[] smallNoiseArray = new double[10449];
+    double[] smallNoiseArray = new double[825];
     double[] largeNoiseArray = new double[65536];
     IBlockState state = Blocks.AIR.getDefaultState();
     boolean invert = false;
@@ -60,13 +61,14 @@ public class CellNoiseGenerator implements IGenerator
     @Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
     {
-    	long start = System.nanoTime();
 
 //    	RunnableSimplexNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
 //    	RunnableFastNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
-    	RunnableSimplexSkewedCellNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
-    	InterpolationTest.interpolate(this.smallNoiseArray, this.largeNoiseArray, 9, 129, 9, 2, 2, 2);
-    	System.out.println(System.nanoTime() - start);
+    	RunnableSimplexSkewedCellNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16, 5, 33, 4, 8);
+//    	InterpolationTest.interpolate(this.smallNoiseArray, this.largeNoiseArray, 4, 52, 5, 5);
+//    	long start = System.nanoTime();
+    	NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
+//    	System.out.println(System.nanoTime() - start);
         
         for (int x = 0; x < 16; x++)
         {            

@@ -1,5 +1,8 @@
 package com.bloodnbonesgaming.topography.world;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.annotation.Nullable;
 
 import com.bloodnbonesgaming.topography.IOHelper;
@@ -11,6 +14,8 @@ import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
@@ -101,16 +106,65 @@ public class WorldProviderConfigurable extends WorldProvider
     
     
     @SideOnly(Side.CLIENT)
-    public Vec3d getFogColor(float p_76562_1_, float p_76562_2_)
+    public Vec3d getFogColor(float celestialAngle, float p_76562_2_)
     {
-        final Integer fogColor = this.definition.getFogColor();
+    	final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fogMap = this.definition.getFog();
+    	
+    	if (fogMap != null)
+    	{
+    		Vec3d color = new Vec3d(0, 0, 0);
+    		float totalAlpha = 0;
+    		
+    		for (final Entry<Integer, Map<MinMaxBounds, MinMaxBounds>> fog : fogMap.entrySet())
+    		{
+    			float alpha = 0.0F;
+    			
+    			for (final Entry<MinMaxBounds, MinMaxBounds> entry : fog.getValue().entrySet())
+    			{
+    				if (entry.getKey().test(celestialAngle))
+    				{
+    					final MinMaxBounds key = entry.getKey();
+    					final MinMaxBounds value = entry.getValue();
+    					
+    					if (value.min != null && value.max != null)
+    					{
+    						float diff = key.max - key.min;
+    						float distIntoRange = celestialAngle - key.min;
+    						float percent = distIntoRange / diff;
+    						
+    						if (value.min > value.max)
+    						{
+    							float alphaDiff = value.min - value.max;
+    							alpha = value.min - alphaDiff * percent;
+    						}
+    						else
+    						{
+    							float alphaDiff = value.max - value.min;
+    							alpha = value.min + alphaDiff * percent;
+    						}
+    						break;
+    					}
+    				}
+    			}
+    			float remaining = 1.0F - totalAlpha;
+    			color = color.addVector(((((fog.getKey() >> 16) & 255) / 255F) * alpha) * remaining, ((((fog.getKey() >> 8) & 255) / 255F) * alpha) * remaining, (((fog.getKey() & 255) / 255F) * alpha) * remaining);
+    			totalAlpha += (alpha * remaining);
+    			
+    			if (alpha == 1.0F)
+    			{
+    				break;
+    			}
+    		}
+    		return color;
+    	}
+//        final Integer fogColor = this.definition.getFogColor();
+//        
+//        if (fogColor != null)
+//        {
+//            return new Vec3d(((fogColor >> 16) & 255) / 255F, ((fogColor >> 8) & 255) / 255F, (fogColor & 255) / 255F);
+//        }
         
-        if (fogColor != null)
-        {
-            return new Vec3d(((fogColor >> 16) & 255) / 255F, ((fogColor >> 8) & 255) / 255F, (fogColor & 255) / 255F);
-        }
-        
-        float f = MathHelper.cos(p_76562_1_ * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
+        float f = MathHelper.cos(celestialAngle * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         float f1 = 0.7529412F;
         float f2 = 0.84705883F;
@@ -195,5 +249,14 @@ public class WorldProviderConfigurable extends WorldProvider
     @Override
     public boolean canRespawnHere() {
     	return this.definition.canRespawn();
+    }
+    
+    @Override
+    public BlockPos getSpawnCoordinate() {
+    	if (this.getDimension() == 1)
+    	{
+    		return new BlockPos(100, 50, 0);
+    	}
+    	return null;
     }
 }

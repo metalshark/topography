@@ -18,8 +18,12 @@ public class RunnableSimplexSkewedCellNoise implements Runnable{
 	final int startZ;
 	final int height;
 	final double[] layerArray;
+	final int horizontalSize;
+	final int verticalSize;
+	final int horizontalSpacing;
+	final int verticalSpacing;
 
-	public RunnableSimplexSkewedCellNoise(final long seed, final FastNoise noise, final OpenSimplexNoiseGeneratorOctaves simplex, final int height, final int startX, final int startY, final int startZ)
+	public RunnableSimplexSkewedCellNoise(final long seed, final FastNoise noise, final OpenSimplexNoiseGeneratorOctaves simplex, final int height, final int startX, final int startY, final int startZ, final int horizontalSize, final int verticalSize, final int horizontalSpacing, final int verticalSpacing)
 	{
 		this.noise = noise;
 		this.simplex = simplex;
@@ -27,42 +31,41 @@ public class RunnableSimplexSkewedCellNoise implements Runnable{
         this.startY = startY;
         this.startZ = startZ;
         this.height = height;
-        this.layerArray = new double[81];
+        this.layerArray = new double[horizontalSize * horizontalSize];
+        this.horizontalSize = horizontalSize;
+        this.verticalSize = verticalSize;
+        this.horizontalSpacing = horizontalSpacing;
+        this.verticalSpacing = verticalSpacing;
 	}
 	
 	@Override
 	public void run() {
 		
-		for (int x = 0; x < 9; x++)
+		for (int x = 0; x < this.horizontalSize; x++)
 		{
-			for (int z = 0; z < 9; z++)
+			for (int z = 0; z < this.horizontalSize; z++)
 			{
-				final float skew = (float) (this.simplex.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5) * 16);
-				this.layerArray[x * 9 + z] = this.noise.GetNoise(x * 2 + this.startX + skew, this.height * 2 + this.startY + skew, z * 2 + this.startZ + skew);
+				final float skew = (float) (this.simplex.eval((x * this.horizontalSpacing + this.startX) / 32.0, (this.height * this.verticalSpacing + this.startY) / 32.0, (z * this.horizontalSpacing + this.startZ) / 32.0, 3, 0.5) * 16);
+				this.layerArray[x * this.horizontalSize + z] = this.noise.GetNoise(x * this.horizontalSpacing + this.startX + skew, this.height * this.verticalSpacing + this.startY + skew, z * this.horizontalSpacing + this.startZ + skew);
 			}
 		}
-		RunnableSimplexSkewedCellNoise.addToArray(this.layerArray, this.height);
+		RunnableSimplexSkewedCellNoise.addToArray(this.layerArray, this.height, this.horizontalSize, this.verticalSize);
 	}
 	
 	private static double[] array = null;
 	
-	public static synchronized void addToArray(final double value, final int arrayIndex)
+	public static synchronized void addToArray(final double[] layerArray, final int layerHeight, final int horizontalSize, final int verticalSize)
 	{
-		RunnableSimplexSkewedCellNoise.array[arrayIndex] = value;
-	}
-	
-	public static synchronized void addToArray(final double[] layerArray, final int layerHeight)
-	{
-		for (int x = 0; x < 9; x++)
+		for (int x = 0; x < horizontalSize; x++)
 		{
-			for (int z = 0; z < 9; z++)
+			for (int z = 0; z < horizontalSize; z++)
 			{
-				RunnableSimplexSkewedCellNoise.array[(x * 9 + z) * 129 + layerHeight] = layerArray[x * 9 + z];
+				RunnableSimplexSkewedCellNoise.array[(x * horizontalSize + z) * verticalSize + layerHeight] = layerArray[x * horizontalSize + z];
 			}
 		}
 	}
 	
-	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ)
+	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ, final int horizontalSize, final int verticalSize, final int horizontalSpacing, final int verticalSpacing)
 	{
 		RunnableSimplexSkewedCellNoise.array = array;
 		final List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
@@ -75,9 +78,9 @@ public class RunnableSimplexSkewedCellNoise implements Runnable{
         
 		OpenSimplexNoiseGeneratorOctaves simplex = new OpenSimplexNoiseGeneratorOctaves(seed);
 		
-		for (int y = 0; y < 129; y++)
+		for (int y = 0; y < verticalSize; y++)
 		{
-			callables.add(Executors.callable(new RunnableSimplexSkewedCellNoise(seed, noise, simplex, y, startX, startY, startZ)));
+			callables.add(Executors.callable(new RunnableSimplexSkewedCellNoise(seed, noise, simplex, y, startX, startY, startZ, horizontalSize, verticalSize, horizontalSpacing, verticalSpacing)));
 		}
 		
 		try {

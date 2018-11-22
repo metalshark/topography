@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
@@ -65,11 +66,6 @@ public class WorldProviderConfigurable extends WorldProvider
             IOHelper.loadDimensionDefinition(script, definition);
             this.biomeProvider = this.definition.getBiomeProvider(this.world);
             this.hasSkyLight = this.definition.skylight();
-            
-            if (preset.hardcore())
-            {
-                this.world.getWorldInfo().setHardcore(true);
-            }
             
             if (this.world.isRemote)
             {

@@ -3,7 +3,7 @@ package com.bloodnbonesgaming.topography;
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
-import com.bloodnbonesgaming.topography.command.TopographyCommand;
+import com.bloodnbonesgaming.topography.command.TopographyTreeCommand;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
@@ -71,7 +71,7 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void serverStarting(final FMLServerStartingEvent event) throws IOException
     {
-        event.registerServerCommand(new TopographyCommand());
+        event.registerServerCommand(new TopographyTreeCommand());
     }
 
     @EventHandler

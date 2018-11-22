@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.EnumDifficulty;
 
 public class ConfigPreset
 {
@@ -15,6 +16,8 @@ public class ConfigPreset
     private final String generatorSettings;
     
     private boolean enableHardcore;
+    private EnumDifficulty initialDifficulty = null;
+    private boolean lockDifficulty = false;
     private ResourceLocation initialPlayerFunction = null;
     private ResourceLocation initialServerFunction = null;
     
@@ -123,5 +126,48 @@ public class ConfigPreset
     public ResourceLocation getInitialServerFunction()
     {
     	return this.initialServerFunction;
+    }
+    
+    public void setDifficulty(final int difficulty) throws Exception
+    {
+    	final EnumDifficulty e = EnumDifficulty.getDifficultyEnum(difficulty);
+    	
+    	if (e != null)
+    	{
+    		this.initialDifficulty = e;
+    	}
+    	else
+    	{
+    		throw new Exception(difficulty + " is not a valid difficulty.");
+    	}
+    }
+    
+    public void setDifficulty(final String difficulty) throws Exception
+    {
+    	final EnumDifficulty e = EnumDifficulty.valueOf(difficulty.toUpperCase());
+    	
+    	if (e != null)
+    	{
+    		this.initialDifficulty = e;
+    	}
+    	else
+    	{
+    		throw new Exception(difficulty + " is not a valid difficulty.");
+    	}
+    }
+    
+    public EnumDifficulty getDifficulty()
+    {
+    	return this.initialDifficulty;
+    }
+    
+    public void lockDifficulty()
+    {
+    	this.lockDifficulty = true;
+    }
+    
+    public boolean shouldLockDifficulty()
+    {
+    	return this.lockDifficulty;
     }
 }

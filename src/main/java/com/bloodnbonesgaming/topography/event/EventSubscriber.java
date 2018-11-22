@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.EntityEffect;
@@ -184,6 +185,23 @@ public class EventSubscriber
                             {
                                 if (((JsonObject) element).has("Topography-Preset"))
                                 {
+                                	final ConfigPreset preset = ConfigurationManager.getInstance().getPreset();
+                                    
+                                    if (preset.getDifficulty() != null)
+                                    {
+                                    	event.world.getWorldInfo().setDifficulty(preset.getDifficulty());
+                                    }
+                                    
+                                    if (preset.shouldLockDifficulty())
+                                    {
+                                    	event.world.getWorldInfo().setDifficultyLocked(true);
+                                    }
+                                	
+                                    if (preset.hardcore())
+                                    {
+                                    	event.world.getWorldInfo().setHardcore(true);
+                                    }
+                                	
                                 	final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialServerFunction();
                         			
                         			if (function != null)
@@ -259,7 +277,7 @@ public class EventSubscriber
                                                 }
                             	            	Topography.instance.getLog().info("Spawning structure for dimension " + dimension);
                             
-                                                template.addBlocksToWorld(dimWorld, new BlockPos(0, structure.getHeight(), 0), new PlacementSettings(), 0);
+                                                template.addBlocksToWorld(dimWorld, new BlockPos(0, structure.getHeight(), 0), new PlacementSettings(), 2);
                                                 
                                                 if (dimension == 0)
                                                 {

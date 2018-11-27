@@ -92,8 +92,8 @@ public class VanillaNoiseGeneratorImproved extends NoiseGeneratorImproved {
                     double d13 = this.lerp(d8, d11, d12);
                     int j7 = i++;
                     noiseArray[j7] += d13 * d0;
-                    if (l2 == 4 && k3 == 4 && noiseScale == 0.000030517578125)
-                    	Topography.instance.getLog().info(j7 + " " + noiseArray[j7] + " " + d9 + " " + j4);
+//                    if (l2 == 4 && k3 == 4 && noiseScale == 0.000030517578125)
+//                    	Topography.instance.getLog().info(j7 + " " + noiseArray[j7] + " " + d9 + " " + j4);
                 }
             }
         }

@@ -3,7 +3,9 @@ package com.bloodnbonesgaming.topography.event;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -13,7 +15,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public void onOpenGui(final GuiOpenEvent event)
     {
-        if (event.getGui() instanceof GuiCreateWorld)
+        if (event.getGui() instanceof GuiCreateWorld && Minecraft.getMinecraft().currentScreen instanceof GuiWorldSelection)
         {
             ConfigurationManager.setup();
             WorldTypeCustomizable.gui = (GuiCreateWorld) event.getGui();

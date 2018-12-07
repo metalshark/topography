@@ -1,29 +1,30 @@
-package com.bloodnbonesgaming.topography.client.gui;
+package com.bloodnbonesgaming.topography.client.gui.newstuff;
 
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorldTopography;
+import com.bloodnbonesgaming.topography.client.gui.GuiScrollingList;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public class GuiOptionsList extends GuiScrollingList
+public class GuiOptionsListNew extends GuiScrollingList
 {
     final FontRenderer fontRenderer;
     private int selectedIndex = 0;
     final List<ConfigPreset> presets;
-    final GuiCustomizeWorldType parent;
+    final GuiCreateWorldTopography parent;
 
-    public GuiOptionsList(Minecraft client, FontRenderer fontRenderer, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, List<ConfigPreset> presets, GuiCustomizeWorldType parent)
+    public GuiOptionsListNew(Minecraft client, FontRenderer fontRenderer, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, List<ConfigPreset> presets, GuiCreateWorldTopography parent)
     {
         super(client, width, height, top, bottom, left, fontRenderer.FONT_HEIGHT + 11, screenWidth, screenHeight);
         this.fontRenderer = fontRenderer;
@@ -67,14 +68,7 @@ public class GuiOptionsList extends GuiScrollingList
     {
         final String text = this.presets.get(slotIdx).getName();
         
-        String trimmed = fontRenderer.trimStringToWidth(text, this.listWidth - 17);
-        
-        if (!trimmed.equals(text))
-        {
-            trimmed = trimmed.trim().concat("...");
-        }
-        
-        fontRenderer.drawStringWithShadow(trimmed, this.left + 3, slotTop + 4, 0xFFFFFF);
+        fontRenderer.drawStringWithShadow(text, this.left + 3, slotTop + 4, 0xFFFFFF);
         
         if (this.presets.get(slotIdx).locked())
         {

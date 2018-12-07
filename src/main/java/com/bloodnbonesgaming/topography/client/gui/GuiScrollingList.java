@@ -1,88 +1,205 @@
+/*
+ * Minecraft Forge
+ * Copyright (c) 2016-2018.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation version 2.1
+ * of the License.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package com.bloodnbonesgaming.topography.client.gui;
 
-import java.util.List;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.bloodnbonesgaming.topography.config.ConfigPreset;
-
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
-public class GuiOptionsList extends GuiScrollingList
+import java.io.IOException;
+import java.util.List;
+
+public abstract class GuiScrollingList
 {
-    final FontRenderer fontRenderer;
-    private int selectedIndex = 0;
-    final List<ConfigPreset> presets;
-    final GuiCustomizeWorldType parent;
+	protected final Minecraft client;
+    protected final int listWidth;
+    protected final int listHeight;
+    protected final int screenWidth;
+    protected final int screenHeight;
+    protected final int top;
+    protected final int bottom;
+    protected final int right;
+    protected final int left;
+    protected final int slotHeight;
+    protected int scrollUpActionId;
+    protected int scrollDownActionId;
+    protected int mouseX;
+    protected int mouseY;
+    protected float initialMouseClickY = -2.0F;
+    protected float scrollFactor;
+    protected float scrollDistance;
+    protected int selectedIndex = -1;
+    protected long lastClickTime = 0L;
+    protected boolean highlightSelected = true;
+    protected boolean hasHeader;
+    protected int headerHeight;
+    protected boolean captureMouse = true;
 
-    public GuiOptionsList(Minecraft client, FontRenderer fontRenderer, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, List<ConfigPreset> presets, GuiCustomizeWorldType parent)
+    @Deprecated // We need to know screen size.
+    public GuiScrollingList(Minecraft client, int width, int height, int top, int bottom, int left, int entryHeight)
     {
-        super(client, width, height, top, bottom, left, fontRenderer.FONT_HEIGHT + 11, screenWidth, screenHeight);
-        this.fontRenderer = fontRenderer;
-        this.presets = presets;
-        this.parent = parent;
+       this(client, width, height, top, bottom, left, entryHeight, width, height);
     }
-    
-    public int getIndex()
+    public GuiScrollingList(Minecraft client, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight)
     {
-        return this.selectedIndex;
-    }
-
-    @Override
-    protected int getSize()
-    {
-        return this.presets.size();
-    }
-
-    @Override
-    public void elementClicked(int index, boolean doubleClick)
-    {
-        this.selectedIndex = index;
-        this.parent.onListSelected(presets.get(index));
+        this.client = client;
+        this.listWidth = width;
+        this.listHeight = height;
+        this.top = top;
+        this.bottom = bottom;
+        this.slotHeight = entryHeight;
+        this.left = left;
+        this.right = width + this.left;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
     }
 
-    @Override
-    protected boolean isSelected(int index)
+    @Deprecated // Unused, remove in 1.9.3?
+    public void func_27258_a(boolean p_27258_1_)
     {
-        return index == this.selectedIndex;
+        this.highlightSelected = p_27258_1_;
     }
 
-    @Override
-    protected void drawBackground()
+    @Deprecated protected void func_27259_a(boolean hasFooter, int footerHeight){ setHeaderInfo(hasFooter, footerHeight); }
+    protected void setHeaderInfo(boolean hasHeader, int headerHeight)
     {
-        // TODO Auto-generated method stub
-        
+        this.hasHeader = hasHeader;
+        this.headerHeight = headerHeight;
+        if (!hasHeader) this.headerHeight = 0;
     }
 
-    @Override
-    protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
+    protected abstract int getSize();
+
+    protected abstract void elementClicked(int index, boolean doubleClick);
+
+    protected abstract boolean isSelected(int index);
+
+    protected int getContentHeight()
     {
-        final String text = this.presets.get(slotIdx).getName();
-        
-        String trimmed = fontRenderer.trimStringToWidth(text, this.listWidth - 17);
-        
-        if (!trimmed.equals(text))
+        return this.getSize() * this.slotHeight + this.headerHeight;
+    }
+
+    protected abstract void drawBackground();
+
+    /**
+     * Draw anything special on the screen. GL_SCISSOR is enabled for anything that
+     * is rendered outside of the view box. Do not mess with SCISSOR unless you support this.
+     */
+    protected abstract void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess);
+
+    @Deprecated protected void func_27260_a(int entryRight, int relativeY, Tessellator tess) {}
+    /**
+     * Draw anything special on the screen. GL_SCISSOR is enabled for anything that
+     * is rendered outside of the view box. Do not mess with SCISSOR unless you support this.
+     */
+    protected void drawHeader(int entryRight, int relativeY, Tessellator tess) { func_27260_a(entryRight, relativeY, tess); }
+
+    @Deprecated protected void func_27255_a(int x, int y) {}
+    protected void clickHeader(int x, int y) { func_27255_a(x, y); }
+
+    @Deprecated protected void func_27257_b(int mouseX, int mouseY) {}
+    /**
+     * Draw anything special on the screen. GL_SCISSOR is enabled for anything that
+     * is rendered outside of the view box. Do not mess with SCISSOR unless you support this.
+     */
+    protected void drawScreen(int mouseX, int mouseY) { func_27257_b(mouseX, mouseY); }
+
+    @Deprecated // Unused, Remove in 1.9.3?
+    public int func_27256_c(int x, int y)
+    {
+        int left = this.left + 1;
+        int right = this.left + this.listWidth - 7;
+        int relativeY = y - this.top - this.headerHeight + (int)this.scrollDistance - 4;
+        int entryIndex = relativeY / this.slotHeight;
+        return x >= left && x <= right && entryIndex >= 0 && relativeY >= 0 && entryIndex < this.getSize() ? entryIndex : -1;
+    }
+
+    // FIXME: is this correct/still needed?
+    public void registerScrollButtons(List<GuiButton> buttons, int upActionID, int downActionID)
+    {
+        this.scrollUpActionId = upActionID;
+        this.scrollDownActionId = downActionID;
+    }
+
+    protected void applyScrollLimits()
+    {
+        int listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
+
+        if (listHeight < 0)
         {
-            trimmed = trimmed.trim().concat("...");
+            listHeight /= 2;
         }
-        
-        fontRenderer.drawStringWithShadow(trimmed, this.left + 3, slotTop + 4, 0xFFFFFF);
-        
-        if (this.presets.get(slotIdx).locked())
+
+        if (this.scrollDistance < 0.0F)
         {
-            fontRenderer.drawStringWithShadow("X", this.listWidth - 17, slotTop + 4, 0xFF0000);
+            this.scrollDistance = 0.0F;
+        }
+
+        if (this.scrollDistance > (float)listHeight)
+        {
+            this.scrollDistance = (float)listHeight;
         }
     }
-    
-    @Override
+
+    public void actionPerformed(GuiButton button)
+    {
+        if (button.enabled)
+        {
+            if (button.id == this.scrollUpActionId)
+            {
+                this.scrollDistance -= (float)(this.slotHeight * 2 / 3);
+                this.initialMouseClickY = -2.0F;
+                this.applyScrollLimits();
+            }
+            else if (button.id == this.scrollDownActionId)
+            {
+                this.scrollDistance += (float)(this.slotHeight * 2 / 3);
+                this.initialMouseClickY = -2.0F;
+                this.applyScrollLimits();
+            }
+        }
+    }
+
+
+    public void handleMouseInput(int mouseX, int mouseY) throws IOException
+    {
+        boolean isHovering = mouseX >= this.left && mouseX <= this.left + this.listWidth &&
+                             mouseY >= this.top && mouseY <= this.bottom;
+        if (!isHovering)
+            return;
+
+        int scroll = Mouse.getEventDWheel();
+        if (scroll != 0)
+        {
+            this.scrollDistance += (float)((-1 * scroll / 120.0F) * this.slotHeight / 2);
+        }
+    }
+
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.mouseX = mouseX;
@@ -169,24 +286,24 @@ public class GuiOptionsList extends GuiScrollingList
         GL11.glScissor((int)(left      * scaleW), (int)(client.displayHeight - (bottom * scaleH)),
                        (int)(listWidth * scaleW), (int)(viewHeight * scaleH));
 
-//        if (this.client.world != null)
-//        {
+        if (this.client.world != null)
+        {
             this.drawGradientRect(this.left, this.top, this.right, this.bottom, 0xC0101010, 0xD0101010);
-//        }
-//        else // Draw dark dirt background
-//        {
-//            GlStateManager.disableLighting();
-//            GlStateManager.disableFog();
-//            this.client.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
-//            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-//            final float scale = 32.0F;
-//            worldr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-//            worldr.pos(this.left,  this.bottom, 0.0D).tex(this.left  / scale, (this.bottom + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-//            worldr.pos(this.right, this.bottom, 0.0D).tex(this.right / scale, (this.bottom + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-//            worldr.pos(this.right, this.top,    0.0D).tex(this.right / scale, (this.top    + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-//            worldr.pos(this.left,  this.top,    0.0D).tex(this.left  / scale, (this.top    + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-//            tess.draw();
-//        }
+        }
+        else // Draw dark dirt background
+        {
+            GlStateManager.disableLighting();
+            GlStateManager.disableFog();
+            this.client.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            final float scale = 32.0F;
+            worldr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+            worldr.pos(this.left,  this.bottom, 0.0D).tex(this.left  / scale, (this.bottom + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
+            worldr.pos(this.right, this.bottom, 0.0D).tex(this.right / scale, (this.bottom + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
+            worldr.pos(this.right, this.top,    0.0D).tex(this.right / scale, (this.top    + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
+            worldr.pos(this.left,  this.top,    0.0D).tex(this.left  / scale, (this.top    + (int)this.scrollDistance) / scale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
+            tess.draw();
+        }
 
         int baseY = this.top + border - (int)this.scrollDistance;
 
@@ -269,5 +386,10 @@ public class GuiOptionsList extends GuiScrollingList
         GlStateManager.enableAlpha();
         GlStateManager.disableBlend();
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
+    protected void drawGradientRect(int left, int top, int right, int bottom, int color1, int color2)
+    {
+        GuiUtils.drawGradientRect(0, left, top, right, bottom, color1, color2);
     }
 }

@@ -1,5 +1,6 @@
 package com.bloodnbonesgaming.topography.event;
 
+import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorldTopography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
@@ -17,6 +18,7 @@ public class ClientEventSubscriber
     {
         if (event.getGui() instanceof GuiCreateWorld && Minecraft.getMinecraft().currentScreen instanceof GuiWorldSelection)
         {
+        	event.setGui(new GuiCreateWorldTopography(Minecraft.getMinecraft().currentScreen));
             ConfigurationManager.setup();
             WorldTypeCustomizable.gui = (GuiCreateWorld) event.getGui();
             

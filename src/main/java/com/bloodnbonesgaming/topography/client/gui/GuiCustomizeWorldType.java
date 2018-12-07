@@ -84,16 +84,16 @@ public class GuiCustomizeWorldType extends GuiScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawDefaultBackground();
+        if (this.texture != null)
+        {
+            this.texture.render(Minecraft.getMinecraft(), this.width, this.height);
+        }
+//        this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.list.drawScreen(mouseX, mouseY, partialTicks);
         for (final GuiElementText text : this.description)
         {
             text.render(this.fontRenderer, this.width, this.height);
-        }
-        if (this.texture != null)
-        {
-            this.texture.render(Minecraft.getMinecraft(), this.width, this.height);
         }
     }
     
@@ -130,8 +130,8 @@ public class GuiCustomizeWorldType extends GuiScreen
             
             if (image != null)
             {
-                this.texture = new GuiElementTextureStretch(EnumGuiLocation.BOTTOM_RIGHT, this.mc.getTextureManager().getDynamicTextureLocation("presetImage", new DynamicTexture(image)), image.getWidth(), image.getHeight());
-                this.texture.setRelRender(0.5, 0.5);
+                this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, this.mc.getTextureManager().getDynamicTextureLocation("presetImage", new DynamicTexture(image)), image.getWidth(), image.getHeight());
+                this.texture.setRelRender(1, 1);
             }
         }
         //Lock

@@ -25,18 +25,18 @@ public class WorldTypeCustomizable extends WorldType
         super(name);
     }
     
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void onCustomizeButton(net.minecraft.client.Minecraft mc, net.minecraft.client.gui.GuiCreateWorld guiCreateWorld)
-    {
-        mc.displayGuiScreen(new GuiCustomizeWorldType(guiCreateWorld));
-        WorldTypeCustomizable.gui = guiCreateWorld;
-    }
+//    @SideOnly(Side.CLIENT)
+//    @Override
+//    public void onCustomizeButton(net.minecraft.client.Minecraft mc, net.minecraft.client.gui.GuiCreateWorld guiCreateWorld)
+//    {
+//        mc.displayGuiScreen(new GuiCustomizeWorldType(guiCreateWorld));
+//        WorldTypeCustomizable.gui = guiCreateWorld;
+//    }
 
     @Override
     public boolean isCustomizable()
     {
-        return true;
+        return false;
     }
     
     @Override

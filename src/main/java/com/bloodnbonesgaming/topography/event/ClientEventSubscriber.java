@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.event;
 
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorldTopography;
+import com.bloodnbonesgaming.topography.client.gui.GuiWorldSelectionOverride;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
@@ -33,6 +34,10 @@ public class ClientEventSubscriber
                     }
                 }
             }
+        }
+        if (event.getGui() instanceof GuiWorldSelection && !(event.getGui() instanceof GuiWorldSelectionOverride))
+        {
+        	event.setGui(new GuiWorldSelectionOverride(((GuiWorldSelection)event.getGui()).prevScreen));
         }
     }
 }

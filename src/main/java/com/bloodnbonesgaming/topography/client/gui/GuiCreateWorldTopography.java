@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
 import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.ModInfo;
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementText;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
@@ -17,7 +19,12 @@ import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStre
 import com.bloodnbonesgaming.topography.client.gui.newstuff.GuiOptionsListNew;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import io.netty.channel.ChannelFutureListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -33,6 +40,11 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class GuiCreateWorldTopography extends GuiCreateWorld
 {
@@ -48,9 +60,6 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
     	
     	ConfigurationManager.setup();
         this.presets = new ArrayList<ConfigPreset>(ConfigurationManager.getInstance().getPresets().values());
-        
-//        this.done = this.addButton(new GuiButton(300, 98, this.height - 27, 90, 20, I18n.format("gui.done")));
-//        this.random = this.addButton(new GuiButton(301, 8, this.height - 27, 90, 20, "Random"));//TODO localize
     }
 
     /**
@@ -544,17 +553,42 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
 //        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    /**
-     * Set the initial values of a new world to create, from the values from an existing world.
-     *  
-     * Called after construction when a user selects the "Recreate" button.
-     */
+    @Override
     public void recreateFromExistingWorld(WorldInfo original)
     {
         this.worldName = I18n.format("selectWorld.newWorld.copyOf", original.getWorldName());
         this.worldSeed = original.getSeed() + "";
+        this.worldSeedField.setText(this.worldSeed);
         this.selectedIndex = original.getTerrainType().getId();
         this.chunkProviderSettingsJson = original.getGeneratorOptions();
+        if (WorldType.WORLD_TYPES[this.selectedIndex].getName().equals("topography"))
+    	{
+        	if (!chunkProviderSettingsJson.isEmpty())
+            {
+                final JsonParser parser = new JsonParser();
+                JsonElement element = parser.parse(chunkProviderSettingsJson);
+                if (element.isJsonObject())
+                {
+                    JsonObject obj = (JsonObject) element;
+                    JsonElement member = obj.get("Topography-Preset");
+                    
+                    if (member != null)
+                    {
+                    	String presetString = member.getAsString();
+
+                    	for (int i = 0; i < this.presets.size(); i++)
+                    	{
+                    		final ConfigPreset preset = this.presets.get(i);
+                    		
+                    		if (preset.getName().equals(presetString))
+                    		{
+                    			this.list.elementClicked(i, false);
+                    		}
+                    	}
+                    }
+                }
+            }
+    	}
         this.generateStructuresEnabled = original.isMapFeaturesEnabled();
         this.allowCheats = original.areCommandsAllowed();
 
@@ -570,6 +604,7 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
         {
             this.gameMode = "creative";
         }
+        this.updateDisplayState();
     }
     
     

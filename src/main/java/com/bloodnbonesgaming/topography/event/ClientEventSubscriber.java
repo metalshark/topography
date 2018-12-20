@@ -19,8 +19,8 @@ public class ClientEventSubscriber
     {
         if (event.getGui() instanceof GuiCreateWorld && Minecraft.getMinecraft().currentScreen instanceof GuiWorldSelection)
         {
+            //ConfigurationManager.setup();
         	event.setGui(new GuiCreateWorldTopography(Minecraft.getMinecraft().currentScreen));
-            ConfigurationManager.setup();
             WorldTypeCustomizable.gui = (GuiCreateWorld) event.getGui();
             
             if (ConfigurationManager.getInstance().defaultWorldType())

@@ -72,7 +72,7 @@ public class GuiOptionsListNew extends GuiScrollingList
         
         if (this.presets.get(slotIdx).locked())
         {
-            fontRenderer.drawStringWithShadow("X", this.listWidth - 17, slotTop + 4, 0xFF0000);
+            fontRenderer.drawStringWithShadow("X", this.right - 15, slotTop + 4, 0xFF0000);
         }
     }
     

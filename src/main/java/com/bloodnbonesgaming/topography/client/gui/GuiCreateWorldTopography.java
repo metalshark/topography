@@ -106,16 +106,36 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
         this.calcSaveDirName();
         this.updateDisplayState();
         
-        int listSize = 0;
-        
-        for (final ConfigPreset preset : this.presets)
+        if (this.list == null)
         {
-        	final int name = this.fontRenderer.getStringWidth(preset.getName());
-        	listSize = name > listSize ? name : listSize;
+            int listSize = 0;
+            
+            for (final ConfigPreset preset : this.presets)
+            {
+            	int name = this.fontRenderer.getStringWidth(preset.getName());
+            	if (preset.locked())
+            		name += 9;
+            	listSize = name > listSize ? name : listSize;
+            }
+            listSize += 12;
+            this.list = new GuiOptionsListNew(Minecraft.getMinecraft(), this.fontRenderer, listSize, this.height - 50, 0, this.height, this.width - listSize, this.width, this.height, this.presets, this);
         }
-        listSize += 12;
-        this.list = new GuiOptionsListNew(Minecraft.getMinecraft(), this.fontRenderer, listSize, this.height - 50, 0, this.height, (int) Math.ceil(this.width / 2.0) + ((int) Math.ceil(this.width / 2.0) - listSize), this.width, this.height, this.presets, this);
-        this.onListSelected(this.presets.get(0));
+        if (WorldType.WORLD_TYPES[this.selectedIndex].getName().equals("topography"))
+    	{
+        	int currentIndex = this.list.getIndex();
+            int listSize = 0;
+            
+            for (final ConfigPreset preset : this.presets)
+            {
+            	int name = this.fontRenderer.getStringWidth(preset.getName());
+            	if (preset.locked())
+            		name += 9;
+            	listSize = name > listSize ? name : listSize;
+            }
+            listSize += 12;
+            this.list = new GuiOptionsListNew(Minecraft.getMinecraft(), this.fontRenderer, listSize, this.height - 50, 0, this.height, this.width - listSize, this.width, this.height, this.presets, this);
+            this.list.elementClicked(currentIndex, false);
+    	}
     }
 
     /**
@@ -353,6 +373,10 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
                 this.chunkProviderSettingsJson = "";
                 this.updateDisplayState();
                 this.showMoreWorldOptions(this.inMoreWorldOptionsDisplay);
+                if (WorldType.WORLD_TYPES[this.selectedIndex].getName().equals("topography"))
+            	{
+                    this.onListSelected(this.presets.get(this.list.getIndex()));
+            	}
             }
             else if (button.id == 6)
             {
@@ -503,6 +527,10 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
             {
                 this.texture.render(Minecraft.getMinecraft(), this.width, this.height);
             }
+        	else
+        	{
+        		this.drawDefaultBackground();
+        	}
     	}
     	else
     	{
@@ -525,7 +553,7 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
             
             if (!this.description.isEmpty())
             {
-            	GuiUtils.drawGradientRect(0, 0, 149 + this.fontRenderer.FONT_HEIGHT - 2, this.width / 2 - 3, Math.min(this.height - 20, 149 + this.description.size() * this.fontRenderer.FONT_HEIGHT + this.fontRenderer.FONT_HEIGHT + 2), 0xC0101010, 0xD0101010);
+            	GuiUtils.drawGradientRect(0, 0, 149 + this.fontRenderer.FONT_HEIGHT - 2, 200, Math.min(this.height - 20, 149 + this.description.size() * this.fontRenderer.FONT_HEIGHT + this.fontRenderer.FONT_HEIGHT + 2), 0xC0101010, 0xD0101010);
 
                 for (final GuiElementText text : this.description)
                 {
@@ -620,7 +648,7 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
         
         if (description != null && !description.isEmpty())
         {
-            List<String> list = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(description, this.width / 2 - 5);
+            List<String> list = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(description, 196);
             int index = 0;
             int totalHeight = (list.size() + 1) * this.fontRenderer.FONT_HEIGHT;
             
@@ -650,6 +678,14 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
                 this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, this.mc.getTextureManager().getDynamicTextureLocation("presetImage", new DynamicTexture(image)), image.getWidth(), image.getHeight());
                 this.texture.setRelRender(1, 1);
             }
+            else
+            {
+            	this.texture = null;
+            }
+        }
+        else
+        {
+        	this.texture = null;
         }
         //Lock
         this.create.enabled = !preset.locked();

@@ -66,6 +66,7 @@ public class WorldProviderConfigurable extends WorldProvider
             IOHelper.loadDimensionDefinition(script, definition);
             this.biomeProvider = this.definition.getBiomeProvider(this.world);
             this.hasSkyLight = this.definition.skylight();
+            this.doesWaterVaporize = this.definition.shouldVaporieWater();
             
             if (this.world.isRemote)
             {

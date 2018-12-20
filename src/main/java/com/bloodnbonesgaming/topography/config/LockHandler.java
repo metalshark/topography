@@ -17,6 +17,16 @@ public class LockHandler
         return false;
     }
     
+    public boolean lock(final String preset)
+    {
+        if (this.unlockedPresets.contains(preset))
+        {
+            this.unlockedPresets.remove(preset);
+            return true;
+        }
+        return false;
+    }
+    
     public boolean unlocked(final String preset)
     {
         return this.unlockedPresets.contains(preset);

@@ -8,8 +8,9 @@ public class TopographyTreeCommand extends CommandTreeBase {
 
 	public TopographyTreeCommand()
     {
-		super.addSubcommand(new UnlockPresetCommand());
 		super.addSubcommand(new IslandCommand());
+		super.addSubcommand(new UnlockPresetCommand());
+		super.addSubcommand(new LockPresetCommand());
     }
 
     /**

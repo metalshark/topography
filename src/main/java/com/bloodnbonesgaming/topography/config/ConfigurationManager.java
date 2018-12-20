@@ -257,6 +257,16 @@ public class ConfigurationManager {
         return false;
     }
     
+    public boolean lockPreset(final String preset)
+    {
+        if (this.locks.lock(preset))
+        {
+            IOHelper.saveUnlockFile(this.locks);
+            return true;
+        }
+        return false;
+    }
+    
     public ExecutorService getExecutor()
     {
     	if (this.executor == null)

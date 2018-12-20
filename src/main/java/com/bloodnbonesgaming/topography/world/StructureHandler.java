@@ -5,6 +5,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.bloodnbonesgaming.topography.world.generator.vanilla.structure.NetherBridgeGenerator;
+
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -13,11 +15,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.ChunkGeneratorEnd;
+import net.minecraft.world.gen.structure.MapGenEndCity;
 import net.minecraft.world.gen.structure.MapGenNetherBridge;
 
 public class StructureHandler
 {
-    private MapGenNetherBridge netherFortress;
+    private NetherBridgeGenerator netherFortress;
+    
+    private boolean genEndCity = false;
+    private MapGenEndCity endCity;
     
     
     public void generateStructures(final World world, final int chunkX, final int chunkZ, final ChunkPrimer primer)
@@ -26,6 +33,11 @@ public class StructureHandler
         {
             this.netherFortress.generate(world, chunkX, chunkZ, primer);
         }
+        if (this.genEndCity)
+        {
+        	this.makeEndCityGenerator(world);
+        	this.endCity.generate(world, chunkX, chunkZ, primer);
+        }
     }
     
     public void populateStructures(final World world, final Random rand, final ChunkPos chunkPos)
@@ -33,6 +45,11 @@ public class StructureHandler
         if (this.netherFortress != null)
         {
             this.netherFortress.generateStructure(world, rand, chunkPos);
+        }
+        if (this.genEndCity)
+        {
+        	this.makeEndCityGenerator(world);
+        	this.endCity.generateStructure(world, rand, chunkPos);
         }
     }
     
@@ -59,12 +76,34 @@ public class StructureHandler
     @Nullable
     public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
     {
-        return "Fortress".equals(structureName) && this.netherFortress != null ? this.netherFortress.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+    	switch (structureName)
+    	{
+	    	case "Fortress": {
+	    		return this.netherFortress != null ? this.netherFortress.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+	    	}
+	    	case "EndCity": {
+	    		return this.endCity != null ? this.endCity.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+	    	}
+	    	default: {
+	    		return null;
+	    	}
+    	}
     }
 
     public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos)
     {
-        return "Fortress".equals(structureName) && this.netherFortress != null ? this.netherFortress.isInsideStructure(pos) : false;
+    	switch (structureName)
+    	{
+		    case "Fortress": {
+				return this.netherFortress != null ? this.netherFortress.isInsideStructure(pos) : false;
+			}
+			case "EndCity": {
+				return this.endCity != null ? this.endCity.isInsideStructure(pos) : false;
+			}
+			default: {
+				return false;
+			}
+    	}
     }
 
     /**
@@ -81,8 +120,24 @@ public class StructureHandler
     }
     
     
-    public void generateNetherFortress()
+    public void generateNetherFortress(final int frequency)
     {
-        this.netherFortress = new MapGenNetherBridge();
+        this.netherFortress = new NetherBridgeGenerator(frequency);
+    }
+    
+    public void generateEndCity()
+    {
+    	this.genEndCity = true;
+    }
+    
+    
+    
+    //Builds the end city generator, since it requires a World object
+    private void makeEndCityGenerator(final World world)
+    {
+    	if (this.endCity == null)
+    	{
+    		this.endCity = new MapGenEndCity(new ChunkGeneratorEnd(world, world.getWorldInfo().isMapFeaturesEnabled(), world.getSeed(), new BlockPos(100, 50, 0)));
+    	}
     }
 }

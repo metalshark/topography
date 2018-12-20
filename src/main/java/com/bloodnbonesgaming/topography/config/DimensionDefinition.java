@@ -49,6 +49,7 @@ public class DimensionDefinition
     private final List<EntityEffect> entityEffects = new ArrayList<EntityEffect>();
     private boolean canRespawn = true;
     private boolean captureTeleports = false;
+    private boolean vaporizeWater = false;
     
     private SkyRendererCustom skyRenderer = null;
     
@@ -180,7 +181,17 @@ public class DimensionDefinition
     
     public void generateNetherFortress()
     {
-        this.structureHandler.generateNetherFortress();
+        this.generateNetherFortress(3);//3 is vanilla rarity
+    }
+    
+    public void generateNetherFortress(final int frequency)
+    {
+        this.structureHandler.generateNetherFortress(frequency);
+    }
+    
+    public void generateEndCity()
+    {
+        this.structureHandler.generateEndCity();
     }
     
     public void addGenerator(final IGenerator generator)
@@ -275,5 +286,15 @@ public class DimensionDefinition
 	public boolean shouldCaptureTeleports()
 	{
 		return this.captureTeleports;
+	}
+	
+	public void vaporizeWater()
+	{
+		this.vaporizeWater = true;
+	}
+	
+	public boolean shouldVaporieWater()
+	{
+		return this.vaporizeWater;
 	}
 }

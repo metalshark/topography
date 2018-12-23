@@ -38,6 +38,7 @@ public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
     private SpawnStructure spawnStructure;
+    private int spawnStructureSpacing = 65;
     private boolean enviromentalFog = false;
     private Float celestialAngle;
     private boolean renderSky = true;
@@ -296,5 +297,16 @@ public class DimensionDefinition
 	public boolean shouldVaporieWater()
 	{
 		return this.vaporizeWater;
+	}
+	
+	//In chunks
+	public void setSpawnStructureSpacing(final int spacing)
+	{
+		this.spawnStructureSpacing = spacing;
+	}
+	
+	public int getSpawnStructureSpacing()
+	{
+		return this.spawnStructureSpacing;
 	}
 }

@@ -14,6 +14,8 @@ import com.bloodnbonesgaming.topography.config.EntityEffect;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
+import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
+import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
@@ -27,6 +29,7 @@ import net.minecraft.command.CommandSenderWrapper;
 import net.minecraft.command.FunctionObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -36,6 +39,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.util.ITeleporter;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -325,10 +329,16 @@ public class EventSubscriber
 
                         if (template != null)
                         {
-                            final BlockPos spawn = StructureHelper.getSpawn(template);
+                            BlockPos spawn = StructureHelper.getSpawn(template);
                             
                             if (spawn != null)
                             {
+                            	ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                if (data != null)
+                                {
+                                    spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
+                                }
+                            	
                                 event.setCanceled(true);
                                 this.teleporting = true;
                                 event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(spawn.add(0, structure.getHeight(), 0)));
@@ -374,11 +384,11 @@ public class EventSubscriber
     	}
     }
 
-    private static class ReTeleporter implements ITeleporter
+    public static class ReTeleporter implements ITeleporter
     {
         private final BlockPos targetPos;
 
-        private ReTeleporter(BlockPos targetPos)
+        public ReTeleporter(BlockPos targetPos)
         {
             this.targetPos = targetPos;
         }
@@ -388,5 +398,14 @@ public class EventSubscriber
         {
             entity.moveToBlockPosAndAngles(targetPos, yaw, entity.rotationPitch);
         }
+    }
+    
+    @SubscribeEvent
+    public void onAttachCapability(final AttachCapabilitiesEvent<Entity> event)
+    {
+    	if (event.getObject() instanceof EntityPlayerMP)
+    	{
+    		event.addCapability(TopographyPlayerData.Provider.location, new TopographyPlayerData.Provider());
+    	}
     }
 }

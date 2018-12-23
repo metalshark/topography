@@ -9,6 +9,9 @@ import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
+import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
+import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
+import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,7 +25,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -58,8 +60,6 @@ public class IslandCommand extends CommandBase
         return this.aliases;
     }
     
-    private int islandIndex = 1;
-
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
@@ -101,6 +101,11 @@ public class IslandCommand extends CommandBase
     
     private BlockPos findNextIsland(final EntityPlayer player)
     {
+    	String script = ConfigurationManager.getInstance().getPreset().getScript(player.world.provider.getDimension());
+        DimensionDefinition definition = new DimensionDefinition();
+        IOHelper.loadDimensionDefinition(script, definition);
+    	
+    	int islandIndex = WorldSavedDataTopography.getIslandIndex(player.world);
     	int index = 0;
     	int ring = 0;
     	int posInRing = 0;
@@ -108,10 +113,10 @@ public class IslandCommand extends CommandBase
     	for (int i = 1; i < 10000; i++)
     	{
     		index += (i * 8);
-    		if (index >= this.islandIndex)
+    		if (index >= islandIndex)
     		{
     			ring = i;
-    			posInRing = this.islandIndex - (index - i * 8);
+    			posInRing = islandIndex - (index - i * 8);
     			break;
     		}
     	}
@@ -139,15 +144,15 @@ public class IslandCommand extends CommandBase
     		}
     		if (i == posInRing)
     		{
-    	    	player.sendMessage(new TextComponentString("Breaking"));
     			break;
     		}
     	}
     	
     	player.sendMessage(new TextComponentString(ring + "/" + posInRing + "-" + x + "/" + z));
-    	this.islandIndex++;
+    	islandIndex++;
+    	WorldSavedDataTopography.saveIslandIndex(islandIndex, player.world);
     	
-    	return new BlockPos(x * 2, 0, z * 2);
+    	return new BlockPos(x * definition.getSpawnStructureSpacing(), 0, z * definition.getSpawnStructureSpacing());
     }
     
     private void spawnIslands(final EntityPlayerMP player, final int xOffset, final int zOffset)
@@ -199,10 +204,22 @@ public class IslandCommand extends CommandBase
             	            	Topography.instance.getLog().info("Spawning structure for dimension " + dimension + " at " + structurePos.toString());
             
                                 template.addBlocksToWorld(dimWorld, structurePos, new PlacementSettings(), 2);
-                                BlockPos spawn = StructureHelper.getSpawn(template);
-                                spawn = spawn.add(xOffset * 16, structure.getHeight(), zOffset * 16);
-                                player.setSpawnPoint(spawn, true);
-                                player.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
+                                
+                                if (dimension == 0)
+                                {
+                                    BlockPos spawn = StructureHelper.getSpawn(template);
+                                    spawn = spawn.add(xOffset * 16, structure.getHeight(), zOffset * 16);
+                                    player.setSpawnPoint(spawn, true);
+                                    player.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
+
+                                    ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                    if (data != null)
+                                    {
+//                                        Topography.instance.getLog().info("Old: " + data.getIslandX() + "/" + data.getIslandZ());
+//                                        Topography.instance.getLog().info("New: " + structurePos.getX() + "/" + structurePos.getZ());
+                                        data.setIsland(structurePos.getX(), structurePos.getZ());
+                                    }
+                                }
                             }
         	            }
         			}

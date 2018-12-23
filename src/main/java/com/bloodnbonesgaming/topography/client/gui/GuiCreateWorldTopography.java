@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.ModInfo;
@@ -690,5 +691,11 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
         //Lock
         this.create.enabled = !preset.locked();
         this.chunkProviderSettingsJson = "{\"Topography-Preset\":\"" + presets.get(this.list.getIndex()).getName() + "\"}";
+    }
+    
+    @Override
+    public void handleMouseInput() throws IOException {
+    	super.handleMouseInput();
+    	this.list.handleMouseInput(Mouse.getEventX() * this.width / this.mc.displayWidth, this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1);
     }
 }

@@ -7,6 +7,7 @@ import com.bloodnbonesgaming.topography.command.TopographyTreeCommand;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
+import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
 import net.minecraftforge.fml.common.Mod;
@@ -41,6 +42,7 @@ public class Topography extends BNBGamingMod
     public void preInit(final FMLPreInitializationEvent event)
     {
         Topography.proxy.registerEventHandlers();
+        TopographyPlayerData.register();
     }
 
     @EventHandler

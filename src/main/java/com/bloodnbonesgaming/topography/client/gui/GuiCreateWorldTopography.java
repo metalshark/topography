@@ -11,8 +11,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.bloodnbonesgaming.topography.IOHelper;
-import com.bloodnbonesgaming.topography.ModInfo;
-import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementText;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
@@ -20,12 +18,10 @@ import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStre
 import com.bloodnbonesgaming.topography.client.gui.newstuff.GuiOptionsListNew;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
-import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.netty.channel.ChannelFutureListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -41,11 +37,6 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class GuiCreateWorldTopography extends GuiCreateWorld
 {
@@ -498,6 +489,11 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
 
         (this.buttonList.get(0)).enabled = !this.worldNameField.getText().isEmpty();
         this.calcSaveDirName();
+        
+        if (keyCode == Keyboard.KEY_ESCAPE)
+        {
+            this.actionPerformed(this.buttonList.get(1));
+        }
     }
 
     /**

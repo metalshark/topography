@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.bloodnbonesgaming.topography.IOHelper;
@@ -20,6 +21,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.SyntaxErrorException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -74,12 +76,16 @@ public class IslandCommand extends CommandBase
             final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity);
             this.spawnIslands((EntityPlayerMP) entity, pos.getX(), pos.getZ());
         }
+        else
+        {
+            throw new SyntaxErrorException(this.getUsage(sender));
+        }
     }
 
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos)
     {
-        return null;
+        return args.length >= 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : Collections.emptyList();
     }
 
     @Override
@@ -148,7 +154,7 @@ public class IslandCommand extends CommandBase
     		}
     	}
     	
-    	player.sendMessage(new TextComponentString(ring + "/" + posInRing + "-" + x + "/" + z));
+//    	player.sendMessage(new TextComponentString(ring + "/" + posInRing + "-" + x + "/" + z));
     	islandIndex++;
     	WorldSavedDataTopography.saveIslandIndex(islandIndex, player.world);
     	

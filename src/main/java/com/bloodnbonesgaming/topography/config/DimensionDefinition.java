@@ -187,12 +187,22 @@ public class DimensionDefinition
     
     public void generateNetherFortress(final int frequency)
     {
-        this.structureHandler.generateNetherFortress(frequency);
+        this.structureHandler.generateNetherFortress(frequency, 16, 4);
+    }
+    
+    public void generateNetherFortress(final int frequency, final int totalArea, final int randomArea)
+    {
+        this.structureHandler.generateNetherFortress(frequency, totalArea, randomArea);
     }
     
     public void generateEndCity()
     {
-        this.structureHandler.generateEndCity();
+        this.generateEndCity(1, 16, 2);
+    }
+    
+    public void generateEndCity(final int frequency, final int totalArea, final int randomArea)
+    {
+        this.structureHandler.generateEndCity(frequency, totalArea, randomArea);
     }
     
     public void addGenerator(final IGenerator generator)

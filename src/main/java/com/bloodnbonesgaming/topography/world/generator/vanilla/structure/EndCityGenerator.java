@@ -2,6 +2,8 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla.structure;
 
 import java.util.Random;
 
+import com.bloodnbonesgaming.topography.Topography;
+
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -39,13 +41,18 @@ public class EndCityGenerator extends MapGenEndCity
         int i = chunkX / totalArea;
         int j = chunkZ / totalArea;
         this.rand.setSeed((long)(i ^ j * totalArea) ^ this.world.getSeed());
-        int randValue = totalArea / 2 > 0 ? totalArea / 2 : 1;
+//        int randValue = 1;
         
-        if (chunkX % totalArea == this.rand.nextInt(randValue) + randomArea && chunkZ % totalArea == this.rand.nextInt(randValue) + randomArea)
+        if (Math.abs(chunkX % totalArea) == totalArea / 2 + (randomArea > 0 ? this.rand.nextInt(randomArea) : 0) - randomArea / 2 && Math.abs(chunkZ % totalArea) == totalArea / 2 + (randomArea > 0 ? this.rand.nextInt(randomArea) : 0) - randomArea / 2)
+//        if (chunkX % totalArea == this.rand.nextInt(randValue) + randomArea && chunkZ % totalArea == this.rand.nextInt(randValue) + randomArea)
         {
+        	boolean value;
             this.rand.setSeed((long)chunkX * 341873128712L + (long)chunkZ * 132897987541L);
-            return this.frequency > 1 ? this.rand.nextInt(this.frequency) == 0 : true;
+            value = this.frequency > 1 ? this.rand.nextInt(this.frequency) == 0 : true;
+//            Topography.instance.getLog().info("Return: " + value + " " + chunkX + "/" + chunkZ);
+            return value;
         }
+//        Topography.instance.getLog().info("Return: " + false + " " + chunkX + "/" + chunkZ);
         return false;
     }
 

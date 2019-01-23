@@ -16,17 +16,18 @@ public class NetherBridgeGenerator extends MapGenNetherBridge {
 	}
 	
 	@Override
-	protected boolean canSpawnStructureAtCoords(int chunkX, int chunkZ)
+    protected boolean canSpawnStructureAtCoords(int chunkX, int chunkZ)
     {
         int i = chunkX / totalArea;
         int j = chunkZ / totalArea;
         this.rand.setSeed((long)(i ^ j * totalArea) ^ this.world.getSeed());
-        int randValue = totalArea / 2 > 0 ? totalArea / 2 : 1;
         
-        if (chunkX % totalArea == this.rand.nextInt(randValue) + randomArea && chunkZ % totalArea == this.rand.nextInt(randValue) + randomArea)
+        if (Math.abs(chunkX % totalArea) == totalArea / 2 + (randomArea > 0 ? this.rand.nextInt(randomArea) : 0) - randomArea / 2 && Math.abs(chunkZ % totalArea) == totalArea / 2 + (randomArea > 0 ? this.rand.nextInt(randomArea) : 0) - randomArea / 2)
         {
+        	boolean value;
             this.rand.setSeed((long)chunkX * 341873128712L + (long)chunkZ * 132897987541L);
-            return this.frequency > 1 ? this.rand.nextInt(this.frequency) == 0 : true;
+            value = this.frequency > 1 ? this.rand.nextInt(this.frequency) == 0 : true;
+            return value;
         }
         return false;
     }

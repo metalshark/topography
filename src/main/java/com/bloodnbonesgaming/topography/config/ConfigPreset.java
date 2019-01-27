@@ -1,8 +1,12 @@
 package com.bloodnbonesgaming.topography.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.EnumDifficulty;
@@ -18,8 +22,8 @@ public class ConfigPreset
     private boolean enableHardcore;
     private EnumDifficulty initialDifficulty = null;
     private boolean lockDifficulty = false;
-    private ResourceLocation initialPlayerFunction = null;
-    private ResourceLocation initialServerFunction = null;
+    private List<ResourceLocation> initialPlayerFunctions = new ArrayList<ResourceLocation>();
+    private List<ResourceLocation> initialServerFunctions = new ArrayList<ResourceLocation>();
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     private boolean locked = false;
@@ -41,14 +45,15 @@ public class ConfigPreset
     
     public ConfigPreset(final String name, final String image, final String description, final String worldType, final String generatorOptions)
     {
-        this.name = name;
+        this.name = name != null ? name : "";
         this.image = image;
         this.description = description;
         this.worldType = worldType;
         this.generatorSettings = generatorOptions;
     }
     
-    public void registerDimension(final int dimension, final String script) throws Exception
+    @ScriptMethodDocumentation(args = "int, String", usage = "dimension ID, script file path", notes = "Registers a script file to be used to create a dimension. Script file path is relative to the config/topography folder, and should not include the file extension.")
+	public void registerDimension(final int dimension, final String script) throws Exception
     {
         this.scripts.put(dimension, script);
     }
@@ -93,12 +98,14 @@ public class ConfigPreset
         return this.enableHardcore;
     }
     
-    public void enableHardcore()
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the preset as hardcore.")
+	public void enableHardcore()
     {
         this.enableHardcore = true;
     }
     
-    public void lock()
+    @ScriptMethodDocumentation(usage = "", notes = "Locks the preset from being chosen in the gui. Unlocking the preset is done with the /topography unlock command.")
+	public void lock()
     {
         this.locked = true;
     }
@@ -108,27 +115,40 @@ public class ConfigPreset
         return this.locked ? !ConfigurationManager.getInstance().getLockHandler().unlocked(this.name) : false;
     }
     
-    public void setInitialPlayerFunction(final String function)
+    @ScriptMethodDocumentation(args = "String", usage = "function resource location", notes = "Adds a command function to be run on the player when they first log in. Multiple of these can be added.")
+	public void addInitialPlayerFunction(final String function)
     {
-    	this.initialPlayerFunction = new ResourceLocation(function);
+    	this.initialPlayerFunctions.add(new ResourceLocation(function));
     }
     
-    public ResourceLocation getInitialPlayerFunction()
+	public void setInitialPlayerFunction(final String function)
     {
-    	return this.initialPlayerFunction;
+		this.addInitialPlayerFunction(function);
+    }
+    
+    public List<ResourceLocation> getInitialPlayerFunctions()
+    {
+    	return this.initialPlayerFunctions;
+    }
+    
+    @ScriptMethodDocumentation(args = "String", usage = "function resource location", notes = "Adds a command function to be run on the server at the start of the first dimension 0 world tick. Multiple of these can be added.")
+	public void addInitialServerFunction(final String function)
+    {
+    	this.initialServerFunctions.add(new ResourceLocation(function));
     }
     
     public void setInitialServerFunction(final String function)
     {
-    	this.initialServerFunction = new ResourceLocation(function);
+    	this.addInitialServerFunction(function);
     }
     
-    public ResourceLocation getInitialServerFunction()
+    public List<ResourceLocation> getInitialServerFunctions()
     {
-    	return this.initialServerFunction;
+    	return this.initialServerFunctions;
     }
     
-    public void setDifficulty(final int difficulty) throws Exception
+    @ScriptMethodDocumentation(args = "int", usage = "difficulty value", notes = "Sets the initial difficulty of the preset.")
+	public void setDifficulty(final int difficulty) throws Exception
     {
     	final EnumDifficulty e = EnumDifficulty.getDifficultyEnum(difficulty);
     	
@@ -142,7 +162,8 @@ public class ConfigPreset
     	}
     }
     
-    public void setDifficulty(final String difficulty) throws Exception
+    @ScriptMethodDocumentation(args = "String", usage = "difficulty value", notes = "Sets the initial difficulty of the preset.")
+	public void setDifficulty(final String difficulty) throws Exception
     {
     	final EnumDifficulty e = EnumDifficulty.valueOf(difficulty.toUpperCase());
     	
@@ -161,7 +182,8 @@ public class ConfigPreset
     	return this.initialDifficulty;
     }
     
-    public void lockDifficulty()
+    @ScriptMethodDocumentation(usage = "", notes = "Locks the difficulty of the preset.")
+	public void lockDifficulty()
     {
     	this.lockDifficulty = true;
     }

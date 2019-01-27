@@ -9,6 +9,9 @@ import java.util.Map;
 import com.bloodnbonesgaming.lib.util.script.ArgType;
 import com.bloodnbonesgaming.lib.util.script.ClientOnly;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
@@ -34,6 +37,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.DOCUMENTATION_FOLDER + "Dimensions", classExplaination = 
+"This file is for the options in dimension script files. These are the files referenced when registering dimensions in the Topography.txt file. "
++ "These files can be placed anywhere in the config/topography folder, and must end in '.txt'.")
 public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
@@ -94,12 +100,14 @@ public class DimensionDefinition
         return new ChunkGeneratorVoid(world, world.getSeed(), this);
     }
     
-    public void setSpawnStructure(final String structure)
+    @ScriptMethodDocumentation(args = "String", usage = "structure file path", notes = "Sets the spawn structure for the dimension, at height 64. The file path is relative to the config/topography/structures folder and does not use the file extension.")
+	public void setSpawnStructure(final String structure)
     {
         this.setSpawnStructure(structure, 64);
     }
     
-    public void setSpawnStructure(final String structure, final int height)
+    @ScriptMethodDocumentation(args = "String, int", usage = "structure file path, height", notes = "Sets the spawn structure for the dimension, at the provided height. The file path is relative to the config/topography/structures folder and does not use the file extension.")
+	public void setSpawnStructure(final String structure, final int height)
     {
         this.spawnStructure = new SpawnStructure(structure, height);
     }
@@ -114,12 +122,14 @@ public class DimensionDefinition
     	this.addFogColor(color);
     }
     
-    public void addFogColor(final int color)
+    @ScriptMethodDocumentation(args = "int", usage = "color", notes = "Adds a fog color to the dimension with an alpha of 1 and full celestial angle bounds.")
+	public void addFogColor(final int color)
     {
         this.addFogColor(color, new MinMaxBounds(0.0F, 1.0F), new MinMaxBounds(1.0F, 1.0F));
     }
     
-    public void addFogColor(final int color, final MinMaxBounds angle, final MinMaxBounds alpha)
+    @ScriptMethodDocumentation(args = "int, MinMaxBounds, MinMaxBounds", usage = "color, angle bounds, alpha for transition", notes = "Adds a fog color to the dimension with the provided angle and alpha bounds.")
+	public void addFogColor(final int color, final MinMaxBounds angle, final MinMaxBounds alpha)
     {
     	if (!this.fog.containsKey(color))
     	{
@@ -135,7 +145,8 @@ public class DimensionDefinition
     	return this.fog;
     }
     
-    public void enableEnviromentalFog()
+    @ScriptMethodDocumentation(usage = "", notes = "Enables enviromental fog. This is the short distance spherical fog used in the nether in vanilla.")
+	public void enableEnviromentalFog()
     {
         this.enviromentalFog = true;
     }
@@ -145,7 +156,8 @@ public class DimensionDefinition
         return this.enviromentalFog;
     }
     
-    public void setCelestialAngle(final float angle)
+    @ScriptMethodDocumentation(args = "float", usage = "celestial angle", notes = "Sets a static celestial angle for the dimension. Useful for forcing it to always be day or not.")
+	public void setCelestialAngle(final float angle)
     {
         this.celestialAngle = angle;
     }
@@ -160,7 +172,8 @@ public class DimensionDefinition
         return this.renderSky;
     }
     
-    public void disableSky()
+    @ScriptMethodDocumentation(usage = "", notes = "Disables all sky rendering in the dimension. No stars, no sun, no moon, just black.")
+	public void disableSky()
     {
         this.renderSky = false;
     }
@@ -170,7 +183,8 @@ public class DimensionDefinition
         return this.renderClouds;
     }
     
-    public void disableClouds()
+    @ScriptMethodDocumentation(usage = "", notes = "Disables cloud rendering.")
+	public void disableClouds()
     {
         this.renderClouds = false;
     }
@@ -180,7 +194,8 @@ public class DimensionDefinition
         return this.structureHandler;
     }
     
-    public void generateNetherFortress()
+    @ScriptMethodDocumentation(usage = "", notes = "Adds nether fortresses to the dimension with rarity settings approximately the same as vanilla.")
+	public void generateNetherFortress()
     {
         this.generateNetherFortress(3);//3 is vanilla rarity
     }
@@ -190,22 +205,28 @@ public class DimensionDefinition
         this.structureHandler.generateNetherFortress(frequency, 16, 4);
     }
     
-    public void generateNetherFortress(final int frequency, final int totalArea, final int randomArea)
+    @ScriptMethodDocumentation(args = "int, int, int", usage = "spawn chance, area, random area", notes = "Adds nether fortresses to the dimension. Once in every area*area chunk area there is a 1/spawn chance for a nether fortress to spawn,"
+    		+ " with a random*random area being used for randomly placing the fortress in the total area. Approximate vanilla values are 3, 16, 4.")
+	public void generateNetherFortress(final int frequency, final int totalArea, final int randomArea)
     {
         this.structureHandler.generateNetherFortress(frequency, totalArea, randomArea);
     }
     
-    public void generateEndCity()
+    @ScriptMethodDocumentation(usage = "", notes = "Adds end cities to the dimension with 3, 16, 4 rarity settings. It's nearly impossible to compare these settings to vanilla, so these are approximately the same as vanilla nether fortress.")
+	public void generateEndCity()
     {
-        this.generateEndCity(1, 16, 2);
+        this.generateEndCity(3, 16, 4);
     }
     
-    public void generateEndCity(final int frequency, final int totalArea, final int randomArea)
+    @ScriptMethodDocumentation(args = "int, int, int", usage = "spawn chance, area, random area", notes = "Adds end cities to the dimension. Once in every area*area chunk area there is a 1/spawn chance for an end city to spawn,"
+    		+ " with a random*random area being used for randomly placing the city in the total area.")
+	public void generateEndCity(final int frequency, final int totalArea, final int randomArea)
     {
         this.structureHandler.generateEndCity(frequency, totalArea, randomArea);
     }
     
-    public void addGenerator(final IGenerator generator)
+    @ScriptMethodDocumentation(args = "IGenerator", usage = "generator", notes = "Adds the generator to the dimension.")
+	public void addGenerator(final IGenerator generator)
     {
         this.generators.add(generator);
     }
@@ -215,7 +236,8 @@ public class DimensionDefinition
         return this.generators;
     }
     
-    public void disableSkylight()
+    @ScriptMethodDocumentation(usage = "", notes = "Disables the skylight in the dimension. Doesn't effect sky rendering, just makes it not emit light.")
+	public void disableSkylight()
     {
         this.skylight = false;
     }
@@ -225,7 +247,8 @@ public class DimensionDefinition
         return this.skylight;
     }
     
-    @ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID})
+    @ScriptMethodDocumentation(usage = "biome id", notes = "Sets a single biome for the dimension to be. Supports all types of biome id format.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID})
     public void setSingleBiome(final int biome)
     {
         this.singleBiome = biome;
@@ -236,7 +259,11 @@ public class DimensionDefinition
         return this.lightBrightnessTable;
     }
     
-    public void setLightBrightnessTable(final float[] table)
+    @ScriptMethodDocumentation(args = "float array", usage = "brightness table", notes = "Sets an array used for how bright light appears in the dimension. "
+    		+ "Does not effect the actual light level, just how bright that light appers in the rendering. This array must have 16 values between 0 and 1. "
+    		+ "In vanilla this is used in the nether to increase the brightness of low light values, making the dimension not as dark while also hiding the large number of lighting errors. "
+    		+ "The array used for the nether is [0.1, 0.11578947, 0.13333333, 0.15294117, 0.175, 0.20000002, 0.22857141, 0.26153848, 0.3, 0.34545457, 0.4, 0.46666667, 0.5500001, 0.6571429, 0.79999995, 1.0]")
+	public void setLightBrightnessTable(final float[] table)
     {
         this.lightBrightnessTable = table;
     }
@@ -246,7 +273,9 @@ public class DimensionDefinition
         return this.resetRelightChecks;
     }
     
-    public void enableRelightChecks()
+    @ScriptMethodDocumentation(usage = "", notes = "Enables a very large number of relight checks to be done on each chunk after generation is complete, spread out over a small number of ticks. "
+    		+ "This causes a very large amount of lag, but is required in dimensions like a lava based nether in order to get the lava to actually emit light.")
+	public void enableRelightChecks()
     {
         this.resetRelightChecks = true;
     }
@@ -256,12 +285,14 @@ public class DimensionDefinition
         return this.entityEffects;
     }
     
-    public EntityEffect addEntityEffect()
+    @ScriptMethodDocumentation(usage = "", notes = "Adds an EntityEffect with a frequency of 0 to the dimension, and returns it.")
+	public EntityEffect addEntityEffect()
     {
         return this.addEntityEffect(0);
     }
     
-    public EntityEffect addEntityEffect(final int frequency)
+    @ScriptMethodDocumentation(args = "int", usage = "frequency", notes = "Adds an EntityEffect to the dimension which runs every frequency ticks, and returns it.")
+	public EntityEffect addEntityEffect(final int frequency)
     {
         final EntityEffect effect = new EntityEffect(frequency);
         this.entityEffects.add(effect);
@@ -272,6 +303,7 @@ public class DimensionDefinition
 		return this.canRespawn;
 	}
 	
+	@ScriptMethodDocumentation(usage = "", notes = "Disables respawning in the dimension.")
 	public void disableRespawning() {
 		this.canRespawn = false;
 	}
@@ -283,12 +315,15 @@ public class DimensionDefinition
 	}
 	
 	@ClientOnly
+	@ScriptMethodDocumentation(usage = "", notes = "Sets a custom sky renderer for the dimension, and returns it.")
 	public SkyRendererCustom setSkyRenderer()
 	{
 		this.skyRenderer = new SkyRendererCustom();
 		return this.skyRenderer;
 	}
 	
+	@ScriptMethodDocumentation(usage = "", notes = "If this dimension has a spawn structure set, then when teleporting to the dimension, "
+			+ "this option cancels the dimension change and has Topography transfer the player itself, placing them in the spawn position on the spawn structure.")
 	public void captureTeleports()
 	{
 		this.captureTeleports = true;
@@ -299,6 +334,7 @@ public class DimensionDefinition
 		return this.captureTeleports;
 	}
 	
+	@ScriptMethodDocumentation(usage = "", notes = "This enables the vanilla nether option to have water/ice evaporate when placed in the dimension.")
 	public void vaporizeWater()
 	{
 		this.vaporizeWater = true;
@@ -309,7 +345,7 @@ public class DimensionDefinition
 		return this.vaporizeWater;
 	}
 	
-	//In chunks
+	@ScriptMethodDocumentation(args = "int", usage = "spacing", notes = "Sets the space between spawn structures, in chunks. Default is 65.")
 	public void setSpawnStructureSpacing(final int spacing)
 	{
 		this.spawnStructureSpacing = spacing;

@@ -6,6 +6,9 @@ import java.util.Random;
 import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -13,6 +16,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "LayerGenerator", classExplaination = 
+"This file is for the LayerGenerator. This generator can be created in a dimension file with 'new LayerGenerator()'.")
 public class LayerGenerator implements IGenerator
 {
 
@@ -40,7 +45,8 @@ public class LayerGenerator implements IGenerator
     
     private final Map<MinMaxBounds, IBlockState> layers = new LinkedHashMap<MinMaxBounds, IBlockState>();
     
-    public void addLayer(final MinMaxBounds bounds, final ItemBlockData block) throws Exception
+    @ScriptMethodDocumentation(args = "MinMaxBounds, ItemBlockData", usage = "y axis bounds, block to place", notes = "Adds a layer of blocks to be generated within the provided bounds, made of the provided block.")
+	public void addLayer(final MinMaxBounds bounds, final ItemBlockData block) throws Exception
     {
         this.layers.put(bounds, block.buildBlockState());
     }

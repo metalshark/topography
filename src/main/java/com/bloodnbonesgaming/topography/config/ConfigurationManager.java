@@ -9,7 +9,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 
@@ -17,6 +20,8 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.DOCUMENTATION_FOLDER + "Topography", classExplaination = 
+"This file is for options in the Topography.txt file. If Topography.txt does not exist, default configs and documentation will be printed.")
 public class ConfigurationManager {
     
     private final List<WorldType> worldTypes = new ArrayList<WorldType>();
@@ -168,35 +173,48 @@ public class ConfigurationManager {
         return this.presets;
     }
     
-    public ConfigPreset registerPreset(final String name, final String image)
+    @ScriptMethodDocumentation(args = "String", usage = "preset name", notes = "Creates a preset object and returns it.")
+	public ConfigPreset registerPreset(final String name)
+    {
+        final ConfigPreset preset = new ConfigPreset(name, "");
+        this.presets.put(name, preset);
+        return preset;
+    }
+    
+    @ScriptMethodDocumentation(args = "String, String", usage = "preset name, image location", notes = "Creates a preset object and returns it. Image references a file in the topography folder. Image may be null.")
+	public ConfigPreset registerPreset(final String name, final String image)
     {
         final ConfigPreset preset = new ConfigPreset(name, image);
         this.presets.put(name, preset);
         return preset;
     }
     
-    public ConfigPreset registerPreset(final String name, final String image, final String description)
+    @ScriptMethodDocumentation(args = "String, String, String", usage = "preset name, image location, description", notes = "Creates a preset object and returns it. Image references a file in the topography folder. Image/description may be null.")
+	public ConfigPreset registerPreset(final String name, final String image, final String description)
     {
         final ConfigPreset preset = new ConfigPreset(name, image, description);
         this.presets.put(name, preset);
         return preset;
     }
     
-    public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType)
+    @ScriptMethodDocumentation(args = "String, String, String, String", usage = "preset name, image location, description, WorldType", notes = "Creates a preset object and returns it. Image references a file in the topography folder. Setting a WorldType uses that WorldType as the base for the preset, allowing for things like using BoP for the overworld while having a custom nether dimension. Image/description/worldtype may be null.")
+	public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType)
     {
         final ConfigPreset preset = new ConfigPreset(name, image, description, worldType);
         this.presets.put(name, preset);
         return preset;
     }
     
-    public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType, final String generatorOptions)
+    @ScriptMethodDocumentation(args = "String, String, String, String, String", usage = "preset name, image location, description, WorldType, generator options", notes = "Creates a preset object and returns it. Image references a file in the topography folder. Setting a WorldType uses that WorldType as the base for the preset, allowing for things like using BoP for the overworld while having a custom nether dimension. Generator options sets the generator options for the chosen WorldType. Image/description/worldtype/generator options may be null.")
+	public ConfigPreset registerPreset(final String name, final String image, final String description, final String worldType, final String generatorOptions)
     {
         final ConfigPreset preset = new ConfigPreset(name, image, description, worldType, generatorOptions);
         this.presets.put(name, preset);
         return preset;
     }
     
-    public void setAsDefaultWorldType()
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the Topography WorldType as default.")
+	public void setAsDefaultWorldType()
     {
         this.defaultWorldType = true;
     }

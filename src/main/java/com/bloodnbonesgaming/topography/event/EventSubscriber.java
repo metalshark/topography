@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.event;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -141,28 +142,28 @@ public class EventSubscriber
     	{
     		if (ConfigurationManager.getInstance() != null)
     		{
-    			final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialPlayerFunction();
-    			
-    			if (function != null)
-    			{
-            		final NBTTagCompound nbt = event.player.getEntityData();
-            		
-            		if (!nbt.hasKey(EntityPlayer.PERSISTED_NBT_TAG))
-            		{
-            			nbt.setTag(EntityPlayer.PERSISTED_NBT_TAG, new NBTTagCompound());
-            		}
-            		
-            		final NBTTagCompound persistent = nbt.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-            		
-            		if (!persistent.hasKey("topography_initial"))
-            		{
-            			final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+    			final NBTTagCompound nbt = event.player.getEntityData();
+        		
+        		if (!nbt.hasKey(EntityPlayer.PERSISTED_NBT_TAG))
+        		{
+        			nbt.setTag(EntityPlayer.PERSISTED_NBT_TAG, new NBTTagCompound());
+        		}
+        		
+        		final NBTTagCompound persistent = nbt.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+        		
+        		if (!persistent.hasKey("topography_initial"))
+        		{
+        			final List<ResourceLocation> functions = ConfigurationManager.getInstance().getPreset().getInitialPlayerFunctions();
+        			
+        			for (final ResourceLocation function : functions)
+        			{
+        				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
             			
                         FunctionObject functionobject = server.getFunctionManager().getFunction(function);
                         server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
-            			persistent.setBoolean("topography_initial", true);
-            		}
-    			}
+        			}
+        			persistent.setBoolean("topography_initial", true);
+        		}
     		}
     	}
     }
@@ -206,11 +207,11 @@ public class EventSubscriber
                                     	event.world.getWorldInfo().setHardcore(true);
                                     }
                                 	
-                                	final ResourceLocation function = ConfigurationManager.getInstance().getPreset().getInitialServerFunction();
-                        			
-                        			if (function != null)
-                        			{
-                        				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+                                	final List<ResourceLocation> functions = ConfigurationManager.getInstance().getPreset().getInitialServerFunctions();
+                                	
+                                	for (final ResourceLocation function : functions)
+                                	{
+                                		final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
                             			
                                         FunctionObject functionobject = server.getFunctionManager().getFunction(function);
                                         
@@ -219,7 +220,7 @@ public class EventSubscriber
                                         	Topography.instance.getLog().info("Running initial server function.");
         	                                server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(server).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
                                         }
-                        			}
+                                	}
 //                        			if (event.world.provider instanceof WorldProviderConfigurable)
 //                        			{
 //                        				final SpawnStructure structure = ((WorldProviderConfigurable)event.world.provider).getDefinition().getSpawnStructure();

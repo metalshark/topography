@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptDocumentationHandler;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.ModInfo;
@@ -35,6 +36,7 @@ public class ConfigurationManager {
     private String generatorSettings = null;
     
     private boolean defaultWorldType = false;
+    private boolean printDocumentation = true;
 
     private ExecutorService executor;
     
@@ -62,7 +64,18 @@ public class ConfigurationManager {
         ConfigurationManager.cleanUp();
         ConfigurationManager.instance = new ConfigurationManager();
         ConfigurationManager.instance.readWorldTypes();
+        ConfigurationManager.printDocumentation();
         ConfigurationManager.instance.loadLockHandler();
+    }
+    
+    public static void printDocumentation()
+    {
+    	if (ConfigurationManager.instance.printDocumentation)
+        {
+        	Topography.instance.getLog().info("Printing documentation to " + ModInfo.DOCUMENTATION_FOLDER);
+			ScriptDocumentationHandler.printAnnotatedDocumentation("com.bloodnbonesgaming.topography");
+			ScriptDocumentationHandler.copyDocumentationFolder(ConfigurationManager.class, "./config/topography/documentation/");
+        }
     }
     
     public static void cleanUp()
@@ -292,5 +305,10 @@ public class ConfigurationManager {
     		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	}
     	return this.executor;
+    }
+    
+    public void printDocumentation(final boolean bool)
+    {
+    	this.printDocumentation = bool;
     }
 }

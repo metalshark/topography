@@ -6,6 +6,9 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.data.BlockPredicate;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +17,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "FluidPocketGenerator", classExplaination = 
+"This file is for the FluidPocketGenerator. This generator generates pockets of fluid, similar to lava pockets in the nether.")
 public class FluidPocketGenerator implements IGenerator
 {
     private final int count;
@@ -23,26 +28,30 @@ public class FluidPocketGenerator implements IGenerator
     private final IBlockState block;
     private final List<BlockPredicate> requiredBlocks = new ArrayList<BlockPredicate>();
     
-    public FluidPocketGenerator(final ItemBlockData data, final int count, final boolean requiresAir) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData, int, boolean", usage = "block to generate, pockets per chunk, whether it requires air", notes = "This constructs a FluidPocketGenerator. "
+    		+ "The boolean is for if one side of the pocket must have air, not counting the top. This is so the fluid flows prettily.")
+	public FluidPocketGenerator(final ItemBlockData data, final int count, final boolean requiresAir) throws Exception
     {
         this.block = data.buildBlockState();
         this.count = count;
         this.requiresAir = requiresAir;
     }
     
-    public void addRequiredBlock(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "required block", notes = "Adds a block the generator is allowed to generate a pocket under. By default can generate under any block.")
+	public void addRequiredBlock(final ItemBlockData data) throws Exception
     {
         this.requiredBlocks.add(data.buildBlockPredicate());
     }
     
-    public void setHeight(final int min, final int max)
+    @ScriptMethodDocumentation(args = "int, int", usage = "min height, max height", notes = "Sets the min and max heights this generator can generate at. Default is 4 and 250.")
+	public void setHeight(final int min, final int max)
     {
         this.minHeight = min;
         this.maxHeight = max;
     }
 
     @Override
-    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
 
     }

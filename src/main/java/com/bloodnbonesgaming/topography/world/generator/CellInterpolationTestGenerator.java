@@ -78,7 +78,7 @@ public class CellInterpolationTestGenerator implements IGenerator
     }
     
     @Override
-    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
         this.noise.SetSeed((int) world.getSeed());
         this.skewNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());

@@ -315,7 +315,7 @@ public class DimensionDefinition
 	}
 	
 	@ClientOnly
-	@ScriptMethodDocumentation(usage = "", notes = "Sets a custom sky renderer for the dimension, and returns it.")
+	@ScriptMethodDocumentation(usage = "", notes = "Sets a SkyRendererCustom for the dimension, and returns it.")
 	public SkyRendererCustom setSkyRenderer()
 	{
 		this.skyRenderer = new SkyRendererCustom();

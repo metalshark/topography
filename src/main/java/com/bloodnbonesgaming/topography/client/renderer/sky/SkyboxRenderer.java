@@ -6,7 +6,9 @@ import java.util.Map.Entry;
 
 import org.lwjgl.opengl.GL11;
 
-import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.client.TextureDataObject;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -18,6 +20,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.DOCUMENTATION_FOLDER + "SkyboxRenderer", classExplaination = 
+"This file is for the SkyboxRenderer. This is for making a custom skybox using SkyRendererCustom.")
 public class SkyboxRenderer extends SkyRenderObject {
 	
 	private final SkyboxTextureDataObject singleTexture;
@@ -52,6 +56,7 @@ public class SkyboxRenderer extends SkyRenderObject {
 		this.singleTexture = null;
 	}
 	
+	@ScriptMethodDocumentation(args = "MinMaxBounds, MinMaxBounds", usage = "angle bounds, alpha for transition", notes = "Adds paired celestial angle bounds and alpha. Used to create a blended skybox transition as time passes.")
 	public void addAlpha(final MinMaxBounds angle, final MinMaxBounds alpha)
 	{
 		this.alphaModifiers.put(angle, alpha);

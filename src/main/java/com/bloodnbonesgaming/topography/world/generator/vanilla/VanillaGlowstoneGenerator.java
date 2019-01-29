@@ -2,6 +2,8 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 
 import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
 import net.minecraft.util.math.BlockPos;
@@ -10,12 +12,14 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.feature.WorldGenGlowStone1;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "VanillaGlowstoneGenerator", classExplaination = 
+"This file is for the VanillaGlowstoneGenerator. This is the vanilla glowstone generator. Generates glowstone clusters under netherrack.")
 public class VanillaGlowstoneGenerator implements IGenerator
 {
     private final WorldGenGlowStone1 lightGemGen = new WorldGenGlowStone1();
 
     @Override
-    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
 
     }

@@ -28,6 +28,7 @@ public class IOHelper
         if (!file.exists())
         {
             FileHelper.copyDirectoryFromJar(IOHelper.class, "/defaultconfigs/", ModInfo.SCRIPT_FOLDER);
+            ConfigurationManager.printDocumentation();
         }
         ScriptUtil.readScript(file, config, classKeywords);
     }

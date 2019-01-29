@@ -8,6 +8,9 @@ import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.data.BlockPredicate;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -17,6 +20,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "DeformedSphereGenerator", classExplaination = 
+"This file is for the DeformedSphereGenerator. This generator generates spheres of blocks, which are then deformed using simplex noise. "
++ "These spheres generate within grid regions, and can therefore be any size. ")
 public class DeformedSphereGenerator implements IGenerator
 {
     final IBlockState state;
@@ -28,14 +34,15 @@ public class DeformedSphereGenerator implements IGenerator
     boolean populate = false;
     private final List<BlockPredicate> requiredBlocks = new ArrayList<BlockPredicate>();
     protected OpenSimplexNoiseGeneratorOctaves terrainNoise;
-    final Random rand = new Random();
     double[] smallNoiseArray = new double[825];
     double[] largeNoiseArray = new double[65536];
     
     double[] smallDeformNoiseArray = new double[825];
     double[] largeDeformNoiseArray = new double[65536];
 
-    public DeformedSphereGenerator(final ItemBlockData data, final int regionSize, final int radius, final int count, final int minCount) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData, int, int, int, int", usage = "block to generate, grid region size in chunks, radius, generation attempt count, minimum sphere count"
+    		, notes = "This constructs a DeformedSphereGenerator.")
+	public DeformedSphereGenerator(final ItemBlockData data, final int regionSize, final int radius, final int count, final int minCount) throws Exception
     {
         this.state = data.buildBlockState();
         this.regionSize = regionSize * 16;
@@ -44,12 +51,14 @@ public class DeformedSphereGenerator implements IGenerator
         this.minCount = minCount;
     }
     
-    public void addRequiredBlock(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "required block", notes = "Adds a block the generator is allowed to generate a sphere within. By default can generate within block.")
+	public void addRequiredBlock(final ItemBlockData data) throws Exception
     {
         this.requiredBlocks.add(data.buildBlockPredicate());
     }
     
-    public void setDeformScale(final double scale)
+    @ScriptMethodDocumentation(args = "double", usage = "scale", notes = "Sets the noise scale used to deform the spheres. Default is 16.0. The higher the number, the more the sphere can be deformed.")
+	public void setDeformScale(final double scale)
     {
         this.deformScale = scale;
     }
@@ -77,7 +86,7 @@ public class DeformedSphereGenerator implements IGenerator
     }
     
     @Override
-    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
     {
         if (populate)
         {
@@ -93,7 +102,6 @@ public class DeformedSphereGenerator implements IGenerator
         
         final int regionX = (int)Math.floor(chunkX * 16D / this.regionSize);
         final int regionZ = (int)Math.floor(chunkZ * 16D / this.regionSize);
-        this.rand.setSeed((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + seed);
         
         final List<BlockPos> positions = new ArrayList<BlockPos>();
         
@@ -101,15 +109,15 @@ public class DeformedSphereGenerator implements IGenerator
         countLoop: for (int i = 0; i < this.count || genCount < this.minCount; i++)
         {
             final double maxFeatureRadius = this.radius;
-            final double midHeight = maxFeatureRadius + this.rand.nextInt((int) (256 - (maxFeatureRadius * 2)));
+            final double midHeight = maxFeatureRadius + random.nextInt((int) (256 - (maxFeatureRadius * 2)));
 
             final int regionCenterX = (int) (regionX * regionSize + regionSize / 2);
             final int regionCenterZ = (int) (regionZ * regionSize + regionSize / 2);
 
             final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
 
-            final int featureCenterX = this.rand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
-            final int featureCenterZ = this.rand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
+            final int featureCenterX = random.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
+            final int featureCenterZ = random.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
 
 //            final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
             mutable.setPos(featureCenterX, midHeight, featureCenterZ);
@@ -204,7 +212,7 @@ public class DeformedSphereGenerator implements IGenerator
     }
 
     @Override
-    public void populate(World world, int chunkX, int chunkZ, Random rand)
+    public void populate(World world, int chunkX, int chunkZ, final Random random)
     {
         if (populate)
         {
@@ -217,7 +225,6 @@ public class DeformedSphereGenerator implements IGenerator
         
         final int regionX = (int)Math.floor(chunkX * 16D / this.regionSize);
         final int regionZ = (int)Math.floor(chunkZ * 16D / this.regionSize);
-        this.rand.setSeed((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + seed);
         
         final List<BlockPos> positions = new ArrayList<BlockPos>();
         
@@ -225,15 +232,15 @@ public class DeformedSphereGenerator implements IGenerator
         countLoop: for (int i = 0; i < this.count || genCount < this.minCount; i++)
         {
             final double maxFeatureRadius = this.radius;
-            final double midHeight = maxFeatureRadius + this.rand.nextInt((int) (256 - (maxFeatureRadius * 2)));
+            final double midHeight = maxFeatureRadius + random.nextInt((int) (256 - (maxFeatureRadius * 2)));
 
             final int regionCenterX = (int) (regionX * regionSize + regionSize / 2);
             final int regionCenterZ = (int) (regionZ * regionSize + regionSize / 2);
 
             final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
 
-            final int featureCenterX = this.rand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
-            final int featureCenterZ = this.rand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
+            final int featureCenterX = random.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
+            final int featureCenterZ = random.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
 
             final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
 
@@ -288,6 +295,11 @@ public class DeformedSphereGenerator implements IGenerator
     public GenLayer getLayer(World world, GenLayer parent)
     {
         return null;
+    }
+    
+    @Override
+    public int getRegionSize() {
+    	return this.regionSize;
     }
 
 }

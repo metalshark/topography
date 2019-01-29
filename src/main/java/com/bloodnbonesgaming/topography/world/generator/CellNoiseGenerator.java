@@ -3,16 +3,12 @@ package com.bloodnbonesgaming.topography.world.generator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
-import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
-import com.bloodnbonesgaming.topography.util.InterpolationTest;
-import com.bloodnbonesgaming.topography.util.noise.FastNoise;
-import com.bloodnbonesgaming.topography.util.noise.RunnableFastNoise;
-import com.bloodnbonesgaming.topography.util.noise.RunnableSimplexNoise;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.util.noise.RunnableSimplexSkewedCellNoise;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -22,6 +18,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "CellNoiseGenerator", classExplaination = 
+"This file is for the CellNoiseGenerator. This generator generates tendrils of blocks using cell noise skewed with simplex noise. This generator is multithreaded.")
 public class CellNoiseGenerator implements IGenerator
 {
     double[] smallNoiseArray = new double[825];
@@ -31,11 +29,13 @@ public class CellNoiseGenerator implements IGenerator
     boolean closeTop = false;
     boolean openTop = true;
     
-    public CellNoiseGenerator()
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a CellNoiseGenerator that generates air blocks.")
+	public CellNoiseGenerator()
     {
     }
     
-    public CellNoiseGenerator(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "block to generate", notes = "This constructs a CellNoiseGenerator.")
+	public CellNoiseGenerator(final ItemBlockData data) throws Exception
     {
         this();
         this.state = data.buildBlockState();
@@ -48,18 +48,20 @@ public class CellNoiseGenerator implements IGenerator
         this.blocks.put(bounds, block.buildBlockState());
     }
     
-    public void closeTop()
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the generator to scale noise in such a way that a roof will be generated at the top of the dimension.")
+	public void closeTop()
     {
         this.closeTop = true;
     }
     
-    public void openTop()
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the generator to scale noise in such a way that tendrils will taper off towards the top of the dimension. This is set by default.")
+	public void openTop()
     {
         this.openTop = true;
     }
     
     @Override
-    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
 
 //    	RunnableSimplexNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);

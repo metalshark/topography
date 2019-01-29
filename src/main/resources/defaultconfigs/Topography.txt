@@ -1,48 +1,27 @@
 //If this file is deleted, a new set of default configs will be generated.
 
+//Sets if the mod should print documentation.
+printDocumentation(false)
+
 //Sets the Topography WorldType as default
 setAsDefaultWorldType()
 
 //Registers a preset. First argument is name, second is the image name, third is a description, fourth is WorldType, fifth is generator options Json.
-basicSkyIslands = registerPreset("Basic Sky Islands", "images/Sky Islands", "Sky Islands of various biomes and sizes.")
-basicSkyIslands.registerDimension(0, "Sky Islands/Basic Sky Islands")
+basicSkyIslands = registerPreset("Basic Sky Islands", "images/Sky_Islands", "Sky Islands of various biomes and sizes.")
+basicSkyIslands.registerDimension(0, "examples/Basic_Sky_Islands")
 
-materialSkyIslands = registerPreset("Material Sky Islands", "images/Material Sky Islands", "Sky Islands made up of various materials.")
-materialSkyIslands.registerDimension(0, "Sky Islands/Material Sky Islands")
+cellNether = registerPreset("Cell Nether", "images/Cell_Nether", "Replaces the nether with a nether made with cell noise tendrils.")
+cellNether.registerDimension(-1, "examples/Cell_Nether")
 
-glassLavaSkyIslands = registerPreset("Glass n Lava Sky Islands", "images/Glass and Lava Sky Islands", "Sky Islands made up of glass with lava cores.")
-glassLavaSkyIslands.registerDimension(0, "Sky Islands/Glass n Lava Sky Islands")
+structureExample = registerPreset("Spawn Structure Example", "images/Basic_Tree", "A basic tree spawn structure.")
+structureExample.registerDimension(0, "examples/Spawn_Structure")
 
-hungryDarkness = registerPreset("Hungry Darkness", "images/Sky Islands", "Sky Islands of various biomes and sizes, but darkness below light level 7 deals damage to entities, including players.")
-hungryDarkness.registerDimension(0, "Sky Islands/Hungry Darkness")
+layerGeneratorExample = registerPreset("Layer Example", "images/Basic_Tree_With_Water", "A basic tree spawn structure over a layer of bedrock and 59 layers of water.")
+layerGeneratorExample.registerDimension(0, "examples/Layer_Generator")
 
-cell = registerPreset("Cell Nether", "images/Closed Roof Cell Nether", "Nether generation using cell noise.")
-cell.registerDimension(-1, "Cell Nether/Cell Nether")
+fogExample = registerPreset("Fog Transition Example", "", "Fog that transitions between blue in the day and purple at night.")
+fogExample.registerDimension(0, "examples/Transitioning_Fog")
 
-BoP = registerPreset("Biomes o Plenty with Cell Nether", "images/Closed Roof Cell Nether", "Requires Biomes o Plenty. Is really just here as an example of how to use Topography dimensions and a WorldType from another mod at the same time.", "BIOMESOP")
-BoP.registerDimension(-1, "Cell Nether/Cell Nether")
+skyboxExample = registerPreset("Sky Box Transition Example", "", "A sky box that transitions between the light blue concrete texture in the day and the black concrete texture at night.")
+skyboxExample.registerDimension(0, "examples/Transitioning_Skybox")
 
-SF4 = registerPreset("Sky Factory IIII", "images/Open Roof Cell Nether", "Insert memes.")
-SF4.registerDimension(0, "SF4/Dirt Tree")
-SF4.registerDimension(-1, "SF4/Cell Nether")
-
-SF4 = registerPreset("Sky Factory IIII with Lava Floor", "images/Open Roof Cell Nether", "")
-SF4.registerDimension(0, "SF4/Dirt Tree with Lava Floor")
-SF4.registerDimension(-1, "SF4/Cell Nether")
-
-SF4 = registerPreset("Sky Factory IIII with Water Floor", "images/Open Roof Cell Nether", "")
-SF4.registerDimension(0, "SF4/Dirt Tree with Water Floor")
-SF4.registerDimension(-1, "SF4/Cell Nether")
-
-SF4 = registerPreset("Sky Factory IIII on Chunk", "images/Open Roof Cell Nether", "")
-SF4.registerDimension(0, "SF4/Dirt Tree on Chunk")
-SF4.registerDimension(-1, "SF4/Cell Nether")
-
-SF4 = registerPreset("Sky Factory IIII Hardcore", "images/Open Roof Cell Nether", "")
-SF4.registerDimension(0, "SF4/Hardcore")
-SF4.registerDimension(-1, "SF4/Cell Nether")
-SF4.enableHardcore()
-
-bnb2 = registerPreset("BnB 2.0", "The nether in this preset requires NetherEx and Thermal Foundation.")
-bnb2.registerDimension(0, "Sky Islands/Basic Sky Islands")
-bnb2.registerDimension(-1, "BnB2/Icy Cell Nether")

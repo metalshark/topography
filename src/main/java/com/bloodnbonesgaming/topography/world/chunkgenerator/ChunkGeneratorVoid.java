@@ -1,6 +1,9 @@
 package com.bloodnbonesgaming.topography.world.chunkgenerator;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -28,6 +31,7 @@ public class ChunkGeneratorVoid implements IChunkGenerator
     public final World worldObj;
     public Biome[] biomesForGeneration;
     final DimensionDefinition definition;
+    private final Map<Integer, Random> sizedRandoms = new HashMap<Integer, Random>();
 
     public ChunkGeneratorVoid(World worldIn, long seed, final DimensionDefinition definition)
     {
@@ -43,10 +47,35 @@ public class ChunkGeneratorVoid implements IChunkGenerator
         ChunkPrimer chunkprimer = new ChunkPrimer();
         this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
         net.minecraftforge.event.ForgeEventFactory.onReplaceBiomeBlocks(this, x, z, chunkprimer, this.worldObj);
+        
+        //Set seed on all randoms
+        for (final Entry<Integer, Random> entry : this.sizedRandoms.entrySet())
+        {
+        	final int regionSize = entry.getKey();
+        	final int regionX = (int)Math.floor(x * 16D / regionSize);
+            final int regionZ = (int)Math.floor(z * 16D / regionSize);
+            entry.getValue().setSeed((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + this.worldObj.getSeed());
+        }
 
         for (final IGenerator generator : this.definition.getGenerators())
         {
-            generator.generate(this.worldObj, chunkprimer, x, z);
+        	final int regionSize = generator.getRegionSize();
+        	
+        	if (regionSize == 0)
+        	{
+                generator.generate(this.worldObj, chunkprimer, x, z, this.rand);
+        	}
+        	else
+        	{
+        		if (!this.sizedRandoms.containsKey(regionSize))
+            	{
+            		final int regionX = (int)Math.floor(x * 16D / regionSize);
+                    final int regionZ = (int)Math.floor(z * 16D / regionSize);
+            		this.sizedRandoms.put(regionSize, new Random((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + this.worldObj.getSeed()));
+            	}
+        		
+        		generator.generate(this.worldObj, chunkprimer, x, z, this.sizedRandoms.get(regionSize));
+        	}
         }
         
         this.definition.getStructureHandler().generateStructures(this.worldObj, x, z, chunkprimer);
@@ -76,9 +105,34 @@ public class ChunkGeneratorVoid implements IChunkGenerator
 
         ForgeEventFactory.onChunkPopulate(true, this, this.worldObj, this.rand, x, z, false);
         
+        //Set seed on all randoms
+        for (final Entry<Integer, Random> entry : this.sizedRandoms.entrySet())
+        {
+        	final int regionSize = entry.getKey();
+        	final int regionX = (int)Math.floor(x * 16D / regionSize);
+            final int regionZ = (int)Math.floor(z * 16D / regionSize);
+            entry.getValue().setSeed((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + this.worldObj.getSeed());
+        }
+        
         for (final IGenerator generator : this.definition.getGenerators())
         {
-            generator.populate(this.worldObj, x, z, this.rand);
+        	final int regionSize = generator.getRegionSize();
+        	
+        	if (regionSize == 0)
+        	{
+                generator.populate(this.worldObj, x, z, this.rand);
+        	}
+        	else
+        	{
+        		if (!this.sizedRandoms.containsKey(regionSize))
+            	{
+            		final int regionX = (int)Math.floor(x * 16D / regionSize);
+                    final int regionZ = (int)Math.floor(z * 16D / regionSize);
+            		this.sizedRandoms.put(regionSize, new Random((long)(regionX) * 341873128712L + (long)(regionZ) * 132897987541L + this.worldObj.getSeed()));
+            	}
+        		
+        		generator.populate(this.worldObj, x, z, this.sizedRandoms.get(regionSize));
+        	}
         }
         
         this.definition.getStructureHandler().populateStructures(this.worldObj, this.rand, new ChunkPos(x, z));

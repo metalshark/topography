@@ -22,7 +22,7 @@ public class LayerGenerator implements IGenerator
 {
 
     @Override
-    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
         for (int y = 0; y < 256; y++)
         {

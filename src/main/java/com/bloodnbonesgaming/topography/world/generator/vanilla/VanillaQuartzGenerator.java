@@ -2,6 +2,8 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 
 import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
 import net.minecraft.block.state.pattern.BlockMatcher;
@@ -13,12 +15,14 @@ import net.minecraft.world.gen.feature.WorldGenMinable;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraft.world.gen.layer.GenLayer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "VanillaQuartzGenerator", classExplaination = 
+"This file is for the VanillaQuartzGenerator. This is the vanilla nether quartz generator. Generates nether quartz clusters in netherrack.")
 public class VanillaQuartzGenerator implements IGenerator
 {
     private final WorldGenerator quartzGen = new WorldGenMinable(Blocks.QUARTZ_ORE.getDefaultState(), 14, BlockMatcher.forBlock(Blocks.NETHERRACK));
 
     @Override
-    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ)
+    public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
 
     }

@@ -14,4 +14,5 @@ public class ModInfo
     public static final String UNLOCK_FILE = "./topography/data/unlocks.txt";
 	public static final String DOCUMENTATION_FOLDER = ModInfo.CONFIG_FOLDER + "documentation/";
 	public static final String GENERATOR_DOCUMENTATION_FOLDER = ModInfo.DOCUMENTATION_FOLDER + "generators/";
+	public static final String SKY_ISLANDS_DOCUMENTATION_FOLDER = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "sky_islands/";
 }

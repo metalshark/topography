@@ -21,6 +21,7 @@ import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
 import com.bloodnbonesgaming.topography.world.generator.CellInterpolationTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.CellNoiseGenerator;
 import com.bloodnbonesgaming.topography.world.generator.DeformedSphereGenerator;
+import com.bloodnbonesgaming.topography.world.generator.DuneTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.FluidPocketGenerator;
 import com.bloodnbonesgaming.topography.world.generator.HangingCrystalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
@@ -84,6 +85,7 @@ public class DimensionDefinition
         
 
         this.classKeywords.put("CellInterpolationTestGenerator", CellInterpolationTestGenerator.class);
+        this.classKeywords.put("DuneTestGenerator", DuneTestGenerator.class);
     }
     
     public BiomeProvider getBiomeProvider(final World world)

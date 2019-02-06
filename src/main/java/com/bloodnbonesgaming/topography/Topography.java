@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography;
 import java.io.IOException;
 
 import com.bloodnbonesgaming.lib.BNBGamingMod;
+import com.bloodnbonesgaming.lib.util.script.ScriptDocumentationHandler;
 import com.bloodnbonesgaming.topography.command.TopographyTreeCommand;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
@@ -41,6 +42,7 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
+		ScriptDocumentationHandler.setScriptDocs(event.getAsmData());
         Topography.proxy.registerEventHandlers();
         TopographyPlayerData.register();
     }

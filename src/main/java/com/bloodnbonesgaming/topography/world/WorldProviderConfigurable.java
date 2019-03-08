@@ -1,8 +1,5 @@
 package com.bloodnbonesgaming.topography.world;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.annotation.Nullable;
 
 import com.bloodnbonesgaming.topography.IOHelper;
@@ -14,12 +11,10 @@ import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 
-import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;

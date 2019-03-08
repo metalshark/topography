@@ -402,7 +402,7 @@ public class SkyIslandGenerator implements IGenerator
 
                     if (j1 < i && (iblockstate == null || iblockstate.getMaterial() == Material.AIR))
                     {
-                        if (biome.getFloatTemperature(blockpos$mutableblockpos.setPos(x, j1, z)) < 0.15F)
+                        if (biome.getTemperature(blockpos$mutableblockpos.setPos(x, j1, z)) < 0.15F)
                         {
                             iblockstate = ICE;
                         }

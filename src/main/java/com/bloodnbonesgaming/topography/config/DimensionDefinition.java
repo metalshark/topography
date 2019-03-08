@@ -18,6 +18,7 @@ import com.bloodnbonesgaming.topography.world.StructureHandler;
 import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorVoid;
 import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
+import com.bloodnbonesgaming.topography.world.generator.BiomeBlockReplacementGenerator;
 import com.bloodnbonesgaming.topography.world.generator.CellInterpolationTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.CellNoiseGenerator;
 import com.bloodnbonesgaming.topography.world.generator.DeformedSphereGenerator;
@@ -25,13 +26,20 @@ import com.bloodnbonesgaming.topography.world.generator.DuneTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.FluidPocketGenerator;
 import com.bloodnbonesgaming.topography.world.generator.HangingCrystalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
+import com.bloodnbonesgaming.topography.world.generator.IceAndSnowGenerator;
 import com.bloodnbonesgaming.topography.world.generator.LayerGenerator;
+import com.bloodnbonesgaming.topography.world.generator.OverworldGenerator;
 import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaAnimalGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaCaveGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaDecorationGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaFireGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaGlowstoneGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaLakeGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaLavaPocketGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaQuartzGenerator;
+import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaRavineGenerator;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.world.World;
@@ -58,6 +66,7 @@ public class DimensionDefinition
     private boolean canRespawn = true;
     private boolean captureTeleports = false;
     private boolean vaporizeWater = false;
+    private boolean inheriteSkyRenderer = false;
     
     private SkyRendererCustom skyRenderer = null;
     
@@ -86,6 +95,14 @@ public class DimensionDefinition
 
         this.classKeywords.put("CellInterpolationTestGenerator", CellInterpolationTestGenerator.class);
         this.classKeywords.put("DuneTestGenerator", DuneTestGenerator.class);
+        this.classKeywords.put("OverworldGenerator", OverworldGenerator.class);
+        this.classKeywords.put("IceAndSnowGenerator", IceAndSnowGenerator.class);
+        this.classKeywords.put("BiomeBlockReplacementGenerator", BiomeBlockReplacementGenerator.class);
+        this.classKeywords.put("VanillaDecorationGenerator", VanillaDecorationGenerator.class);
+        this.classKeywords.put("VanillaAnimalGenerator", VanillaAnimalGenerator.class);
+        this.classKeywords.put("VanillaCaveGenerator", VanillaCaveGenerator.class);
+        this.classKeywords.put("VanillaRavineGenerator", VanillaRavineGenerator.class);
+        this.classKeywords.put("VanillaLakeGenerator", VanillaLakeGenerator.class);
     }
     
     public BiomeProvider getBiomeProvider(final World world)
@@ -227,6 +244,42 @@ public class DimensionDefinition
         this.structureHandler.generateEndCity(frequency, totalArea, randomArea);
     }
     
+    @ScriptMethodDocumentation(args = "Generator", usage = "", notes = "Adds mansions to the dimension, using the supplied Generator to find acceptable spawn locations. It's suggested to use an OverworldGenerator.")
+	public void generateMansion(final IGenerator generator)
+    {
+        this.structureHandler.generateMansion(generator);
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Adds mineshafts to the dimension.")
+	public void generateMineshaft()
+    {
+        this.structureHandler.generateMineshaft();
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Adds ocean monuments to the dimension.")
+	public void generateMonument()
+    {
+        this.structureHandler.generateMonument();
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Adds strongholds to the dimension.")
+	public void generateStronghold()
+    {
+        this.structureHandler.generateStronghold();
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Adds scattered features to the dimension. This includes swamp huts, igloos, desert pyramids and jungle pyramids.")
+	public void generateTemple()
+    {
+        this.structureHandler.generateTemple();
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Adds villages to the dimension.")
+	public void generateVillage()
+    {
+        this.structureHandler.generateVillage();
+    }
+    
     @ScriptMethodDocumentation(args = "IGenerator", usage = "generator", notes = "Adds the generator to the dimension.")
 	public void addGenerator(final IGenerator generator)
     {
@@ -356,5 +409,15 @@ public class DimensionDefinition
 	public int getSpawnStructureSpacing()
 	{
 		return this.spawnStructureSpacing;
+	}
+	
+	public void inheritSkyRenderer()
+	{
+		this.inheriteSkyRenderer = true;
+	}
+	
+	public boolean shouldInheritSkyRenderer()
+	{
+		return this.inheriteSkyRenderer;
 	}
 }

@@ -151,7 +151,7 @@ public class ChunkGeneratorVoid implements IChunkGenerator
     @Override
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
-        return false;
+        return this.definition.getStructureHandler().generateStructures(this.worldObj, this.rand, chunkIn, x, z);
     }
 
     @Override

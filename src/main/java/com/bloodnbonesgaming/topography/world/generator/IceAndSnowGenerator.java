@@ -2,14 +2,20 @@ package com.bloodnbonesgaming.topography.world.generator;
 
 import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "IceAndSnowGenerator", classExplaination = 
+"This file is for the IceAndSnowGenerator. This generator generates snow and freezes ice in cold areas.")
 public class IceAndSnowGenerator implements IGenerator {
 	
 	
+	@ScriptMethodDocumentation(usage = "", notes = "This constructs a IceAndSnowGenerator.")
 	public IceAndSnowGenerator()
 	{
 		

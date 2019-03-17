@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
@@ -18,6 +19,9 @@ public class VanillaFireGenerator implements IGenerator
 {
     private final WorldGenFire fireFeature = new WorldGenFire();
 
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a VanillaFireGenerator.")
+	public VanillaFireGenerator() {}
+    
     @Override
     public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {

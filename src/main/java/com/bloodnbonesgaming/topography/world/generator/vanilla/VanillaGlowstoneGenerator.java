@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
@@ -17,6 +18,9 @@ import net.minecraft.world.gen.layer.GenLayer;
 public class VanillaGlowstoneGenerator implements IGenerator
 {
     private final WorldGenGlowStone1 lightGemGen = new WorldGenGlowStone1();
+
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a VanillaGlowstoneGenerator.")
+	public VanillaGlowstoneGenerator() {}
 
     @Override
     public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)

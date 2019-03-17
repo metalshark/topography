@@ -2,7 +2,9 @@ package com.bloodnbonesgaming.topography.world.generator;
 
 import java.util.Random;
 
-import com.bloodnbonesgaming.topography.util.noise.vanilla.VanillaNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockSand;
@@ -16,6 +18,9 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraftforge.fluids.BlockFluidBase;
 
+
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "BiomeBlockReplacementGenerator", classExplaination = 
+"This file is for the BiomeBlockReplacementGenerator. This generator handles top/filler block replacements for biomes. Not quite the same as the overworld, but similar.")
 public class BiomeBlockReplacementGenerator implements IGenerator {
 	
     public Biome[] biomesForGeneration;
@@ -23,12 +28,15 @@ public class BiomeBlockReplacementGenerator implements IGenerator {
     public double[] depthBuffer = new double[256];
     private final int seaHeight;
     
-    public BiomeBlockReplacementGenerator()
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a BiomeBlockReplacementGenerator with a sea height of 0.")
+	public BiomeBlockReplacementGenerator()
     {
     	this(0);
     }
     
-    public BiomeBlockReplacementGenerator(final int seaHeight)
+    @ScriptMethodDocumentation(args = "int", usage = "height of the sea in the dimension", notes = "This constructs a BiomeBlockReplacementGenerator. "
+    		+ "Sea height is required to properly handle replacement above/below the sea.")
+	public BiomeBlockReplacementGenerator(final int seaHeight)
     {
     	this.seaHeight = seaHeight;
     }
@@ -105,7 +113,6 @@ public class BiomeBlockReplacementGenerator implements IGenerator {
 
     public void replaceBiomeBlocks(World world, Random random, int x, int z, ChunkPrimer primer, Biome[] biomesIn)
     {
-        double d0 = 0.03125D;
         this.depthBuffer = this.surfaceNoise.getRegion(this.depthBuffer, (double)(x * 16), (double)(z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
 
         for (int i = 0; i < 16; ++i)

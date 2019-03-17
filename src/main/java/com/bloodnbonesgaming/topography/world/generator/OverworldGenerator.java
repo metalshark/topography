@@ -8,16 +8,13 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.util.noise.vanilla.VanillaNoiseGeneratorOctaves;
 
-import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.ChunkGeneratorSettings;
@@ -25,8 +22,10 @@ import net.minecraft.world.gen.NoiseGeneratorOctaves;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "OverworldGenerator", classExplaination = 
-"This file is for the OverworldGenerator. This generator generates a slightly more configurable version of the vanilla overworld. "
-+ "This generator makes use of multithreaded noise generators to improve chunk generation speeds. Created using 'new OverworldGenerator()'.")
+"This file is for the OverworldGenerator. This generator generates a slightly more configurable version of the vanilla overworld, "
++ "handling the generation of base terrain/water blocks and biome block replacement. "
++ "This generator makes use of multithreaded noise generators to improve chunk generation speeds. Unfortunately, using these noise generators means the terrain will be slightly different to vanilla."
++ " Created using 'new OverworldGenerator()'.")
 public class OverworldGenerator implements IGenerator {
 	
     public NoiseGeneratorOctaves minLimitPerlinNoise;
@@ -53,10 +52,9 @@ public class OverworldGenerator implements IGenerator {
     private boolean amplified = false;
     private int seaLevel = 63;
     private boolean biomeBlockReplacement = true;
-    private boolean decorate = true;
-    private boolean generateAnimals = true;
 
-    public OverworldGenerator()
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs an OverworldGenerator.")
+	public OverworldGenerator()
     {
         this.heightMap = new double[825];
         this.biomeWeights = new float[25];
@@ -72,45 +70,40 @@ public class OverworldGenerator implements IGenerator {
         this.settings = ChunkGeneratorSettings.Factory.jsonToFactory("").build();
     }
     
-    @ScriptMethodDocumentation(args = "String", usage = "generator string", notes = "Sets the generator string for the generator.")
+    @ScriptMethodDocumentation(args = "String", usage = "generator string", notes = "Sets the vanilla generator settings string for the generator.")
 	public void setGeneratorString(final String string)
     {
     	this.settings = ChunkGeneratorSettings.Factory.jsonToFactory(string).build();
     }
     
-    public void setTerrainBlock(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "block", notes = "Sets the terrain block to be used for the generator.")
+	public void setTerrainBlock(final ItemBlockData data) throws Exception
     {
     	this.state = data.buildBlockState();
     }
     
-    public void setOceanBlock(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "block", notes = "Sets the ocean block to be used for the generator.")
+	public void setOceanBlock(final ItemBlockData data) throws Exception
     {
     	this.oceanBlock = data.buildBlockState();
     }
     
-    public void amplify()
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the generator to generate amplified terrain, as per the vanilla amplified WorldType.")
+	public void amplify()
     {
     	this.amplified = true;
     }
     
-    public void setSeaLevel(final int level)
+    @ScriptMethodDocumentation(args = "int", usage = "sea level", notes = "Sets the sea level for the generator.")
+	public void setSeaLevel(final int level)
     {
     	this.seaLevel = level;
     }
     
-    public void disableBiomeBlockReplacement()
+    @ScriptMethodDocumentation( usage = "", notes = "Disables the generators biome block replacement.")
+	public void disableBiomeBlockReplacement()
     {
     	this.biomeBlockReplacement = false;
-    }
-    
-    public void disableDecoration()
-    {
-    	this.decorate = false;
-    }
-    
-    public void disableAnimals()
-    {
-    	this.generateAnimals = false;
     }
 	
 	
@@ -136,29 +129,6 @@ public class OverworldGenerator implements IGenerator {
             this.replaceBiomeBlocks(world, random, chunkX, chunkZ, primer, this.biomesForGeneration);
         }
 	}
-	
-	@Override
-	public void populate(World world, int chunkX, int chunkZ, Random random) {
-		
-		BlockFalling.fallInstantly = true;
-        int i = chunkX * 16;
-        int j = chunkZ * 16;
-        BlockPos blockpos = new BlockPos(i, 0, j);
-        Biome biome = world.getBiome(blockpos.add(16, 0, 16));
-        boolean flag = false;
-        ChunkPos chunkpos = new ChunkPos(chunkX, chunkZ);
-
-//        if (this.decorate)
-//        {
-//            biome.decorate(world, random, new BlockPos(i, 0, j));
-//        }
-//        if (this.generateAnimals)
-//        {
-//            WorldEntitySpawner.performWorldGenSpawning(world, biome, i + 8, j + 8, 16, 16, random);
-//        }
-
-        BlockFalling.fallInstantly = false;
-	}
 
     public void setBlocksInChunk(World world, int x, int z, ChunkPrimer primer)
     {
@@ -179,7 +149,6 @@ public class OverworldGenerator implements IGenerator {
 
                 for (int i2 = 0; i2 < 32; ++i2)
                 {
-                    double d0 = 0.125D;
                     double d1 = this.heightMap[i1 + i2];
                     double d2 = this.heightMap[j1 + i2];
                     double d3 = this.heightMap[k1 + i2];
@@ -191,7 +160,6 @@ public class OverworldGenerator implements IGenerator {
 
                     for (int j2 = 0; j2 < 8; ++j2)
                     {
-                        double d9 = 0.25D;
                         double d10 = d1;
                         double d11 = d2;
                         double d12 = (d3 - d1) * 0.25D;
@@ -199,7 +167,6 @@ public class OverworldGenerator implements IGenerator {
 
                         for (int k2 = 0; k2 < 4; ++k2)
                         {
-                            double d14 = 0.25D;
                             double d16 = (d11 - d10) * 0.25D;
                             double lvt_45_1_ = d10 - d16;
 
@@ -231,19 +198,6 @@ public class OverworldGenerator implements IGenerator {
 
     public void replaceBiomeBlocks(World world, Random random, int x, int z, ChunkPrimer primer, Biome[] biomesIn)
     {
-//        double d0 = 0.03125D;
-//        this.depthBuffer = this.surfaceNoise.getRegion(this.depthBuffer, (double)(x * 16), (double)(z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
-//
-//        for (int i = 0; i < 16; ++i)
-//        {
-//            for (int j = 0; j < 16; ++j)
-//            {
-//                Biome biome = biomesIn[j + i * 16];
-//                this.generateBiomeTerrain(biome, random, primer, x * 16 + i, z * 16 + j, this.depthBuffer[j + i * 16]);
-//            }
-//        }
-        
-        double d0 = 0.03125D;
         this.depthBuffer = this.surfaceNoise.getRegion(this.depthBuffer, (double)(x * 16), (double)(z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
 
         for (int i = 0; i < 16; ++i)
@@ -370,7 +324,6 @@ public class OverworldGenerator implements IGenerator {
                 float f2 = 0.0F;
                 float f3 = 0.0F;
                 float f4 = 0.0F;
-                int i1 = 2;
                 Biome biome = this.biomesForGeneration[k + 2 + (l + 2) * 10];
 
                 for (int j1 = -2; j1 <= 2; ++j1)

@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
@@ -20,6 +21,9 @@ import net.minecraft.world.gen.layer.GenLayer;
 public class VanillaQuartzGenerator implements IGenerator
 {
     private final WorldGenerator quartzGen = new WorldGenMinable(Blocks.QUARTZ_ORE.getDefaultState(), 14, BlockMatcher.forBlock(Blocks.NETHERRACK));
+
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a VanillaQuartzGenerator.")
+	public VanillaQuartzGenerator() {}
 
     @Override
     public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)

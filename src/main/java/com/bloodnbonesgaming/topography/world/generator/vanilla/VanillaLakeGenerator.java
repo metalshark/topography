@@ -7,6 +7,9 @@ import java.util.Random;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.script.ArgType;
 import com.bloodnbonesgaming.lib.util.script.ScriptArgs;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
 import net.minecraft.block.material.Material;
@@ -18,6 +21,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "VanillaLakeGenerator", classExplaination = 
+"This file is for the VanillaLakeGenerator. Generates vanilla lakes.")
 public class VanillaLakeGenerator extends WorldGenerator implements IGenerator
 {
     private final IBlockState state;
@@ -26,18 +31,21 @@ public class VanillaLakeGenerator extends WorldGenerator implements IGenerator
     private List<Biome> biomeBlacklist = new ArrayList<Biome>();
     private int spawnChance = 4;
 
-    public VanillaLakeGenerator(ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "block to fill with", notes = "This constructs a VanillaLakeGenerator. Generates lakes filled with the supplied block.")
+	public VanillaLakeGenerator(ItemBlockData data) throws Exception
     {
         this.state = data.buildBlockState();
     }
     
-    public void setHeight(final int min, int max)
+    @ScriptMethodDocumentation(args = "int, int", usage = "min height, max height", notes = "Sets the minimum and maximum heights the generator will attempt to spawn in.")
+	public void setHeight(final int min, int max)
     {
     	this.minHeight = min;
     	this.maxHeight = max;
     }
     
-    @ScriptArgs(args = ArgType.NON_NULL_BIOME_ID_ARRAY)
+    @ScriptMethodDocumentation(usage = "biomes to blacklist", notes = "Adds biomes that the generator will not attempt to spawn in.")
+	@ScriptArgs(args = ArgType.NON_NULL_BIOME_ID_ARRAY)
     public void blacklistBiome(final int[] biomes) throws Exception
     {
     	for (final int id : biomes)
@@ -52,7 +60,8 @@ public class VanillaLakeGenerator extends WorldGenerator implements IGenerator
     	}
     }
     
-    public void setSpawnChance(final int chance)
+    @ScriptMethodDocumentation(args = "int", usage = "spawn chance", notes = "Sets the 1/chance per chunk for the generator to attempt to generate lakes.")
+	public void setSpawnChance(final int chance)
     {
     	this.spawnChance = chance;
     }
@@ -224,8 +233,6 @@ public class VanillaLakeGenerator extends WorldGenerator implements IGenerator
                 {
                     for (int l3 = 0; l3 < 16; ++l3)
                     {
-                        int l4 = 4;
-
                         if (worldIn.canBlockFreezeWater(position.add(k2, 4, l3)))
                         {
                             worldIn.setBlockState(position.add(k2, 4, l3), Blocks.ICE.getDefaultState(), 2| 16); //Forge

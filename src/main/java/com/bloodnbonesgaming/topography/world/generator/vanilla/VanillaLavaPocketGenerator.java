@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography.world.generator.vanilla;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
@@ -18,6 +19,9 @@ import net.minecraft.world.gen.layer.GenLayer;
 public class VanillaLavaPocketGenerator implements IGenerator
 {
     private final WorldGenHellLava hellSpringGen = new WorldGenHellLava(Blocks.FLOWING_LAVA, false);
+
+    @ScriptMethodDocumentation(usage = "", notes = "This constructs a VanillaLavaPocketGenerator.")
+	public VanillaLavaPocketGenerator() {}
 
     @Override
     public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)

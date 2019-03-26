@@ -1,24 +1,18 @@
 package com.bloodnbonesgaming.topography.proxy;
 
-import java.io.File;
-
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.ClientEventSubscriber;
+import com.bloodnbonesgaming.topography.event.WorldBookEventHandler;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandSenderWrapper;
-import net.minecraft.command.FunctionObject;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 
 public class ClientProxy extends CommonProxy
@@ -28,6 +22,8 @@ public class ClientProxy extends CommonProxy
     {
         super.registerEventHandlers();
         MinecraftForge.EVENT_BUS.register(new ClientEventSubscriber());
+        if (Topography.worldbook)
+        	MinecraftForge.EVENT_BUS.register(new WorldBookEventHandler());
     }
     
     @Override

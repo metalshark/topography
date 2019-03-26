@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography.event;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorldTopography;
 import com.bloodnbonesgaming.topography.client.gui.GuiWorldSelectionOverride;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
@@ -18,11 +19,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogColors;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ClientEventSubscriber
 {
-    @SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
     public void onOpenGui(final GuiOpenEvent event)
     {
         if (event.getGui() instanceof GuiCreateWorld && Minecraft.getMinecraft().currentScreen instanceof GuiWorldSelection)
@@ -43,9 +45,12 @@ public class ClientEventSubscriber
                 }
             }
         }
-        if (event.getGui() instanceof GuiWorldSelection && !(event.getGui() instanceof GuiWorldSelectionOverride))
+        if (!Topography.worldbook)
         {
-        	event.setGui(new GuiWorldSelectionOverride(((GuiWorldSelection)event.getGui()).prevScreen));
+            if (event.getGui() instanceof GuiWorldSelection && !(event.getGui() instanceof GuiWorldSelectionOverride))
+            {
+            	event.setGui(new GuiWorldSelectionOverride(((GuiWorldSelection)event.getGui()).prevScreen));
+            }
         }
     }
     

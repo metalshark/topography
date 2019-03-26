@@ -11,6 +11,7 @@ import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -27,7 +28,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.14.0,);after:crafttweaker;",
+@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.14.0,);after:crafttweaker;after:worldbook;",
         acceptedMinecraftVersions = "[1.12,1.13)")
 public class Topography extends BNBGamingMod
 {
@@ -38,10 +39,16 @@ public class Topography extends BNBGamingMod
     public static CommonProxy proxy;
     
     public static final SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.MODID);
+    
+    public static boolean worldbook = false;
 
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
+		if (Loader.isModLoaded("worldbook"))
+        {
+			Topography.worldbook = true;
+        }
 		ScriptDocumentationHandler.setScriptDocs(event.getAsmData());
         Topography.proxy.registerEventHandlers();
         TopographyPlayerData.register();

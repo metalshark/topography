@@ -1,8 +1,8 @@
 [
 {
-  "modid": "randomgenskyislands",
-  "name": "Random Gen Sky Islands",
-  "description": "A mod for creating random gen sky islands",
+  "modid": "topography",
+  "name": "Topography",
+  "description": "A mod for modpack developers to create custom dimensions.",
   "version": "${mod_version}",
   "mcversion": "${minecraft_version}",
   "url": "http://bloodnbonesgaming.com/",

@@ -27,6 +27,7 @@ public class ConfigPreset
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
     private boolean locked = false;
+    private boolean disableNetherPortal = false;
     
     public ConfigPreset(final String name, final String image)
     {
@@ -192,4 +193,15 @@ public class ConfigPreset
     {
     	return this.lockDifficulty;
     }
+	
+	@ScriptMethodDocumentation(usage = "", notes = "Disables the creation of a nether portal in the preset.")
+	public void disableNetherPortal()
+	{
+		this.disableNetherPortal = true;
+	}
+	
+	public boolean shouldDisableNetherPortal()
+	{
+		return this.disableNetherPortal;
+	}
 }

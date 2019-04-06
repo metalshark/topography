@@ -256,4 +256,16 @@ public class WorldProviderConfigurable extends WorldProvider
     	}
     	return null;
     }
+    
+    @SideOnly(Side.CLIENT)
+    @Override
+    public float getCloudHeight() {
+    	float height = this.definition.getCloudHeight();
+    	
+    	if (height != -999)
+    	{
+    		return height;
+    	}
+    	return super.getCloudHeight();
+    }
 }

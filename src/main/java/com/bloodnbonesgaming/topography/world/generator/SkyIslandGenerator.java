@@ -82,7 +82,7 @@ public class SkyIslandGenerator implements IGenerator
             countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
                 final double maxFeatureRadius = data.getRadius();
-                final double midHeight = maxFeatureRadius + this.islandPositionRandom.nextInt((int) (220 - (maxFeatureRadius * 2)));
+                final double midHeight = Math.min(maxFeatureRadius, 110) + this.islandPositionRandom.nextInt((int) Math.max(220 - (maxFeatureRadius * 2), 1));
 
                 final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
                 final int regionCenterZ = (int) ((this.currentRegionZ) * regionSize + regionSize / 2);

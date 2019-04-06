@@ -67,7 +67,8 @@ public class DimensionDefinition
     private boolean canRespawn = true;
     private boolean captureTeleports = false;
     private boolean vaporizeWater = false;
-    private boolean inheriteSkyRenderer = false;
+    private float cloudHeight = -999;
+    private boolean disableNetherPortal = false;
     
     private SkyRendererCustom skyRenderer = null;
     
@@ -413,13 +414,25 @@ public class DimensionDefinition
 		return this.spawnStructureSpacing;
 	}
 	
-	public void inheritSkyRenderer()
+	public float getCloudHeight()
 	{
-		this.inheriteSkyRenderer = true;
+		return this.cloudHeight;
 	}
 	
-	public boolean shouldInheritSkyRenderer()
+	@ScriptMethodDocumentation(args = "int", usage = "height", notes = "Sets the cloud render height for the dimension.")
+	public void setCloudHeight(final int height)
 	{
-		return this.inheriteSkyRenderer;
+		this.cloudHeight = height;
+	}
+	
+	@ScriptMethodDocumentation(usage = "", notes = "Disables the creation of a nether portal in the dimension.")
+	public void disableNetherPortal()
+	{
+		this.disableNetherPortal = true;
+	}
+	
+	public boolean shouldDisableNetherPortal()
+	{
+		return this.disableNetherPortal;
 	}
 }

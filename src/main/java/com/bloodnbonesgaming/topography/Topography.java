@@ -58,8 +58,6 @@ public class Topography extends BNBGamingMod
     public void init(final FMLInitializationEvent event)
     {
         new WorldTypeCustomizable("topography");
-//        DimensionManager.unregisterDimension(0);
-//        DimensionManager.registerDimension(0, DimensionType.register("Overworld", "", 0, WorldProviderConfigurable.class, true));
     }
 
     @EventHandler

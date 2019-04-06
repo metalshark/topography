@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.command.IslandCommand;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
@@ -26,12 +27,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockPortal;
 import net.minecraft.command.CommandSenderWrapper;
 import net.minecraft.command.FunctionObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -41,10 +45,12 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -322,10 +328,33 @@ public class EventSubscriber
                 
                 if (definition.shouldCaptureTeleports())
                 {
+                	if (event.getEntity() instanceof EntityPlayer)
+                	{
+                		final EntityPlayer player = (EntityPlayer) event.getEntity();
+                		
+                		BlockPos blockpos = player.getBedLocation(event.getDimension());
+                        boolean forced = player.isSpawnForced(event.getDimension());
+                		
+                		if (blockpos != null)
+                        {
+                            BlockPos blockpos1 = EntityPlayer.getBedSpawnLocation(world, blockpos, forced);
+
+                            if (blockpos1 != null)
+                            {
+                                event.setCanceled(true);
+                                this.teleporting = true;
+                                event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(blockpos1));
+                                this.teleporting = false;
+                                return;
+                            }
+                        }
+                	}
+                	
+                	
                     SpawnStructure structure = definition.getSpawnStructure();
                     
                     if (structure != null)
-                    {                    
+                    {
                         final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
                         if (template != null)
@@ -355,6 +384,19 @@ public class EventSubscriber
                             {
                                 final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
                                 
+                                ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                if (data != null && data.getIslandX() != 0 && data.getIslandZ() != 0)
+                                {
+                                    final BlockPos pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
+                                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                    
+                                    event.setCanceled(true);
+                                    this.teleporting = true;
+                                    event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(topBlock.up()));
+                                    this.teleporting = false;
+                                    return;
+                                }
+                                
                                 final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
                                 
                                 if (iterator.hasNext())
@@ -368,7 +410,7 @@ public class EventSubscriber
                                         final Entry<BlockPos, SkyIslandType> island = positions.next();
                                         
                                         final BlockPos pos = island.getKey();
-                                        final BlockPos topBlock = world.getTopSolidOrLiquidBlock(pos);
+                                        final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
                                         
                                         event.setCanceled(true);
                                         this.teleporting = true;
@@ -408,5 +450,29 @@ public class EventSubscriber
     	{
     		event.addCapability(TopographyPlayerData.Provider.location, new TopographyPlayerData.Provider());
     	}
+    }
+    
+    @SubscribeEvent
+    public void registerBlocks(final RegistryEvent.Register<Block> event)
+    {
+    	event.getRegistry().register(new BlockPortal() {
+    		
+    		@Override
+    		public boolean trySpawnPortal(World world, BlockPos pos) {
+    			
+    			final WorldProvider provider = world.provider;
+                
+                if (provider instanceof WorldProviderConfigurable)
+                {
+                	final DimensionDefinition definition = ((WorldProviderConfigurable) provider).getDefinition();
+                    
+                	if (definition.shouldDisableNetherPortal() || ConfigurationManager.getInstance().getPreset().shouldDisableNetherPortal())
+                	{
+                		return false;
+                	}
+                }
+    			return super.trySpawnPortal(world, pos);
+    		}
+    	}.setRegistryName("minecraft:portal"));
     }
 }

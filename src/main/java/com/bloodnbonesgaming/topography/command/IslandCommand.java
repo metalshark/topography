@@ -2,21 +2,29 @@ package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
+import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
+import com.bloodnbonesgaming.topography.world.generator.IGenerator;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -30,8 +38,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class IslandCommand extends CommandBase
@@ -73,8 +83,35 @@ public class IslandCommand extends CommandBase
             {
                 throw new CommandException("The entity selected (%s) is not valid.", entity.getName());
             }
-            final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity);
-            this.spawnIslands((EntityPlayerMP) entity, pos.getX(), pos.getZ());
+            if (entity.world.provider.getDimension() != 0)
+            {
+            	throw new CommandException("This command may only be run in dimension 0.");
+            }
+            
+        	final World world = DimensionManager.getWorld(0);
+        	String script = ConfigurationManager.getInstance().getPreset().getScript(world.provider.getDimension());
+            DimensionDefinition definition = new DimensionDefinition();
+            IOHelper.loadDimensionDefinition(script, definition);
+            
+            if (definition.getSpawnStructure() != null)
+            {
+                final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity, definition);
+                this.spawnIslands((EntityPlayerMP) entity, pos.getX(), pos.getZ());
+                return;
+            }
+            else
+            {                
+                for (final IGenerator generator : definition.getGenerators())
+                {
+                    if (generator instanceof SkyIslandGenerator)
+                    {
+                        final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity, definition);
+                        this.setPlayerSpawn((EntityPlayerMP) entity, pos);
+                        return;
+                    }
+                }
+            }
+            throw new CommandException("This preset does not have spawn structures or sky islands.");
         }
         else
         {
@@ -105,60 +142,99 @@ public class IslandCommand extends CommandBase
         return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getName());
     }
     
-    private BlockPos findNextIsland(final EntityPlayer player)
+    private BlockPos findNextIsland(final EntityPlayer player, final DimensionDefinition definition) throws CommandException
     {
-    	String script = ConfigurationManager.getInstance().getPreset().getScript(player.world.provider.getDimension());
-        DimensionDefinition definition = new DimensionDefinition();
-        IOHelper.loadDimensionDefinition(script, definition);
-    	
-    	int islandIndex = WorldSavedDataTopography.getIslandIndex(player.world);
-    	int index = 0;
-    	int ring = 0;
-    	int posInRing = 0;
-    	
-    	for (int i = 1; i < 10000; i++)
-    	{
-    		index += (i * 8);
-    		if (index >= islandIndex)
-    		{
-    			ring = i;
-    			posInRing = islandIndex - (index - i * 8);
-    			break;
-    		}
-    	}
-    	int ringSideLength = (ring - 1) * 2 + 1;
-    	int x = ring;
-    	int z = ring + 1;
-    	
-    	for (int i = 0; i <= (ringSideLength + 1) * 4; i++)
-    	{
-    		if (i <= ringSideLength + 1)
-    		{
-    			z--;
-    		}
-    		else if (i <= (ringSideLength + 1) * 2)
-    		{
-    			x--;
-    		}
-    		else if (i <= (ringSideLength + 1) * 3)
-    		{
-    			z++;
-    		}
-    		else
-    		{
-    			x++;
-    		}
-    		if (i == posInRing)
-    		{
-    			break;
-    		}
-    	}
-    	
-//    	player.sendMessage(new TextComponentString(ring + "/" + posInRing + "-" + x + "/" + z));
-    	islandIndex++;
-    	WorldSavedDataTopography.saveIslandIndex(islandIndex, player.world);
-    	
-    	return new BlockPos(x * definition.getSpawnStructureSpacing(), 0, z * definition.getSpawnStructureSpacing());
+    	final World world = DimensionManager.getWorld(0);
+        
+        SkyIslandGenerator skyIslands = null;
+        
+        int x = 0;
+        int z = 0;
+        
+        for (final IGenerator generator : definition.getGenerators())
+        {
+            if (generator instanceof SkyIslandGenerator)
+            {
+            	skyIslands = (SkyIslandGenerator) generator;
+            	break;
+            }
+        }
+        
+        if (definition.getSpawnStructure() != null || skyIslands != null)
+        {
+        	int islandIndex = WorldSavedDataTopography.getIslandIndex(world);
+        	int index = 0;
+        	int ring = 0;
+        	int posInRing = 0;
+        	
+        	for (int i = 1; i < 10000; i++)
+        	{
+        		index += (i * 8);
+        		if (index >= islandIndex)
+        		{
+        			ring = i;
+        			posInRing = islandIndex - (index - i * 8);
+        			break;
+        		}
+        	}
+        	int ringSideLength = (ring - 1) * 2 + 1;
+        	x = ring;
+        	z = ring + 1;
+        	
+        	for (int i = 0; i <= (ringSideLength + 1) * 4; i++)
+        	{
+        		if (i <= ringSideLength + 1)
+        		{
+        			z--;
+        		}
+        		else if (i <= (ringSideLength + 1) * 2)
+        		{
+        			x--;
+        		}
+        		else if (i <= (ringSideLength + 1) * 3)
+        		{
+        			z++;
+        		}
+        		else
+        		{
+        			x++;
+        		}
+        		if (i == posInRing)
+        		{
+        			break;
+        		}
+        	}
+        	
+        	islandIndex++;
+        	WorldSavedDataTopography.saveIslandIndex(islandIndex, world);
+        }
+        
+        if (definition.getSpawnStructure() != null)
+        {
+        	return new BlockPos(x * definition.getSpawnStructureSpacing(), 0, z * definition.getSpawnStructureSpacing());
+        }
+        else if (skyIslands != null)
+        {
+        	final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = skyIslands.getIslandPositions(world.getSeed(), x * skyIslands.getRegionSize(), z * skyIslands.getRegionSize()).entrySet().iterator();
+            
+            if (iterator.hasNext())
+            {
+                final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                
+                final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
+                
+                if (positions.hasNext())
+                {
+                    final Entry<BlockPos, SkyIslandType> island = positions.next();
+                    
+                    final BlockPos pos = island.getKey();
+                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                    
+                	return new BlockPos(topBlock.up());
+                }
+            }
+        }
+        throw new CommandException("This preset does not have spawn structures or sky islands.");
     }
     
     private void spawnIslands(final EntityPlayerMP player, final int xOffset, final int zOffset)
@@ -221,8 +297,6 @@ public class IslandCommand extends CommandBase
                                     ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
                                     if (data != null)
                                     {
-//                                        Topography.instance.getLog().info("Old: " + data.getIslandX() + "/" + data.getIslandZ());
-//                                        Topography.instance.getLog().info("New: " + structurePos.getX() + "/" + structurePos.getZ());
                                         data.setIsland(structurePos.getX(), structurePos.getZ());
                                     }
                                 }
@@ -234,11 +308,43 @@ public class IslandCommand extends CommandBase
             }
     	}
     }
+    
+    private void setPlayerSpawn(final EntityPlayerMP player, final BlockPos pos)
+    {
+    	player.setSpawnPoint(pos, true);
+        player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+
+        ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+        if (data != null)
+        {
+            data.setIsland(pos.getX(), pos.getZ());
+        }
+    }
 
     //From the Forge CommandSetDimension
     private static boolean checkEntity(Entity entity)
     {
         // use vanilla portal logic, try to avoid doing anything too silly
         return !entity.isRiding() && !entity.isBeingRidden() && entity.isNonBoss();
+    }
+    
+    public static BlockPos getTopSolidOrLiquidBlock(World world, BlockPos pos)
+    {
+        Chunk chunk = world.getChunkFromBlockCoords(pos);
+        BlockPos blockpos;
+        BlockPos blockpos1;
+
+        for (blockpos = new BlockPos(pos.getX(), chunk.getTopFilledSegment() + 16, pos.getZ()); blockpos.getY() >= 0; blockpos = blockpos1)
+        {
+            blockpos1 = blockpos.down();
+            IBlockState state = chunk.getBlockState(blockpos1);
+
+            if (state.getMaterial().blocksMovement())
+            {
+                break;
+            }
+        }
+
+        return blockpos;
     }
 }

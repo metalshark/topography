@@ -2,17 +2,24 @@ package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
+import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.event.EventSubscriber;
+import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
+import com.bloodnbonesgaming.topography.world.generator.IGenerator;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -93,33 +100,57 @@ public class AcceptCommand extends CommandBase
                         	final WorldProviderConfigurable provider = (WorldProviderConfigurable) world.provider;
                             DimensionDefinition definition = provider.getDefinition();
                             
-                            if (definition.shouldCaptureTeleports())
-                            {
-                                SpawnStructure structure = definition.getSpawnStructure();
-                                
-                                if (structure != null)
-                                {                    
-                                    final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
+                            SpawnStructure structure = definition.getSpawnStructure();
+                            
+                            if (structure != null)
+                            {                    
+                                final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
-                                    if (template != null)
+                                if (template != null)
+                                {
+                                    BlockPos spawn = StructureHelper.getSpawn(template);
+                                    
+                                    if (spawn != null)
                                     {
-                                        BlockPos spawn = StructureHelper.getSpawn(template);
-                                        
-                                        if (spawn != null)
-                                        {
-                                            spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
-                                            invitee.setSpawnPoint(spawn, true);
-                                            invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
+                                        spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
+                                        invitee.setSpawnPoint(spawn, true);
+                                        invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
 
-                                            ITopographyPlayerData inviteeData = inviter.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                        ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                        inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
+                                        
+                                        if (invitee.world.provider.getDimension() != 0)
+                                        {
+                                            invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
+                                        }
+                                        return;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                            	for (final IGenerator generator : definition.getGenerators())
+                                {
+                                    if (generator instanceof SkyIslandGenerator)
+                                    {                                        
+                                        if (inviterData != null && inviterData.getIslandX() != 0 && inviterData.getIslandZ() != 0)
+                                        {
+                                            final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());
+                                            final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                            
+                                            invitee.setSpawnPoint(topBlock, true);
+                                            invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
+
+                                            ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
                                             inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
                                             
                                             if (invitee.world.provider.getDimension() != 0)
                                             {
-                                                invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
+                                                invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
                                             }
                                             return;
                                         }
+                                        break;
                                     }
                                 }
                             }

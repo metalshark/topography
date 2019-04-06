@@ -256,17 +256,7 @@ public class ConfigurationManager {
     
     public ConfigPreset getPreset()
     {
-        ConfigPreset preset = this.presets.get(this.generatorSettings);
-        
-        if (preset == null)
-        {
-            for (final ConfigPreset value : this.presets.values())
-            {
-                preset = value;
-                break;
-            }
-        }
-        return preset;
+        return this.presets.get(this.generatorSettings);
     }
     
     public LockHandler getLockHandler()

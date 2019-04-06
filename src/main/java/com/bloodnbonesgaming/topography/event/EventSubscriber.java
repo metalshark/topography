@@ -159,16 +159,19 @@ public class EventSubscriber
         		
         		if (!persistent.hasKey("topography_initial"))
         		{
-        			final List<ResourceLocation> functions = ConfigurationManager.getInstance().getPreset().getInitialPlayerFunctions();
-        			
-        			for (final ResourceLocation function : functions)
+        			if (ConfigurationManager.getInstance().getPreset() != null)
         			{
-        				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+            			final List<ResourceLocation> functions = ConfigurationManager.getInstance().getPreset().getInitialPlayerFunctions();
             			
-                        FunctionObject functionobject = server.getFunctionManager().getFunction(function);
-                        server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+            			for (final ResourceLocation function : functions)
+            			{
+            				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
+                			
+                            FunctionObject functionobject = server.getFunctionManager().getFunction(function);
+                            server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+            			}
+            			persistent.setBoolean("topography_initial", true);
         			}
-        			persistent.setBoolean("topography_initial", true);
         		}
     		}
     	}

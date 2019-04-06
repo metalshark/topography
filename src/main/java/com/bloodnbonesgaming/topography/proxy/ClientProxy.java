@@ -1,5 +1,6 @@
 package com.bloodnbonesgaming.topography.proxy;
 
+import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.event.ClientEventSubscriber;
@@ -37,8 +38,7 @@ public class ClientProxy extends CommonProxy
             
             if (ConfigurationManager.getInstance() != null)
             {
-                ISaveHandler isavehandler = Minecraft.getMinecraft().getSaveLoader().getSaveLoader(server.getFolderName(), false);
-                WorldInfo worldinfo = isavehandler.loadWorldInfo();
+            	WorldInfo worldinfo = IOHelper.readWorldInfo(server.getFolderName());
                 
                 if (worldinfo != null)
                 {

@@ -15,9 +15,12 @@ import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.LockHandler;
 import com.bloodnbonesgaming.topography.util.FixedTemplate;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.chunk.storage.AnvilSaveConverter;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.storage.WorldInfo;
 
 public class IOHelper
 {
@@ -107,5 +110,30 @@ public class IOHelper
             file.getParentFile().mkdirs();
         }
         FileHelper.writeText(file, handler.getUnlocks());
+    }
+    
+    public static WorldInfo readWorldInfo(final String serverFolderName)
+    {
+    	File worldDirectory = new File(((AnvilSaveConverter)Minecraft.getMinecraft().getSaveLoader()).savesDirectory, serverFolderName);
+
+//    	if (worldDirectory.exists())
+    	{
+            File file = new File(worldDirectory, "level.dat");
+            
+//            if (file.exists())
+            {
+            	NBTTagCompound compound;
+    			try (FileInputStream stream = new FileInputStream(file)){
+    				
+    				compound = CompressedStreamTools.readCompressed(stream);
+    	            NBTTagCompound data = compound.getCompoundTag("Data");
+    	            return new WorldInfo(data);
+    	            
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+            }
+    	}
+        return null;
     }
 }

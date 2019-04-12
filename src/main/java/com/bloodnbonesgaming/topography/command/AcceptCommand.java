@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -79,10 +80,12 @@ public class AcceptCommand extends CommandBase
             
             if (AcceptCommand.identifiers.containsKey(inviter.getDisplayNameString()))
             {
+                sender.sendMessage(new TextComponentString("Invite found for inviter: " + inviter.getDisplayNameString()));
             	final Map<String, Long> inner = AcceptCommand.identifiers.get(inviter.getDisplayNameString());
 
                 if (inner.containsKey(invitee.getDisplayNameString()) && inner.get(invitee.getDisplayNameString()).longValue() == Long.valueOf(args[1]).longValue())
                 {
+                    sender.sendMessage(new TextComponentString("Matching identifier found."));
                 	inner.remove(invitee.getDisplayNameString());
                 	
                 	if (inner.isEmpty())
@@ -93,25 +96,30 @@ public class AcceptCommand extends CommandBase
                     
                     if (inviterData != null)
                     {
+                        sender.sendMessage(new TextComponentString("Inviter capability found."));
                     	final World world = server.getWorld(0);
                     	
                     	if (world.provider instanceof WorldProviderConfigurable)
                     	{
+                            sender.sendMessage(new TextComponentString("Dimension 0 is a Topography dimension."));
                         	final WorldProviderConfigurable provider = (WorldProviderConfigurable) world.provider;
                             DimensionDefinition definition = provider.getDefinition();
                             
                             SpawnStructure structure = definition.getSpawnStructure();
                             
                             if (structure != null)
-                            {                    
+                            {
+                                sender.sendMessage(new TextComponentString("Dimension has spawn structure."));
                                 final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
                                 if (template != null)
                                 {
+                                    sender.sendMessage(new TextComponentString("Template loaded properly."));
                                     BlockPos spawn = StructureHelper.getSpawn(template);
                                     
                                     if (spawn != null)
                                     {
+                                        sender.sendMessage(new TextComponentString("Structure spawn location calculated."));
                                         spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
                                         invitee.setSpawnPoint(spawn, true);
                                         invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
@@ -123,6 +131,7 @@ public class AcceptCommand extends CommandBase
                                         {
                                             invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
                                         }
+                                        sender.sendMessage(new TextComponentString("Command successful."));
                                         return;
                                     }
                                 }
@@ -132,9 +141,11 @@ public class AcceptCommand extends CommandBase
                             	for (final IGenerator generator : definition.getGenerators())
                                 {
                                     if (generator instanceof SkyIslandGenerator)
-                                    {                                        
-                                        if (inviterData != null && inviterData.getIslandX() != 0 && inviterData.getIslandZ() != 0)
+                                    {
+                                        sender.sendMessage(new TextComponentString("Dimension has a sky island generator."));
+                                        if (inviterData.getIslandX() != 0 && inviterData.getIslandZ() != 0)
                                         {
+                                            sender.sendMessage(new TextComponentString("Inviter has a sky island."));
                                             final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());
                                             final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
                                             
@@ -148,7 +159,45 @@ public class AcceptCommand extends CommandBase
                                             {
                                                 invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
                                             }
+                                            sender.sendMessage(new TextComponentString("Command successful."));
+                                            inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
                                             return;
+                                        }
+                                        else
+                                        {
+                                            sender.sendMessage(new TextComponentString("Inviter does not have a sky island."));
+                                        	final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
+                                        	
+                                        	final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
+                                            
+                                            if (iterator.hasNext())
+                                            {
+                                                final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                                                
+                                                final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
+                                                
+                                                if (positions.hasNext())
+                                                {
+                                                    final Entry<BlockPos, SkyIslandType> island = positions.next();
+                                                    
+                                                    final BlockPos pos = island.getKey();
+                                                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                                    
+                                                    invitee.setSpawnPoint(topBlock, true);
+                                                    invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
+
+                                                    ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                                    inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
+                                                    
+                                                    if (invitee.world.provider.getDimension() != 0)
+                                                    {
+                                                        invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
+                                                    }
+                                                    sender.sendMessage(new TextComponentString("Command successful."));
+                                                    inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
+                                                    return;
+                                                }
+                                            }
                                         }
                                         break;
                                     }

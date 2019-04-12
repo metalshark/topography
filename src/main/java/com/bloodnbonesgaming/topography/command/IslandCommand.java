@@ -89,9 +89,7 @@ public class IslandCommand extends CommandBase
             }
             
         	final World world = DimensionManager.getWorld(0);
-        	String script = ConfigurationManager.getInstance().getPreset().getScript(world.provider.getDimension());
-            DimensionDefinition definition = new DimensionDefinition();
-            IOHelper.loadDimensionDefinition(script, definition);
+        	DimensionDefinition definition = ConfigurationManager.getInstance().getPreset().getDefinition(world.provider.getDimension());
             
             if (definition.getSpawnStructure() != null)
             {
@@ -255,9 +253,7 @@ public class IslandCommand extends CommandBase
                 	
         			for (final int dimension : ConfigurationManager.getInstance().getPreset().getDimensions())
         			{
-        				String script = ConfigurationManager.getInstance().getPreset().getScript(dimension);
-        	            DimensionDefinition definition = new DimensionDefinition();
-        	            IOHelper.loadDimensionDefinition(script, definition);
+        				DimensionDefinition definition = ConfigurationManager.getInstance().getPreset().getDefinition(dimension);
         	            
         	            SpawnStructure structure = definition.getSpawnStructure();
         	            

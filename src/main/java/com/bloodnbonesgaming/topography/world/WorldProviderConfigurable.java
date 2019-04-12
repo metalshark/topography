@@ -2,7 +2,6 @@ package com.bloodnbonesgaming.topography.world;
 
 import javax.annotation.Nullable;
 
-import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.renderer.CloudRendererDisabled;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
@@ -16,7 +15,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
-import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.common.DimensionManager;
@@ -56,9 +54,7 @@ public class WorldProviderConfigurable extends WorldProvider
 //        new Exception().printStackTrace();
         if (preset != null)
         {
-            String script = preset.getScript(this.getDimension());
-            this.definition = new DimensionDefinition();
-            IOHelper.loadDimensionDefinition(script, definition);
+        	this.definition = preset.getDefinition(this.getDimension());
             this.biomeProvider = this.definition.getBiomeProvider(this.world);
             this.hasSkyLight = this.definition.skylight();
             this.doesWaterVaporize = this.definition.shouldVaporieWater();
@@ -77,10 +73,6 @@ public class WorldProviderConfigurable extends WorldProvider
                 	}
                 }
             }
-        }
-        else
-        {
-            this.biomeProvider = new BiomeProvider(this.world.getWorldInfo());
         }
     }
     

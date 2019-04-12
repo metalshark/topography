@@ -29,16 +29,19 @@ import com.google.gson.JsonParser;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPortal;
+import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.CommandSenderWrapper;
 import net.minecraft.command.FunctionObject;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
@@ -50,7 +53,6 @@ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -145,7 +147,7 @@ public class EventSubscriber
     public void playerLoginEvent(final PlayerLoggedInEvent event)
     {
     	if (!event.player.world.isRemote)
-    	{
+    	{    		
     		if (ConfigurationManager.getInstance() != null)
     		{
     			final NBTTagCompound nbt = event.player.getEntityData();
@@ -168,7 +170,62 @@ public class EventSubscriber
             				final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance().getServer();
                 			
                             FunctionObject functionobject = server.getFunctionManager().getFunction(function);
-                            server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
+                            
+                            
+//                            server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(event.player).computePositionVector().withPermissionLevel(42).withSendCommandFeedback(true));
+
+                	        if (functionobject != null)
+                	        {
+                    			Topography.instance.getLog().info("Running initial function " + function.toString() + " for player " + event.player.getName());
+                	            ICommandSender icommandsender = new ICommandSender()
+                	            {
+                	                public String getName()
+                	                {
+                	                    return event.player.getName();
+                	                }
+                	                public ITextComponent getDisplayName()
+                	                {
+                	                    return event.player.getDisplayName();
+                	                }
+                	                public void sendMessage(ITextComponent component)
+                	                {
+                	                }
+                	                public boolean canUseCommand(int permLevel, String commandName)
+                	                {
+                	                    return true;
+                	                }
+                	                public BlockPos getPosition()
+                	                {
+                	                    return event.player.getPosition();
+                	                }
+                	                public Vec3d getPositionVector()
+                	                {
+                	                    return event.player.getPositionVector();
+                	                }
+                	                public World getEntityWorld()
+                	                {
+                	                    return event.player.world;
+                	                }
+                	                public Entity getCommandSenderEntity()
+                	                {
+                	                    return event.player;
+                	                }
+                	                public boolean sendCommandFeedback()
+                	                {
+                	                	return true;
+//                	                    return server.worlds[0].getGameRules().getBoolean("commandBlockOutput");
+                	                }
+                	                public void setCommandStat(CommandResultStats.Type type, int amount)
+                	                {
+                	                	event.player.setCommandStat(type, amount);
+                	                }
+                	                public MinecraftServer getServer()
+                	                {
+                	                    return event.player.getServer();
+                	                }
+                	            };
+                	            server.getFunctionManager().execute(functionobject, icommandsender);
+                	        }
             			}
             			persistent.setBoolean("topography_initial", true);
         			}
@@ -226,7 +283,7 @@ public class EventSubscriber
                                         
                                         if (functionobject != null)
                                         {
-                                        	Topography.instance.getLog().info("Running initial server function.");
+                                        	Topography.instance.getLog().info("Running initial server function: " + function);
         	                                server.getFunctionManager().execute(functionobject, CommandSenderWrapper.create(server).computePositionVector().withPermissionLevel(2).withSendCommandFeedback(false));
                                         }
                                 	}

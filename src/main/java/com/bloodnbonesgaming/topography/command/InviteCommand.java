@@ -1,6 +1,7 @@
 package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import net.minecraft.util.text.event.ClickEvent;
 public class InviteCommand extends CommandBase
 {
     final List<String> aliases = new ArrayList<String>();
-    final Random random = new Random();
+    private final Random random = new Random();
 
     @Override
     public int compareTo(ICommand arg0)
@@ -64,6 +65,8 @@ public class InviteCommand extends CommandBase
             TextComponentString component = new TextComponentString("You've been invited by " + inviter.getDisplayNameString() + ". Click message to accept. You will be moved to their structure, and you will be unable to return.");
             component.getStyle().setColor(TextFormatting.GREEN).setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/topography accept " + inviter.getDisplayNameString() + " " + identifier));
             invitee.sendMessage(component);
+
+            invitee.sendMessage(new TextComponentString("Identifier: " + identifier));
             
             if (!AcceptCommand.identifiers.containsKey(inviter.getDisplayNameString()))
             {
@@ -88,7 +91,7 @@ public class InviteCommand extends CommandBase
     @Override
     public boolean isUsernameIndex(String[] args, int index)
     {
-        return false;
+        return index == 0;
     }
 
     public int getRequiredPermissionLevel()

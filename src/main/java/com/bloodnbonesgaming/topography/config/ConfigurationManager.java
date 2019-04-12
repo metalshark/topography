@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.bloodnbonesgaming.lib.BNBGamingLib;
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptDocumentationHandler;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
@@ -155,6 +154,14 @@ public class ConfigurationManager {
             }
         }
         Topography.instance.getLog().info("Done Re-Registering dimensions");
+        
+        Topography.instance.getLog().info("Loading all dimension definitions");
+        
+        if (preset != null)
+        {
+        	preset.loadAllDefinitions();
+        }
+        Topography.instance.getLog().info("All dimension definitions loaded");
     }
     
     private void loadDimensionMap()

@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.IOHelper;
+import com.bloodnbonesgaming.topography.Topography;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.EnumDifficulty;
@@ -26,6 +29,7 @@ public class ConfigPreset
     private List<ResourceLocation> initialServerFunctions = new ArrayList<ResourceLocation>();
     
     private final Map<Integer, String> scripts = new HashMap<Integer, String>();
+    private final Map<Integer, DimensionDefinition> definitions = new HashMap<Integer, DimensionDefinition>();
     private boolean locked = false;
     private boolean disableNetherPortal = false;
     
@@ -203,5 +207,28 @@ public class ConfigPreset
 	public boolean shouldDisableNetherPortal()
 	{
 		return this.disableNetherPortal;
+	}
+	
+	public DimensionDefinition getDefinition(final int dimension)
+	{
+		if (!this.definitions.containsKey(dimension))
+		{
+			Topography.instance.getLog().info("Loading Dimension Definition for " + dimension);
+			final DimensionDefinition definition = new DimensionDefinition();
+			IOHelper.loadDimensionDefinition(this.scripts.get(dimension), definition);
+			this.definitions.put(dimension, definition);
+		}
+		return this.definitions.get(dimension);
+	}
+	
+	public void loadAllDefinitions()
+	{
+		for (Entry<Integer, String> entry : this.scripts.entrySet())
+		{
+			Topography.instance.getLog().info("Loading Dimension Definition for " + entry.getKey());
+			final DimensionDefinition definition = new DimensionDefinition();
+			IOHelper.loadDimensionDefinition(entry.getValue(), definition);
+			this.definitions.put(entry.getKey(), definition);
+		}
 	}
 }

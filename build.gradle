@@ -49,6 +49,7 @@ dependencies {
 	//compile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.15.527"
     compile fileTree(dir: 'dependencies/BNBGamingLib', include: '*.jar')
     compile fileTree(dir: 'dependencies/CraftTweaker', include: '*.jar')
+    compile fileTree(dir: 'dependencies/WorldBook', include: '*.jar')
 }
 
 processResources

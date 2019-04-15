@@ -1,7 +1,6 @@
 package com.bloodnbonesgaming.topography.command;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +13,6 @@ import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.event.EventSubscriber;
-import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
@@ -80,12 +78,10 @@ public class AcceptCommand extends CommandBase
             
             if (AcceptCommand.identifiers.containsKey(inviter.getDisplayNameString()))
             {
-                sender.sendMessage(new TextComponentString("Invite found for inviter: " + inviter.getDisplayNameString()));
             	final Map<String, Long> inner = AcceptCommand.identifiers.get(inviter.getDisplayNameString());
 
                 if (inner.containsKey(invitee.getDisplayNameString()) && inner.get(invitee.getDisplayNameString()).longValue() == Long.valueOf(args[1]).longValue())
                 {
-                    sender.sendMessage(new TextComponentString("Matching identifier found."));
                 	inner.remove(invitee.getDisplayNameString());
                 	
                 	if (inner.isEmpty())
@@ -96,12 +92,10 @@ public class AcceptCommand extends CommandBase
                     
                     if (inviterData != null)
                     {
-                        sender.sendMessage(new TextComponentString("Inviter capability found."));
                     	final World world = server.getWorld(0);
                     	
                     	if (world.provider instanceof WorldProviderConfigurable)
                     	{
-                            sender.sendMessage(new TextComponentString("Dimension 0 is a Topography dimension."));
                         	final WorldProviderConfigurable provider = (WorldProviderConfigurable) world.provider;
                             DimensionDefinition definition = provider.getDefinition();
                             
@@ -109,17 +103,14 @@ public class AcceptCommand extends CommandBase
                             
                             if (structure != null)
                             {
-                                sender.sendMessage(new TextComponentString("Dimension has spawn structure."));
                                 final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
                                 if (template != null)
                                 {
-                                    sender.sendMessage(new TextComponentString("Template loaded properly."));
                                     BlockPos spawn = StructureHelper.getSpawn(template);
                                     
                                     if (spawn != null)
                                     {
-                                        sender.sendMessage(new TextComponentString("Structure spawn location calculated."));
                                         spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
                                         invitee.setSpawnPoint(spawn, true);
                                         invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
@@ -131,7 +122,7 @@ public class AcceptCommand extends CommandBase
                                         {
                                             invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
                                         }
-                                        sender.sendMessage(new TextComponentString("Command successful."));
+                                        inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
                                         return;
                                     }
                                 }
@@ -142,7 +133,6 @@ public class AcceptCommand extends CommandBase
                                 {
                                     if (generator instanceof SkyIslandGenerator)
                                     {
-                                        sender.sendMessage(new TextComponentString("Dimension has a sky island generator."));
                                         if (inviterData.getIslandX() != 0 && inviterData.getIslandZ() != 0)
                                         {
                                             sender.sendMessage(new TextComponentString("Inviter has a sky island."));
@@ -159,7 +149,6 @@ public class AcceptCommand extends CommandBase
                                             {
                                                 invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
                                             }
-                                            sender.sendMessage(new TextComponentString("Command successful."));
                                             inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
                                             return;
                                         }
@@ -193,7 +182,6 @@ public class AcceptCommand extends CommandBase
                                                     {
                                                         invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
                                                     }
-                                                    sender.sendMessage(new TextComponentString("Command successful."));
                                                     inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
                                                     return;
                                                 }

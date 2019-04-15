@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenRavine;
 
-@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "VanillaQuartzGenerator", classExplaination = 
-"This file is for the VanillaQuartzGenerator. Generates vanilla ravines.")
+@ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "VanillaRavineGenerator", classExplaination = 
+"This file is for the VanillaRavineGenerator. Generates vanilla ravines.")
 public class VanillaRavineGenerator extends MapGenRavine implements IGenerator {
 
     @ScriptMethodDocumentation(usage = "", notes = "This constructs a VanillaRavineGenerator.")

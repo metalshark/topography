@@ -54,7 +54,7 @@ public class DimensionDefinition
 {
     public final Map<String, Class> classKeywords = new HashMap<String, Class>();
     private SpawnStructure spawnStructure;
-    private int spawnStructureSpacing = 65;
+    private Integer spawnStructureSpacing = null;
     private boolean enviromentalFog = false;
     private Float celestialAngle;
     private boolean renderSky = true;
@@ -411,6 +411,10 @@ public class DimensionDefinition
 	
 	public int getSpawnStructureSpacing()
 	{
+		if (this.spawnStructureSpacing == null)
+		{
+			return ConfigurationManager.getInstance().getSpawnStructureSpacing();
+		}
 		return this.spawnStructureSpacing;
 	}
 	

@@ -221,6 +221,11 @@ public class ConfigPreset
 		return this.definitions.get(dimension);
 	}
 	
+	public Map<Integer, DimensionDefinition> getAllDefinitions()
+	{
+		return this.definitions;
+	}
+	
 	public void loadAllDefinitions()
 	{
 		for (Entry<Integer, String> entry : this.scripts.entrySet())

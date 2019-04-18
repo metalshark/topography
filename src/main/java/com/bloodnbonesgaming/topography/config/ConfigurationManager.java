@@ -37,6 +37,7 @@ public class ConfigurationManager {
     
     private boolean defaultWorldType = false;
     private boolean printDocumentation = true;
+    private int spawnStructureSpacing = 64;
 
     private ExecutorService executor;
     
@@ -243,6 +244,17 @@ public class ConfigurationManager {
     public boolean defaultWorldType()
     {
         return this.defaultWorldType;
+    }
+    
+    @ScriptMethodDocumentation(args = "int", usage = "spacing", notes = "Sets the spacing between spawn structures.")
+	public void setSpawnStructureSpacing(final int spacing)
+	{
+    	this.spawnStructureSpacing = spacing;
+	}
+    
+    public int getSpawnStructureSpacing()
+    {
+    	return this.spawnStructureSpacing;
     }
     
 //    public void registerWorldType(final String name, final String script) throws Exception

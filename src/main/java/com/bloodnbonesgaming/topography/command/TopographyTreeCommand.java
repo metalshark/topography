@@ -1,5 +1,7 @@
 package com.bloodnbonesgaming.topography.command;
 
+import com.bloodnbonesgaming.topography.command.island.Island;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.server.command.CommandTreeBase;
@@ -8,11 +10,10 @@ public class TopographyTreeCommand extends CommandTreeBase {
 
 	public TopographyTreeCommand()
     {
-		super.addSubcommand(new IslandCommand());
+		super.addSubcommand(new Island());
 		super.addSubcommand(new UnlockPresetCommand());
 		super.addSubcommand(new LockPresetCommand());
-		super.addSubcommand(new InviteCommand());
-		super.addSubcommand(new AcceptCommand());
+		this.addSubcommand(new Spawn());
     }
 
     /**

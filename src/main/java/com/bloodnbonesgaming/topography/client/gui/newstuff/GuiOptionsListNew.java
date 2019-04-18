@@ -49,6 +49,39 @@ public class GuiOptionsListNew extends GuiScrollingList
         this.selectedIndex = index;
         this.parent.onListSelected(presets.get(index));
     }
+    
+    public void down()
+    {
+    	this.selectedIndex = this.selectedIndex + 1;
+    	
+    	if (scrollDistance < this.slotHeight * (this.selectedIndex + 1) - (this.bottom - this.top))
+    	{
+        	this.scrollDistance += this.slotHeight;
+    	}
+    			
+    	if (this.presets.size() <= this.selectedIndex)
+    	{
+    		this.selectedIndex = 0;
+    		this.scrollDistance = 0;
+    	}
+    	this.elementClicked(this.selectedIndex, false);
+    }
+    
+    public void up()
+    {
+    	this.selectedIndex = this.selectedIndex - 1;
+    	if (scrollDistance > this.slotHeight * this.selectedIndex)
+    	{
+        	this.scrollDistance -= this.slotHeight;
+    	}
+		
+    	if (this.selectedIndex < 0)
+    	{
+    		this.selectedIndex = this.presets.size() - 1;
+    		this.scrollDistance = this.slotHeight * this.presets.size();
+    	}
+    	this.elementClicked(this.selectedIndex, false);
+    }
 
     @Override
     protected boolean isSelected(int index)

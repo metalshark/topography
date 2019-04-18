@@ -1,7 +1,6 @@
-package com.bloodnbonesgaming.topography.command;
+package com.bloodnbonesgaming.topography.command.island;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +13,11 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
+import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
@@ -27,10 +28,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.command.SyntaxErrorException;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -44,26 +42,20 @@ import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class IslandCommand extends CommandBase
+public class IslandHome extends CommandBase
 {
     final List<String> aliases = new ArrayList<String>();
 
     @Override
-    public int compareTo(ICommand arg0)
-    {
-        return 0;
-    }
-
-    @Override
     public String getName()
     {
-        return "island";
+        return "home";
     }
 
     @Override
     public String getUsage(ICommandSender sender)
     {
-        return "Use /topography island <player>";
+        return "Use /topography island home [player]";
     }
 
     @Override
@@ -75,69 +67,157 @@ public class IslandCommand extends CommandBase
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
-        if (args.length > 0)
-        {
-        	Entity entity = getEntity(server, sender, args[0], EntityPlayerMP.class);
-        	
-            if (!checkEntity(entity))
-            {
-                throw new CommandException("The entity selected (%s) is not valid.", entity.getName());
-            }
-            if (entity.world.provider.getDimension() != 0)
-            {
-            	throw new CommandException("This command may only be run in dimension 0.");
-            }
+    	EntityPlayerMP player;
+    	
+    	if (args.length == 0)
+    	{
+    		if (sender instanceof EntityPlayerMP)
+    		{
+    			player = (EntityPlayerMP) sender;
+    		}
+    		else
+    		{
+                throw new CommandException("Command must have a target argument if not run by a player.");
+    		}
+    	}
+    	else
+    	{
+    		player = CommandBase.getPlayer(server, sender, args[0]);
+    		
+    		if (player == null)
+    		{
+                throw new CommandException("The entity selected (%s) is not a valid player.", args[0]);
+    		}
+    	}
+    	
+    	WorldServer world = DimensionManager.getWorld(0);
+    	
+    	if (world.provider instanceof WorldProviderConfigurable)
+    	{
+        	DimensionDefinition definition = ((WorldProviderConfigurable)world.provider).getDefinition();
+        	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
             
-        	final World world = DimensionManager.getWorld(0);
-        	DimensionDefinition definition = ConfigurationManager.getInstance().getPreset().getDefinition(world.provider.getDimension());
-            
-            if (definition.getSpawnStructure() != null)
+            if (data != null && data.getIslandX() != 0 && data.getIslandZ() != 0)
             {
-                final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity, definition);
-                this.spawnIslands((EntityPlayerMP) entity, pos.getX(), pos.getZ());
-                return;
+            	this.teleportPlayerHome(player, world, definition);
             }
             else
-            {                
-                for (final IGenerator generator : definition.getGenerators())
+            {
+                if (definition.getSpawnStructure() != null)
                 {
-                    if (generator instanceof SkyIslandGenerator)
+                	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's make you one! This may take a few seconds."));
+                    final BlockPos pos = this.findNextIsland(player, definition);
+                    this.spawnIslands(player, pos.getX(), pos.getZ());
+                    return;
+                }
+                else
+                {                
+                    for (final IGenerator generator : definition.getGenerators())
                     {
-                        final BlockPos pos = this.findNextIsland((EntityPlayerMP) entity, definition);
-                        this.setPlayerSpawn((EntityPlayerMP) entity, pos);
-                        return;
+                        if (generator instanceof SkyIslandGenerator)
+                        {
+                        	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's find you one! This may take a few seconds."));
+                            final BlockPos pos = this.findNextIsland(player, definition);
+                            this.setPlayerSpawn(player, pos);
+                            return;
+                        }
                     }
                 }
+                throw new CommandException("This preset does not appear to have spawn structures or sky islands islands in dimension 0.");
             }
-            throw new CommandException("This preset does not have spawn structures or sky islands.");
-        }
-        else
-        {
-            throw new SyntaxErrorException(this.getUsage(sender));
-        }
-    }
-
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos)
-    {
-        return args.length >= 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : Collections.emptyList();
+    	}
+    	else
+    	{
+            throw new CommandException("Command can only be used if the overworld is created using Topography.");
+    	}
     }
 
     @Override
     public boolean isUsernameIndex(String[] args, int index)
     {
-        return false;
+        return index == 0;
     }
 
     public int getRequiredPermissionLevel()
     {
-        return 3;
+        return 0;
     }
     
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    	return true;
+    }
+    
+    private void teleportPlayerHome(final EntityPlayerMP player, WorldServer world, DimensionDefinition definition) throws CommandException
     {
-        return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getName());
+    	BlockPos blockpos = player.getBedLocation(0);
+        boolean forced = player.isSpawnForced(0);
+		
+		if (blockpos != null)
+        {
+			blockpos = EntityPlayer.getBedSpawnLocation(world, blockpos, forced);
+
+            if (blockpos != null)
+            {
+            	player.sendMessage(new TextComponentString("Teleporting you to your spawn."));
+                this.teleportPlayer(player, 0, blockpos);
+                return;
+            }
+        }
+    	
+        SpawnStructure structure = definition.getSpawnStructure();
+        
+        if (structure != null)
+        {
+            final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
+
+            if (template != null)
+            {
+                BlockPos spawn = StructureHelper.getSpawn(template);
+                
+                if (spawn != null)
+                {
+                	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                    spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
+                    
+                    blockpos = spawn.add(0, structure.getHeight(), 0);
+                    
+                	player.sendMessage(new TextComponentString("Teleporting you to your structure."));
+                    this.teleportPlayer(player, 0, blockpos);
+                    return;
+                }
+            }
+        }
+        else
+        {
+        	for (final IGenerator generator : definition.getGenerators())
+            {
+                if (generator instanceof SkyIslandGenerator)
+                {                    
+                    ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                    
+                    blockpos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
+                	blockpos = IslandHome.getTopSolidOrLiquidBlock(world, blockpos).up();
+
+                	player.sendMessage(new TextComponentString("Teleporting you to your sky island."));
+                    this.teleportPlayer(player, 0, blockpos);
+                    return;
+                }
+            }
+        }
+        throw new CommandException("This preset does not appear to have spawn structures or islands in dimension 0.");
+    }
+    
+    private void teleportPlayer(EntityPlayerMP player, int dimension, BlockPos pos)
+    {
+    	if (player.world.provider.getDimension() != dimension)
+    	{
+        	player.changeDimension(0, new ReTeleporter(pos));
+    	}
+    	else
+    	{
+            player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+    	}
     }
     
     private BlockPos findNextIsland(final EntityPlayer player, final DimensionDefinition definition) throws CommandException
@@ -226,7 +306,7 @@ public class IslandCommand extends CommandBase
                     final Entry<BlockPos, SkyIslandType> island = positions.next();
                     
                     final BlockPos pos = island.getKey();
-                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                    final BlockPos topBlock = IslandHome.getTopSolidOrLiquidBlock(world, pos);
                     
                 	return new BlockPos(topBlock.up());
                 }
@@ -307,21 +387,20 @@ public class IslandCommand extends CommandBase
     
     private void setPlayerSpawn(final EntityPlayerMP player, final BlockPos pos)
     {
-    	player.setSpawnPoint(pos, true);
-        player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+    	BlockPos spawn = pos.add(0.5, 0, 0.5);
+    	player.setSpawnPoint(spawn, true);
+        player.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
 
         ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
         if (data != null)
         {
+        	player.sendMessage(new TextComponentString("Setting player island."));
             data.setIsland(pos.getX(), pos.getZ());
         }
-    }
-
-    //From the Forge CommandSetDimension
-    private static boolean checkEntity(Entity entity)
-    {
-        // use vanilla portal logic, try to avoid doing anything too silly
-        return !entity.isRiding() && !entity.isBeingRidden() && entity.isNonBoss();
+        else
+        {
+        	player.sendMessage(new TextComponentString("Player has no data!"));
+        }
     }
     
     public static BlockPos getTopSolidOrLiquidBlock(World world, BlockPos pos)

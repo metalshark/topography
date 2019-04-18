@@ -494,6 +494,15 @@ public class GuiCreateWorldTopography extends GuiCreateWorld
         {
             this.actionPerformed(this.buttonList.get(1));
         }
+        
+        if (keyCode == Keyboard.KEY_UP)
+        {
+        	this.list.up();
+        }
+        if (keyCode == Keyboard.KEY_DOWN)
+        {
+        	this.list.down();
+        }
     }
 
     /**

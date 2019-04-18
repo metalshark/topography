@@ -1,4 +1,4 @@
-package com.bloodnbonesgaming.topography.command;
+package com.bloodnbonesgaming.topography.command.island;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +22,7 @@ import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -32,17 +30,11 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.Template;
 
-public class AcceptCommand extends CommandBase
+public class IslandAccept extends CommandBase
 {
     final List<String> aliases = new ArrayList<String>();
     //Inviter, invitee, random identifier for the invite
     public static final Map<String, Map<String, Long>> identifiers = new HashMap<String, Map<String, Long>>();
-
-    @Override
-    public int compareTo(ICommand arg0)
-    {
-        return 0;
-    }
 
     @Override
     public String getName()
@@ -53,7 +45,7 @@ public class AcceptCommand extends CommandBase
     @Override
     public String getUsage(ICommandSender sender)
     {
-        return "Use /topography accept <player>";
+        return "This isn't meant to be used except from clickable chat.";
     }
 
     @Override
@@ -67,18 +59,17 @@ public class AcceptCommand extends CommandBase
     {
         if (args.length > 0)
         {
-        	Entity entity = getEntity(server, sender, args[0], EntityPlayerMP.class);
+        	final EntityPlayerMP inviter = CommandBase.getPlayer(server, sender, args[0]);
         	
-            if (!checkEntity(entity))
+            if (inviter == null)
             {
-                throw new CommandException("The entity selected (%s) is not valid.", entity.getName());
+                throw new CommandException("The entity selected (%s) is not valid.", args[0]);
             }
             final EntityPlayerMP invitee = (EntityPlayerMP) sender;
-            final EntityPlayerMP inviter = (EntityPlayerMP) entity;
             
-            if (AcceptCommand.identifiers.containsKey(inviter.getDisplayNameString()))
+            if (IslandAccept.identifiers.containsKey(inviter.getDisplayNameString()))
             {
-            	final Map<String, Long> inner = AcceptCommand.identifiers.get(inviter.getDisplayNameString());
+            	final Map<String, Long> inner = IslandAccept.identifiers.get(inviter.getDisplayNameString());
 
                 if (inner.containsKey(invitee.getDisplayNameString()) && inner.get(invitee.getDisplayNameString()).longValue() == Long.valueOf(args[1]).longValue())
                 {
@@ -86,7 +77,7 @@ public class AcceptCommand extends CommandBase
                 	
                 	if (inner.isEmpty())
                 	{
-                		AcceptCommand.identifiers.remove(inviter.getDisplayNameString());
+                		IslandAccept.identifiers.remove(inviter.getDisplayNameString());
                 	}
                 	ITopographyPlayerData inviterData = inviter.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
                     
@@ -137,7 +128,7 @@ public class AcceptCommand extends CommandBase
                                         {
                                             sender.sendMessage(new TextComponentString("Inviter has a sky island."));
                                             final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());
-                                            final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                            final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
                                             
                                             invitee.setSpawnPoint(topBlock, true);
                                             invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
@@ -170,7 +161,7 @@ public class AcceptCommand extends CommandBase
                                                     final Entry<BlockPos, SkyIslandType> island = positions.next();
                                                     
                                                     final BlockPos pos = island.getKey();
-                                                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                                    final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
                                                     
                                                     invitee.setSpawnPoint(topBlock, true);
                                                     invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
@@ -208,7 +199,7 @@ public class AcceptCommand extends CommandBase
     @Override
     public boolean isUsernameIndex(String[] args, int index)
     {
-        return false;
+        return index == 0;
     }
 
     public int getRequiredPermissionLevel()
@@ -217,15 +208,7 @@ public class AcceptCommand extends CommandBase
     }
     
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-    {
-        return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getName());
-    }
-
-    //From the Forge CommandSetDimension
-    private static boolean checkEntity(Entity entity)
-    {
-        // use vanilla portal logic, try to avoid doing anything too silly
-        return !entity.isRiding() && !entity.isBeingRidden() && entity.isNonBoss();
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    	return true;
     }
 }

@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
-import com.bloodnbonesgaming.topography.command.IslandCommand;
+import com.bloodnbonesgaming.topography.command.island.IslandNew;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
@@ -51,6 +51,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -448,7 +449,7 @@ public class EventSubscriber
                                 if (data != null && data.getIslandX() != 0 && data.getIslandZ() != 0)
                                 {
                                     final BlockPos pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
-                                    final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                    final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
                                     
                                     event.setCanceled(true);
                                     this.teleporting = true;
@@ -470,7 +471,7 @@ public class EventSubscriber
                                         final Entry<BlockPos, SkyIslandType> island = positions.next();
                                         
                                         final BlockPos pos = island.getKey();
-                                        final BlockPos topBlock = IslandCommand.getTopSolidOrLiquidBlock(world, pos);
+                                        final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
                                         
                                         event.setCanceled(true);
                                         this.teleporting = true;
@@ -509,6 +510,21 @@ public class EventSubscriber
     	if (event.getObject() instanceof EntityPlayerMP)
     	{
     		event.addCapability(TopographyPlayerData.Provider.location, new TopographyPlayerData.Provider());
+    	}
+    }
+    
+    @SubscribeEvent
+    public void onPlayerClone(final PlayerEvent.Clone event)
+    {
+    	if (!event.getEntityPlayer().world.isRemote)
+    	{
+    		if (event.getOriginal().isDead)
+    		{
+    			ITopographyPlayerData orgData = event.getOriginal().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+    			ITopographyPlayerData newData = event.getEntityPlayer().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+    			
+    			newData.setIsland(orgData.getIslandX(), orgData.getIslandZ());
+    		}
     	}
     }
     

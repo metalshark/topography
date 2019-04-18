@@ -84,7 +84,7 @@ public class IslandInfo extends CommandBase
             
             if (data != null)
             {
-            	if (data.getIslandX() != 0 && data.getIslandZ() != 0)
+            	if (data.getIslandX() != 0 || data.getIslandZ() != 0)
             	{
                 	sender.sendMessage(new TextComponentString(this.findPlayerIsland(player, world, definition).toString()));
             	}

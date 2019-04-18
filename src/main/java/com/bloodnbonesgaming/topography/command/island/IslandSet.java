@@ -127,6 +127,7 @@ public class IslandSet extends CommandBase
                     pos = spawn.add(0, structure.getHeight(), 0);
                     
                 	player.sendMessage(new TextComponentString("Teleporting you to your structure."));
+                    player.setSpawnPoint(pos, true);
                     this.teleportPlayer(player, 0, pos);
                     return;
                 }
@@ -144,6 +145,7 @@ public class IslandSet extends CommandBase
                 	pos = IslandHome.getTopSolidOrLiquidBlock(world, pos).up();
 
                 	player.sendMessage(new TextComponentString("Teleporting you to your sky island."));
+                    player.setSpawnPoint(pos, true);
                     this.teleportPlayer(player, 0, pos);
                     return;
                 }

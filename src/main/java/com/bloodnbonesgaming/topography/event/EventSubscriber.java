@@ -446,7 +446,7 @@ public class EventSubscriber
                                 final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
                                 
                                 ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                                if (data != null && data.getIslandX() != 0 && data.getIslandZ() != 0)
+                                if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
                                 {
                                     final BlockPos pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
                                     final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);

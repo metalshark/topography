@@ -97,7 +97,7 @@ public class IslandHome extends CommandBase
         	DimensionDefinition definition = ((WorldProviderConfigurable)world.provider).getDefinition();
         	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
             
-            if (data != null && data.getIslandX() != 0 && data.getIslandZ() != 0)
+            if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
             {
             	this.teleportPlayerHome(player, world, definition);
             }

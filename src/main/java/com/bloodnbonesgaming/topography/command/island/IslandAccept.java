@@ -124,7 +124,7 @@ public class IslandAccept extends CommandBase
                                 {
                                     if (generator instanceof SkyIslandGenerator)
                                     {
-                                        if (inviterData.getIslandX() != 0 && inviterData.getIslandZ() != 0)
+                                        if (inviterData.getIslandX() != 0 || inviterData.getIslandZ() != 0)
                                         {
                                             sender.sendMessage(new TextComponentString("Inviter has a sky island."));
                                             final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());

@@ -2,10 +2,12 @@ package com.bloodnbonesgaming.topography.world.generator;
 
 import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.util.noise.FastNoise;
 import com.bloodnbonesgaming.topography.util.noise.FastNoise.FractalType;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -15,6 +17,12 @@ public class DuneTestGenerator implements IGenerator {
 	
 	final FastNoise noise = new FastNoise();
 	OpenSimplexNoiseGeneratorOctaves simplex;
+	private IBlockState state = Blocks.SAND.getDefaultState();
+	
+	public DuneTestGenerator(final ItemBlockData data) throws Exception
+	{
+		this.state = data.buildBlockState();
+	}
 
 	@Override
 	public void generate(World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random) {
@@ -40,7 +48,7 @@ public class DuneTestGenerator implements IGenerator {
         			
             		if (value * 64 >= y)
             		{
-            			primer.setBlockState(x, y, z, Blocks.SAND.getDefaultState());
+            			primer.setBlockState(x, y, z, this.state);
             		}
         		}
         	}

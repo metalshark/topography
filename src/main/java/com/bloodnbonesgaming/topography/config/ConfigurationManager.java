@@ -38,6 +38,7 @@ public class ConfigurationManager {
     private boolean defaultWorldType = false;
     private boolean printDocumentation = true;
     private int spawnStructureSpacing = 64;
+    private boolean disableWorldTypeButton = false;
 
     private ExecutorService executor;
     

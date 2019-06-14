@@ -28,6 +28,8 @@ public class CellNoiseGenerator implements IGenerator
     boolean invert = false;
     boolean closeTop = false;
     boolean openTop = true;
+    private float frequency = 0.005f;
+    private double cutoff = -0.15;
     
     @ScriptMethodDocumentation(usage = "", notes = "This constructs a CellNoiseGenerator that generates air blocks.")
 	public CellNoiseGenerator()
@@ -60,13 +62,25 @@ public class CellNoiseGenerator implements IGenerator
         this.openTop = true;
     }
     
+    @ScriptMethodDocumentation(args = "float", usage = "frequency", notes = "Sets the frequency for the cell noise used for the generator. Higher values = more frequent changes. Default is 0.005.")
+	public void setCellFrequency(final float frequency)
+    {
+    	this.frequency = frequency;
+    }
+    
+    @ScriptMethodDocumentation(args = "float", usage = "cutoff", notes = "Sets the noise cutoff for blocks to be placed. Higher values = more blocks. Default is -0.15.")
+	public void setCutoff(final float cutoff)
+    {
+    	this.cutoff = cutoff;
+    }
+    
     @Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, Random random)
     {
 
 //    	RunnableSimplexNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
 //    	RunnableFastNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16);
-    	RunnableSimplexSkewedCellNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16, 5, 33, 4, 8);
+    	RunnableSimplexSkewedCellNoise.getNoise(this.smallNoiseArray, world.getSeed(), chunkX * 16, 0, chunkZ * 16, 5, 33, 4, 8, this.frequency);
 //    	InterpolationTest.interpolate(this.smallNoiseArray, this.largeNoiseArray, 4, 52, 5, 5);
 //    	long start = System.nanoTime();
     	NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
@@ -96,7 +110,7 @@ public class CellNoiseGenerator implements IGenerator
                             scale = -((32 - (256 - y)) / 64.0);
                         }
                     }
-                        if (value + scale > -0.15)
+                        if (value + scale > this.cutoff)
                         {
                             {
                                 IBlockState block = this.state;

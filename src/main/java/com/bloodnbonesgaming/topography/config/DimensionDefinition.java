@@ -31,6 +31,7 @@ import com.bloodnbonesgaming.topography.world.generator.LayerGenerator;
 import com.bloodnbonesgaming.topography.world.generator.OverworldGenerator;
 import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
+import com.bloodnbonesgaming.topography.world.generator.VineGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaAnimalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaCaveGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaDecorationGenerator;
@@ -106,6 +107,7 @@ public class DimensionDefinition
         this.classKeywords.put("VanillaRavineGenerator", VanillaRavineGenerator.class);
         this.classKeywords.put("VanillaLakeGenerator", VanillaLakeGenerator.class);
         this.classKeywords.put("VanillaDungeonGenerator", VanillaDungeonGenerator.class);
+        this.classKeywords.put("VineGenerator", VineGenerator.class);
     }
     
     public BiomeProvider getBiomeProvider(final World world)

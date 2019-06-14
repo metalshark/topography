@@ -64,7 +64,14 @@ public class GuiOptionsListNew extends GuiScrollingList
     		this.selectedIndex = 0;
     		this.scrollDistance = 0;
     	}
-    	this.elementClicked(this.selectedIndex, false);
+    	if (this.presets.get(this.selectedIndex).locked())
+    	{
+    		this.down();
+    	}
+    	else
+    	{
+        	this.elementClicked(this.selectedIndex, false);
+    	}
     }
     
     public void up()
@@ -80,7 +87,14 @@ public class GuiOptionsListNew extends GuiScrollingList
     		this.selectedIndex = this.presets.size() - 1;
     		this.scrollDistance = this.slotHeight * this.presets.size();
     	}
-    	this.elementClicked(this.selectedIndex, false);
+    	if (this.presets.get(this.selectedIndex).locked())
+    	{
+    		this.up();
+    	}
+    	else
+    	{
+        	this.elementClicked(this.selectedIndex, false);
+    	}
     }
 
     @Override

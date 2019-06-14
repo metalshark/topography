@@ -65,13 +65,13 @@ public class RunnableSimplexSkewedCellNoise implements Runnable{
 		}
 	}
 	
-	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ, final int horizontalSize, final int verticalSize, final int horizontalSpacing, final int verticalSpacing)
+	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ, final int horizontalSize, final int verticalSize, final int horizontalSpacing, final int verticalSpacing, final float frequency)
 	{
 		RunnableSimplexSkewedCellNoise.array = array;
 		final List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
 		FastNoise noise = new FastNoise();
 		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.005f);
+        noise.SetFrequency(frequency);
         noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
         noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
         noise.SetSeed((int) seed);

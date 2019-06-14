@@ -45,6 +45,9 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class IslandHome extends CommandBase
 {
     final List<String> aliases = new ArrayList<String>();
+    {
+    	aliases.add("home");
+    }
 
     @Override
     public String getName()

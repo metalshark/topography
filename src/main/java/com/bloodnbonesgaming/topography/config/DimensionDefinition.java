@@ -513,7 +513,7 @@ public class DimensionDefinition
 		this.simpleBiomeProvider.addHills(biomes, hills);
 	}
 	
-	@ScriptMethodDocumentation(usage = "biomes to set river for, river to set", notes = "Overrides the default biome mapping, and adds river biomes to the provided biomes. Rivers can be set as any biome. Must be using 'addBiomes' or 'addOceanBiomes' to add biomes to the dimension.")
+	@ScriptMethodDocumentation(usage = "biomes to set river for, river to set", notes = "Overrides the default biome mapping, and sets the river biome for the provided biomes. Rivers can be set as any biome. Must be using 'addBiomes' or 'addOceanBiomes' to add biomes to the dimension.")
 	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY, ArgType.NON_NULL_BIOME_ID})
 	public void setRiver(final int[] biomes, final int river)
 	{

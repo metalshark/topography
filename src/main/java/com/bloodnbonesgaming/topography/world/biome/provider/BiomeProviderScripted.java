@@ -51,7 +51,7 @@ import net.minecraft.world.gen.layer.GenLayerSmooth;
 import net.minecraft.world.gen.layer.GenLayerVoronoiZoom;
 import net.minecraft.world.gen.layer.GenLayerZoom;
 
-@ScriptClassDocumentation(documentationFile = ModInfo.BIOME_PROVIDER_DOCUMENTATION_FOLDER + "CustomMedium", classExplaination = 
+@ScriptClassDocumentation(documentationFile = ModInfo.BIOME_PROVIDER_DOCUMENTATION_FOLDER + "ScriptBiomeProvider", classExplaination = 
 "The role of a BiomeProvider is to handle the generation of the dimensions biome map."
 	+ " This particular type allows for the creation of a layer based biome mapping system that allows for extreme configuration."
 	+ " The most important concept to keep in mind when building a BiomeProvider, is scale. Every zoom/magify increases the relative size of all GenLayers before it in the chain."

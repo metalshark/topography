@@ -15,8 +15,7 @@ import net.minecraft.world.gen.layer.IntCache;
 @ScriptClassDocumentation(documentationFile = ModInfo.GENLAYER_DOCUMENTATION_FOLDER + "GenLayerTouching", classExplaination = "This layer is meant to be a combined/improved version of the edge and mushroom island layers. "
 + "The idea is you set a biome or list of biomes, a list of biomes to look for around it, a required count of those biomes, a replacement biome and optionally a random chance. "
 + "If the biome is found, touching >= count biomes from the list to look for, then it is replaced with the replacement biome. "
-+ "If using a chance, this has a 1/chance chance of happening."
-+ " Check the Jungle_Islands preset for many commented examples.")
++ "If using a chance, this has a 1/chance chance of happening.")
 public class GenLayerTouching extends GenLayer{
 	
 	private List<GenLayerTouchingData> dataList = new ArrayList<GenLayerTouchingData>();

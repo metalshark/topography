@@ -10,7 +10,7 @@ import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.GENLAYER_DOCUMENTATION_FOLDER + "GenLayerBaseSingle", classExplaination = 
-"A layer to be used as a base to fill the world with a single biome. Good for when you want a single base biome, such as in the Jungle_Islands preset example.")
+"A layer to be used as a base to fill the world with a single biome. Good for when you want a single base biome.")
 public class GenLayerBaseSingle extends GenLayer{
 	
 	private int biome;

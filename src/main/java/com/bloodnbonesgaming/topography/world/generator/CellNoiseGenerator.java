@@ -69,7 +69,7 @@ public class CellNoiseGenerator implements IGenerator
     }
     
     @ScriptMethodDocumentation(args = "float", usage = "cutoff", notes = "Sets the noise cutoff for blocks to be placed. Higher values = more blocks. Default is -0.15.")
-	public void setCutoff(final float cutoff)
+	public void setCutoff(final double cutoff)
     {
     	this.cutoff = cutoff;
     }

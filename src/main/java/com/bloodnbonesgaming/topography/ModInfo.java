@@ -15,4 +15,6 @@ public class ModInfo
 	public static final String DOCUMENTATION_FOLDER = ModInfo.CONFIG_FOLDER + "documentation/";
 	public static final String GENERATOR_DOCUMENTATION_FOLDER = ModInfo.DOCUMENTATION_FOLDER + "generators/";
 	public static final String SKY_ISLANDS_DOCUMENTATION_FOLDER = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "sky_islands/";
+	public static final String BIOME_PROVIDER_DOCUMENTATION_FOLDER = ModInfo.DOCUMENTATION_FOLDER + "/biome_providers/";
+	public static final String GENLAYER_DOCUMENTATION_FOLDER = ModInfo.BIOME_PROVIDER_DOCUMENTATION_FOLDER + "/genlayers/";
 }

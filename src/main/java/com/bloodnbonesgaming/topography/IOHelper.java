@@ -14,6 +14,7 @@ import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.LockHandler;
 import com.bloodnbonesgaming.topography.util.FixedTemplate;
+import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderScripted;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -88,6 +89,11 @@ public class IOHelper
     public static boolean loadDimensionDefinition(final String name, final DimensionDefinition definition)
     {        
         return ScriptUtil.readScript(new File(ModInfo.SCRIPT_FOLDER + name + ".txt"), definition, definition.classKeywords);
+    }
+    
+    public static boolean loadBiomeProvider(final String name, final BiomeProviderScripted provider, Map<String, Class> keywords, Map<String, Object> localVariables)
+    {        
+        return ScriptUtil.readScript(new File(ModInfo.SCRIPT_FOLDER + name + ".txt"), provider, keywords, localVariables);
     }
     
     public static boolean loadUnlockFile(final LockHandler handler)

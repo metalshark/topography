@@ -16,6 +16,9 @@ import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
 import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
+import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderScripted;
+import com.bloodnbonesgaming.topography.world.biome.provider.SimpleBiomeProvider;
+import com.bloodnbonesgaming.topography.world.biome.provider.SimpleBiomeProviderDefinition;
 import com.bloodnbonesgaming.topography.world.chunkgenerator.ChunkGeneratorVoid;
 import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
 import com.bloodnbonesgaming.topography.world.generator.BiomeBlockReplacementGenerator;
@@ -30,6 +33,7 @@ import com.bloodnbonesgaming.topography.world.generator.IceAndSnowGenerator;
 import com.bloodnbonesgaming.topography.world.generator.LayerGenerator;
 import com.bloodnbonesgaming.topography.world.generator.OverworldGenerator;
 import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
+import com.bloodnbonesgaming.topography.world.generator.SimplexNoiseGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 import com.bloodnbonesgaming.topography.world.generator.VineGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaAnimalGenerator;
@@ -76,6 +80,8 @@ public class DimensionDefinition
     private final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fog = new LinkedHashMap<Integer, Map<MinMaxBounds, MinMaxBounds>>();
     
     private Integer singleBiome = null;
+    private String biomeProviderScript = null;
+    private SimpleBiomeProviderDefinition simpleBiomeProvider = null;
     
     private final StructureHandler structureHandler = new StructureHandler();
     
@@ -108,11 +114,23 @@ public class DimensionDefinition
         this.classKeywords.put("VanillaLakeGenerator", VanillaLakeGenerator.class);
         this.classKeywords.put("VanillaDungeonGenerator", VanillaDungeonGenerator.class);
         this.classKeywords.put("VineGenerator", VineGenerator.class);
+        this.classKeywords.put("SimplexNoiseGenerator", SimplexNoiseGenerator.class);
     }
     
     public BiomeProvider getBiomeProvider(final World world)
     {
-        if (this.singleBiome != null)
+    	if (this.biomeProviderScript != null)
+    	{
+    		final BiomeProviderScripted provider = new BiomeProviderScripted();
+    		provider.init(world, this.biomeProviderScript);
+    		return provider;
+    	}
+    	else if (this.simpleBiomeProvider != null)
+    	{
+    		final SimpleBiomeProvider provider = this.simpleBiomeProvider.buildBiomeProvider(world.getWorldInfo());
+    		return provider;
+    	}
+    	else if (this.singleBiome != null)
         {
             return new BiomeProviderConfigurable(world, this.singleBiome, this);
         }
@@ -440,5 +458,69 @@ public class DimensionDefinition
 	public boolean shouldDisableNetherPortal()
 	{
 		return this.disableNetherPortal;
+	}
+	
+	@ScriptMethodDocumentation(args = "String", usage = "script path", notes = "Sets the script at the provided path to be used to generate the Biome Provider for the dimension.")
+	public void setBiomeProviderScript(final String script)
+	{
+		this.biomeProviderScript = script;
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to add", notes = "Overrides the default biome mapping, and adds biomes to generate in the dimension with a weight of 10.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY})
+	public void addBiomes(final int[] biomes)
+	{
+		this.addBiomes(biomes, 10);
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to add, spawn weight", notes = "Overrides the default biome mapping, and adds biomes to generate in the dimension with the provided weight.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY, ArgType.INT})
+	public void addBiomes(final int[] biomes, final int weight)
+	{
+		if (this.simpleBiomeProvider == null)
+		{
+			this.simpleBiomeProvider = new SimpleBiomeProviderDefinition();
+		}
+		this.simpleBiomeProvider.addBiomes(biomes, weight);
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to add", notes = "Overrides the default biome mapping, and adds ocean biomes to generate in the dimension with a weight of 10.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY})
+	public void addOceanBiomes(final int[] biomes)
+	{
+		this.addBiomes(biomes, 10);
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to add, spawn weight", notes = "Overrides the default biome mapping, and adds ocean biomes to generate in the dimension with the provided weight.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY, ArgType.INT})
+	public void addOceanBiomes(final int[] biomes, final int weight)
+	{
+		if (this.simpleBiomeProvider == null)
+		{
+			this.simpleBiomeProvider = new SimpleBiomeProviderDefinition();
+		}
+		this.simpleBiomeProvider.addBiomes(biomes, weight);
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to add hills for, hills to add", notes = "Overrides the default biome mapping, and adds hill biomes to the provided biomes. Hill biomes generate when a biome is mostly surrounded by itself. Must be using 'addBiomes' or 'addOceanBiomes' to add biomes to the dimension.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY, ArgType.NON_NULL_BIOME_ID_ARRAY})
+	public void addHills(final int[] biomes, final int[] hills)
+	{
+		if (this.simpleBiomeProvider == null)
+		{
+			this.simpleBiomeProvider = new SimpleBiomeProviderDefinition();
+		}
+		this.simpleBiomeProvider.addHills(biomes, hills);
+	}
+	
+	@ScriptMethodDocumentation(usage = "biomes to set river for, river to set", notes = "Overrides the default biome mapping, and adds river biomes to the provided biomes. Rivers can be set as any biome. Must be using 'addBiomes' or 'addOceanBiomes' to add biomes to the dimension.")
+	@ScriptArgs(args = {ArgType.NON_NULL_BIOME_ID_ARRAY, ArgType.NON_NULL_BIOME_ID})
+	public void setRiver(final int[] biomes, final int river)
+	{
+		if (this.simpleBiomeProvider == null)
+		{
+			this.simpleBiomeProvider = new SimpleBiomeProviderDefinition();
+		}
+		this.simpleBiomeProvider.setRiver(biomes, river);
 	}
 }

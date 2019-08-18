@@ -18,7 +18,6 @@ import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
@@ -43,7 +42,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.util.ITeleporter;
@@ -64,44 +62,49 @@ public class EventSubscriber
     @SubscribeEvent
     public void onCreateWorldSpawn(final WorldEvent.CreateSpawnPosition event)
     {
-//        if (event.getWorld().getWorldType() instanceof WorldTypeCustomizable)
-//        {
-            final WorldProvider provider = event.getWorld().provider;
-            
-            if (provider instanceof WorldProviderConfigurable)
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
+    	{
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
             {
-                final WorldProviderConfigurable worldProvider = (WorldProviderConfigurable) provider;
-                
-                for (final IGenerator generator : worldProvider.getDefinition().getGenerators())
-                {
-                    if (generator instanceof SkyIslandGenerator)
+            	final DimensionDefinition dimensionDef = preset.getDefinition(event.getWorld().provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{
+            		for (final IGenerator generator : dimensionDef.getGenerators())
                     {
-                        final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
-                        
-                        final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(event.getWorld().getSeed(), 0, 0).entrySet().iterator();
-                        
-                        if (iterator.hasNext())
+                        if (generator instanceof SkyIslandGenerator)
                         {
-                            final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                            final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
                             
-                            final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
+                            final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(event.getWorld().getSeed(), 0, 0).entrySet().iterator();
                             
-                            if (positions.hasNext())
+                            if (iterator.hasNext())
                             {
-                                final Entry<BlockPos, SkyIslandType> island = positions.next();
+                                final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
                                 
-                                final BlockPos pos = island.getKey();
-                                final BlockPos topBlock = event.getWorld().getTopSolidOrLiquidBlock(pos);
+                                final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
                                 
-                                event.getWorld().getWorldInfo().setSpawn(topBlock.up());
-                                event.setCanceled(true);
+                                if (positions.hasNext())
+                                {
+                                    final Entry<BlockPos, SkyIslandType> island = positions.next();
+                                    
+                                    final BlockPos pos = island.getKey();
+                                    final BlockPos topBlock = event.getWorld().getTopSolidOrLiquidBlock(pos);
+                                    
+                                    event.getWorld().getWorldInfo().setSpawn(topBlock.up());
+                                    event.setCanceled(true);
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
-                }
+            	}
             }
-//        }
+    	}
     }
     
     @SubscribeEvent
@@ -116,32 +119,28 @@ public class EventSubscriber
         }
     }
     
-//    @SubscribeEvent
-//    public void onFossilGenerate(final DecorateBiomeEvent.Decorate event)
-//    {
-//        final BiomeProvider provider = event.getWorld().provider.getBiomeProvider();
-//        
-//        if (provider instanceof BiomeProviderSkyIslands)
-//        {
-//            if (event.getType() == DecorateBiomeEvent.Decorate.EventType.FOSSIL)
-//            {
-//                event.setCanceled(true);
-//            }
-//        }
-//    }
-    
     @SubscribeEvent
     public void onEntityTick(final LivingUpdateEvent event)
     {
-        if (event.getEntityLiving().world.provider instanceof WorldProviderConfigurable)
-        {
-            final WorldProviderConfigurable provider = (WorldProviderConfigurable) event.getEntityLiving().world.provider;
-            
-            for (final EntityEffect effect : provider.getDefinition().getEntityEffects())
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
+    	{
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
             {
-                effect.apply(event.getEntityLiving());
+            	final DimensionDefinition dimensionDef = preset.getDefinition(event.getEntityLiving().world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{
+            		for (final EntityEffect effect : dimensionDef.getEntityEffects())
+                    {
+                        effect.apply(event.getEntityLiving());
+                    }
+            	}
             }
-        }
+    	}
     }
     
     @SubscribeEvent
@@ -382,107 +381,116 @@ public class EventSubscriber
     	{
         	final World world = event.getEntity().getEntityWorld().getMinecraftServer().getWorld(event.getDimension());
         	
-        	if (world.provider instanceof WorldProviderConfigurable)
+        	final ConfigurationManager manager = ConfigurationManager.getInstance();
+        	
+        	if (manager != null)
         	{
-        		final WorldProviderConfigurable provider = (WorldProviderConfigurable) world.provider;
-                DimensionDefinition definition = provider.getDefinition();
-                
-                if (definition.shouldCaptureTeleports())
+            	final ConfigPreset preset = manager.getPreset();
+            	
+            	if (preset != null)
                 {
-                	if (event.getEntity() instanceof EntityPlayer)
+                	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+                	
+                	if (dimensionDef != null)
                 	{
-                		final EntityPlayer player = (EntityPlayer) event.getEntity();
-                		
-                		BlockPos blockpos = player.getBedLocation(event.getDimension());
-                        boolean forced = player.isSpawnForced(event.getDimension());
-                		
-                		if (blockpos != null)
+                		if (dimensionDef.shouldCaptureTeleports())
                         {
-                            BlockPos blockpos1 = EntityPlayer.getBedSpawnLocation(world, blockpos, forced);
+                        	if (event.getEntity() instanceof EntityPlayer)
+                        	{
+                        		final EntityPlayer player = (EntityPlayer) event.getEntity();
+                        		
+                        		BlockPos blockpos = player.getBedLocation(event.getDimension());
+                                boolean forced = player.isSpawnForced(event.getDimension());
+                        		
+                        		if (blockpos != null)
+                                {
+                                    BlockPos blockpos1 = EntityPlayer.getBedSpawnLocation(world, blockpos, forced);
 
-                            if (blockpos1 != null)
-                            {
-                                event.setCanceled(true);
-                                this.teleporting = true;
-                                event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(blockpos1));
-                                this.teleporting = false;
-                                return;
-                            }
-                        }
-                	}
-                	
-                	
-                    SpawnStructure structure = definition.getSpawnStructure();
-                    
-                    if (structure != null)
-                    {
-                        final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
-
-                        if (template != null)
-                        {
-                            BlockPos spawn = StructureHelper.getSpawn(template);
-                            
-                            if (spawn != null)
-                            {
-                            	ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                                if (data != null)
-                                {
-                                    spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
-                                }
-                            	
-                                event.setCanceled(true);
-                                this.teleporting = true;
-                                event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(spawn.add(0, structure.getHeight(), 0)));
-                                this.teleporting = false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                    	for (final IGenerator generator : definition.getGenerators())
-                        {
-                            if (generator instanceof SkyIslandGenerator)
-                            {
-                                final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
-                                
-                                ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                                if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
-                                {
-                                    final BlockPos pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
-                                    final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
-                                    
-                                    event.setCanceled(true);
-                                    this.teleporting = true;
-                                    event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(topBlock.up()));
-                                    this.teleporting = false;
-                                    return;
-                                }
-                                
-                                final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
-                                
-                                if (iterator.hasNext())
-                                {
-                                    final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
-                                    
-                                    final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
-                                    
-                                    if (positions.hasNext())
+                                    if (blockpos1 != null)
                                     {
-                                        final Entry<BlockPos, SkyIslandType> island = positions.next();
-                                        
-                                        final BlockPos pos = island.getKey();
-                                        final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
-                                        
                                         event.setCanceled(true);
                                         this.teleporting = true;
-                                        event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(topBlock.up()));
+                                        event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(blockpos1));
+                                        this.teleporting = false;
+                                        return;
+                                    }
+                                }
+                        	}
+                        	
+                        	
+                            SpawnStructure structure = dimensionDef.getSpawnStructure();
+                            
+                            if (structure != null)
+                            {
+                                final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
+
+                                if (template != null)
+                                {
+                                    BlockPos spawn = StructureHelper.getSpawn(template);
+                                    
+                                    if (spawn != null)
+                                    {
+                                    	ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                        if (data != null)
+                                        {
+                                            spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
+                                        }
+                                    	
+                                        event.setCanceled(true);
+                                        this.teleporting = true;
+                                        event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(spawn.add(0, structure.getHeight(), 0)));
                                         this.teleporting = false;
                                     }
                                 }
-                                break;
+                            }
+                            else
+                            {
+                            	for (final IGenerator generator : dimensionDef.getGenerators())
+                                {
+                                    if (generator instanceof SkyIslandGenerator)
+                                    {
+                                        final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
+                                        
+                                        ITopographyPlayerData data = event.getEntity().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                        if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
+                                        {
+                                            final BlockPos pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
+                                            final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
+                                            
+                                            event.setCanceled(true);
+                                            this.teleporting = true;
+                                            event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(topBlock.up()));
+                                            this.teleporting = false;
+                                            return;
+                                        }
+                                        
+                                        final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
+                                        
+                                        if (iterator.hasNext())
+                                        {
+                                            final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                                            
+                                            final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
+                                            
+                                            if (positions.hasNext())
+                                            {
+                                                final Entry<BlockPos, SkyIslandType> island = positions.next();
+                                                
+                                                final BlockPos pos = island.getKey();
+                                                final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
+                                                
+                                                event.setCanceled(true);
+                                                this.teleporting = true;
+                                                event.getEntity().changeDimension(event.getDimension(), new ReTeleporter(topBlock.up()));
+                                                this.teleporting = false;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
                             }
                         }
-                    }
+                	}
                 }
         	}
     	}
@@ -536,17 +544,25 @@ public class EventSubscriber
     		@Override
     		public boolean trySpawnPortal(World world, BlockPos pos) {
     			
-    			final WorldProvider provider = world.provider;
-                
-                if (provider instanceof WorldProviderConfigurable)
-                {
-                	final DimensionDefinition definition = ((WorldProviderConfigurable) provider).getDefinition();
-                    
-                	if (definition.shouldDisableNetherPortal() || ConfigurationManager.getInstance().getPreset().shouldDisableNetherPortal())
-                	{
-                		return false;
-                	}
-                }
+    			final ConfigurationManager manager = ConfigurationManager.getInstance();
+            	
+            	if (manager != null)
+            	{
+                	final ConfigPreset preset = manager.getPreset();
+                	
+                	if (preset != null)
+                    {
+                    	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+                    	
+                    	if (dimensionDef != null)
+                    	{
+                    		if (dimensionDef.shouldDisableNetherPortal() || ConfigurationManager.getInstance().getPreset().shouldDisableNetherPortal())
+                        	{
+                        		return false;
+                        	}
+                    	}
+                    }
+            	}
     			return super.trySpawnPortal(world, pos);
     		}
     	}.setRegistryName("minecraft:portal"));

@@ -5,12 +5,13 @@ import java.util.List;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
@@ -62,16 +63,36 @@ public class IslandSet extends CommandBase
     		if (sender instanceof EntityPlayerMP)
     		{
     			player = (EntityPlayerMP) sender;
+    			
+    			final ConfigurationManager manager = ConfigurationManager.getInstance();
     	    	
-    	    	if (world.provider instanceof WorldProviderConfigurable)
+    	    	if (manager != null)
     	    	{
-    	        	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-    	            
-    	            //TODO set pos, set spawn and teleport
-    	        	CoordinateArg x = CommandBase.parseCoordinate(player.posX, args[0], false);
-    	        	CoordinateArg z = CommandBase.parseCoordinate(player.posZ, args[1], false);
+    	        	final ConfigPreset preset = manager.getPreset();
     	        	
-    	        	data.setIsland((int)x.getAmount(), (int)z.getAmount());
+    	        	if (preset != null)
+    	            {
+    	            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+    	            	
+    	            	if (dimensionDef != null)
+    	            	{
+    	            		ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+    	    	            
+    	    	            //TODO set pos, set spawn and teleport
+    	    	        	CoordinateArg x = CommandBase.parseCoordinate(player.posX, args[0], false);
+    	    	        	CoordinateArg z = CommandBase.parseCoordinate(player.posZ, args[1], false);
+    	    	        	
+    	    	        	data.setIsland((int)x.getAmount(), (int)z.getAmount());
+    	            	}
+    	    	    	else
+    	    	    	{
+    	    	            throw new CommandException("Command can only be used if the overworld is created using Topography.");
+    	    	    	}
+    	            }
+        	    	else
+        	    	{
+        	            throw new CommandException("Command can only be used if the overworld is created using Topography.");
+        	    	}
     	    	}
     	    	else
     	    	{
@@ -91,66 +112,99 @@ public class IslandSet extends CommandBase
     		{
                 throw new CommandException("The entity selected (%s) is not a valid player.", args[0]);
     		}
+    		
+    		final ConfigurationManager manager = ConfigurationManager.getInstance();
 	    	
-	    	if (world.provider instanceof WorldProviderConfigurable)
+	    	if (manager != null)
 	    	{
-	        	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-	            
-	            //TODO set pos, set spawn and teleport
-	        	CoordinateArg x = CommandBase.parseCoordinate(player.posX, args[1], false);
-	        	CoordinateArg z = CommandBase.parseCoordinate(player.posZ, args[2], false);
+	        	final ConfigPreset preset = manager.getPreset();
 	        	
-	        	data.setIsland((int)x.getAmount(), (int)z.getAmount());
+	        	if (preset != null)
+	            {
+	            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+	            	
+	            	if (dimensionDef != null)
+	            	{
+	            		ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+	    	            
+	    	            //TODO set pos, set spawn and teleport
+	    	        	CoordinateArg x = CommandBase.parseCoordinate(player.posX, args[1], false);
+	    	        	CoordinateArg z = CommandBase.parseCoordinate(player.posZ, args[2], false);
+	    	        	
+	    	        	data.setIsland((int)x.getAmount(), (int)z.getAmount());
+	            	}
+	    	    	else
+	    	    	{
+	    	            throw new CommandException("Command can only be used if the overworld is created using Topography.");
+	    	    	}
+	            }
+		    	else
+		    	{
+		            throw new CommandException("Command can only be used if the overworld is created using Topography.");
+		    	}
 	    	}
 	    	else
 	    	{
 	            throw new CommandException("Command can only be used if the overworld is created using Topography.");
 	    	}
     	}
-    	DimensionDefinition definition = ((WorldProviderConfigurable)world.provider).getDefinition();
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
     	
-    	SpawnStructure structure = definition.getSpawnStructure();
-        
-        if (structure != null)
-        {
-            final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
-
-            if (template != null)
+    	if (manager != null)
+    	{
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
             {
-                BlockPos spawn = StructureHelper.getSpawn(template);
-                
-                if (spawn != null)
-                {
-                	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                    spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
+            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{                	
+                	SpawnStructure structure = dimensionDef.getSpawnStructure();
                     
-                    pos = spawn.add(0, structure.getHeight(), 0);
-                    
-                	player.sendMessage(new TextComponentString("Teleporting you to your structure."));
-                    player.setSpawnPoint(pos, true);
-                    this.teleportPlayer(player, 0, pos);
-                    return;
-                }
-            }
-        }
-        else
-        {
-        	for (final IGenerator generator : definition.getGenerators())
-            {
-                if (generator instanceof SkyIslandGenerator)
-                {                    
-                    ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                    
-                    pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
-                	pos = IslandHome.getTopSolidOrLiquidBlock(world, pos).up();
+                    if (structure != null)
+                    {
+                        final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
-                	player.sendMessage(new TextComponentString("Teleporting you to your sky island."));
-                    player.setSpawnPoint(pos, true);
-                    this.teleportPlayer(player, 0, pos);
-                    return;
-                }
+                        if (template != null)
+                        {
+                            BlockPos spawn = StructureHelper.getSpawn(template);
+                            
+                            if (spawn != null)
+                            {
+                            	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                spawn = spawn.add(data.getIslandX(), 0, data.getIslandZ());
+                                
+                                pos = spawn.add(0, structure.getHeight(), 0);
+                                
+                            	player.sendMessage(new TextComponentString("Teleporting you to your structure."));
+                                player.setSpawnPoint(pos, true);
+                                this.teleportPlayer(player, 0, pos);
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                    	for (final IGenerator generator : dimensionDef.getGenerators())
+                        {
+                            if (generator instanceof SkyIslandGenerator)
+                            {                    
+                                ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                
+                                pos = new BlockPos(data.getIslandX(), 0, data.getIslandZ());
+                            	pos = IslandHome.getTopSolidOrLiquidBlock(world, pos).up();
+
+                            	player.sendMessage(new TextComponentString("Teleporting you to your sky island."));
+                                player.setSpawnPoint(pos, true);
+                                this.teleportPlayer(player, 0, pos);
+                                return;
+                            }
+                        }
+                    }
+            	}
             }
-        }
+    	}
         throw new CommandException("Unable to find a spawn structure or sky island in the dimension.");
     }
 

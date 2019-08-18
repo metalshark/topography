@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
@@ -16,7 +18,6 @@ import com.bloodnbonesgaming.topography.event.EventSubscriber;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
@@ -85,82 +86,56 @@ public class IslandAccept extends CommandBase
                     {
                     	final World world = server.getWorld(0);
                     	
-                    	if (world.provider instanceof WorldProviderConfigurable)
+                    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+                    	
+                    	if (manager != null)
                     	{
-                        	final WorldProviderConfigurable provider = (WorldProviderConfigurable) world.provider;
-                            DimensionDefinition definition = provider.getDefinition();
-                            
-                            SpawnStructure structure = definition.getSpawnStructure();
-                            
-                            if (structure != null)
+                        	final ConfigPreset preset = manager.getPreset();
+                        	
+                        	if (preset != null)
                             {
-                                final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
-
-                                if (template != null)
-                                {
-                                    BlockPos spawn = StructureHelper.getSpawn(template);
+                            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+                            	
+                            	if (dimensionDef != null)
+                            	{
+                            		SpawnStructure structure = dimensionDef.getSpawnStructure();
                                     
-                                    if (spawn != null)
+                                    if (structure != null)
                                     {
-                                        spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
-                                        invitee.setSpawnPoint(spawn, true);
-                                        invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
+                                        final Template template = IOHelper.loadStructureTemplate(structure.getStructure());
 
-                                        ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                                        inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
-                                        
-                                        if (invitee.world.provider.getDimension() != 0)
+                                        if (template != null)
                                         {
-                                            invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
-                                        }
-                                        inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
-                                        return;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                            	for (final IGenerator generator : definition.getGenerators())
-                                {
-                                    if (generator instanceof SkyIslandGenerator)
-                                    {
-                                        if (inviterData.getIslandX() != 0 || inviterData.getIslandZ() != 0)
-                                        {
-                                            sender.sendMessage(new TextComponentString("Inviter has a sky island."));
-                                            final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());
-                                            final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
+                                            BlockPos spawn = StructureHelper.getSpawn(template);
                                             
-                                            invitee.setSpawnPoint(topBlock, true);
-                                            invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
+                                            if (spawn != null)
+                                            {
+                                                spawn = spawn.add(inviterData.getIslandX(), structure.getHeight(), inviterData.getIslandZ());
+                                                invitee.setSpawnPoint(spawn, true);
+                                                invitee.setPositionAndUpdate(spawn.getX(), spawn.getY(), spawn.getZ());
 
-                                            ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-                                            inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
-                                            
-                                            if (invitee.world.provider.getDimension() != 0)
-                                            {
-                                                invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
-                                            }
-                                            inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            sender.sendMessage(new TextComponentString("Inviter does not have a sky island."));
-                                        	final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
-                                        	
-                                        	final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
-                                            
-                                            if (iterator.hasNext())
-                                            {
-                                                final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                                                ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                                inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
                                                 
-                                                final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
-                                                
-                                                if (positions.hasNext())
+                                                if (invitee.world.provider.getDimension() != 0)
                                                 {
-                                                    final Entry<BlockPos, SkyIslandType> island = positions.next();
-                                                    
-                                                    final BlockPos pos = island.getKey();
+                                                    invitee.changeDimension(0, new EventSubscriber.ReTeleporter(spawn.up()));
+                                                }
+                                                inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
+                                                return;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                    	for (final IGenerator generator : dimensionDef.getGenerators())
+                                        {
+                                            if (generator instanceof SkyIslandGenerator)
+                                            {
+                                                if (inviterData.getIslandX() != 0 || inviterData.getIslandZ() != 0)
+                                                {
+                                                    sender.sendMessage(new TextComponentString("Inviter has a sky island."));
+                                                    final BlockPos pos = new BlockPos(inviterData.getIslandX(), 0, inviterData.getIslandZ());
                                                     final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
                                                     
                                                     invitee.setSpawnPoint(topBlock, true);
@@ -176,11 +151,46 @@ public class IslandAccept extends CommandBase
                                                     inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
                                                     return;
                                                 }
+                                                else
+                                                {
+                                                    sender.sendMessage(new TextComponentString("Inviter does not have a sky island."));
+                                                	final SkyIslandGenerator islandGenerator = (SkyIslandGenerator) generator;
+                                                	
+                                                	final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = islandGenerator.getIslandPositions(world.getSeed(), 0, 0).entrySet().iterator();
+                                                    
+                                                    if (iterator.hasNext())
+                                                    {
+                                                        final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+                                                        
+                                                        final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
+                                                        
+                                                        if (positions.hasNext())
+                                                        {
+                                                            final Entry<BlockPos, SkyIslandType> island = positions.next();
+                                                            
+                                                            final BlockPos pos = island.getKey();
+                                                            final BlockPos topBlock = IslandNew.getTopSolidOrLiquidBlock(world, pos);
+                                                            
+                                                            invitee.setSpawnPoint(topBlock, true);
+                                                            invitee.setPositionAndUpdate(topBlock.getX(), topBlock.getY(), topBlock.getZ());
+
+                                                            ITopographyPlayerData inviteeData = invitee.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                                                            inviteeData.setIsland(inviterData.getIslandX(), inviterData.getIslandZ());
+                                                            
+                                                            if (invitee.world.provider.getDimension() != 0)
+                                                            {
+                                                                invitee.changeDimension(0, new EventSubscriber.ReTeleporter(topBlock.up()));
+                                                            }
+                                                            inviter.sendMessage(new TextComponentString(invitee.getDisplayNameString() + " has accepted your invite."));
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                                break;
                                             }
                                         }
-                                        break;
                                     }
-                                }
+                            	}
                             }
                     	}
                     }

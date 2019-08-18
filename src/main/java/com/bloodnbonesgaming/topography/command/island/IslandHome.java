@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
@@ -17,7 +18,6 @@ import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldSavedDataTopography;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
@@ -95,39 +95,58 @@ public class IslandHome extends CommandBase
     	
     	WorldServer world = DimensionManager.getWorld(0);
     	
-    	if (world.provider instanceof WorldProviderConfigurable)
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
     	{
-        	DimensionDefinition definition = ((WorldProviderConfigurable)world.provider).getDefinition();
-        	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-            
-            if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
             {
-            	this.teleportPlayerHome(player, world, definition);
-            }
-            else
-            {
-                if (definition.getSpawnStructure() != null)
-                {
-                	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's make you one! This may take a few seconds."));
-                    final BlockPos pos = this.findNextIsland(player, definition);
-                    this.spawnIslands(player, pos.getX(), pos.getZ());
-                    return;
-                }
-                else
-                {                
-                    for (final IGenerator generator : definition.getGenerators())
+            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{
+            		ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                    
+                    if (data != null && (data.getIslandX() != 0 || data.getIslandZ() != 0))
                     {
-                        if (generator instanceof SkyIslandGenerator)
+                    	this.teleportPlayerHome(player, world, dimensionDef);
+                    }
+                    else
+                    {
+                        if (dimensionDef.getSpawnStructure() != null)
                         {
-                        	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's find you one! This may take a few seconds."));
-                            final BlockPos pos = this.findNextIsland(player, definition);
-                            this.setPlayerSpawn(player, pos);
+                        	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's make you one! This may take a few seconds."));
+                            final BlockPos pos = this.findNextIsland(player, dimensionDef);
+                            this.spawnIslands(player, pos.getX(), pos.getZ());
                             return;
                         }
+                        else
+                        {                
+                            for (final IGenerator generator : dimensionDef.getGenerators())
+                            {
+                                if (generator instanceof SkyIslandGenerator)
+                                {
+                                	player.sendMessage(new TextComponentString("Looks like you don't have an island. Let's find you one! This may take a few seconds."));
+                                    final BlockPos pos = this.findNextIsland(player, dimensionDef);
+                                    this.setPlayerSpawn(player, pos);
+                                    return;
+                                }
+                            }
+                        }
+                        throw new CommandException("This preset does not appear to have spawn structures or sky islands islands in dimension 0.");
                     }
-                }
-                throw new CommandException("This preset does not appear to have spawn structures or sky islands islands in dimension 0.");
+            	}
+            	else
+            	{
+                    throw new CommandException("Command can only be used if the overworld is created using Topography.");
+            	}
             }
+        	else
+        	{
+                throw new CommandException("Command can only be used if the overworld is created using Topography.");
+        	}
     	}
     	else
     	{

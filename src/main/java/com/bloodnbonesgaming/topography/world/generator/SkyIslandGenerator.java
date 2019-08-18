@@ -13,16 +13,17 @@ import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
-import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.util.noise.FastNoise;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.world.biome.provider.layers.GenLayerRiverMixDC;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -35,6 +36,10 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.layer.GenLayer;
+import net.minecraft.world.gen.layer.GenLayerRiver;
+import net.minecraft.world.gen.layer.GenLayerRiverInit;
+import net.minecraft.world.gen.layer.GenLayerSmooth;
+import net.minecraft.world.gen.layer.GenLayerZoom;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGenerator", classExplaination = 
 "This file is for the SkyIslandGenerator. This generator generates sky islands in a pseudo-random pattern within grid regions, "
@@ -42,7 +47,8 @@ import net.minecraft.world.gen.layer.GenLayer;
 + "When a player spawns in a dimension with this generator, they will spawn in the center of the first island to be generated.")
 public class SkyIslandGenerator implements IGenerator
 {
-
+//	public Biome[] biomesForGeneration;
+	
     @Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
     {
@@ -53,7 +59,10 @@ public class SkyIslandGenerator implements IGenerator
 
         this.mountainRand.setSeed((long)((int)Math.floor(chunkX * 16D / this.getRegionSize())) * 341873128712L + (long)((int)Math.floor(chunkZ * 16D / this.getRegionSize())) * 132897987541L + seed);
         
+//        this.biomesForGeneration = world.getBiomeProvider().getBiomes(this.biomesForGeneration, chunkX * 16, chunkZ * 16, 16, 16);
+        
         this.generateIslands(seed, chunkX, chunkZ, primer);
+//        this.flowWaterVertical(primer);
         
         this.replaceBiomeBlocks(seed, chunkX, chunkZ, primer);
                 
@@ -223,10 +232,48 @@ public class SkyIslandGenerator implements IGenerator
         }
     }
     
+    public void flowWaterVertical(ChunkPrimer primer)
+    {
+    	for (int x = 0; x < 16; x++)
+    	{
+    		for (int z = 0; z < 16; z++)
+    		{
+    			boolean water = false;
+    			int distance = 0;
+    			
+    			for (int y = 255; y >= 0; y--)
+    			{
+    				IBlockState state = primer.getBlockState(x, y, z);
+    				
+    				if (state == Blocks.WATER.getDefaultState())
+    				{
+    					water = true;
+    				}
+    				else if (water == true && state == Blocks.AIR.getDefaultState())
+    				{
+    					primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, 8));
+    					water = true;
+    				}
+    				else
+    				{
+    					water = false;
+    				}
+    			}
+    		}
+    	}
+    }
+    
     public void generateIslands(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
+        
+//        FastNoise noise = new FastNoise();
+//		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        noise.SetFrequency(0.01f);
+//        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+//        noise.SetSeed((int) seed);
         
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
@@ -265,6 +312,7 @@ public class SkyIslandGenerator implements IGenerator
                         {
                             final SkyIslandType type = islandPos.getValue();
                             final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
+//                            float river = noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16);
                             
                             for (double y = 0; y < midHeight; y++)
                             {
@@ -306,7 +354,12 @@ public class SkyIslandGenerator implements IGenerator
                                     
                                     if (topHeight > y)
                                     {
-                                        primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+//                                    	float scaled = 1.0f / 0.3f;
+//                                    	if (topHeight > y + ((1 - Math.abs(river) * scaled) * 25))
+//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+//                                    	else if (y == 0 || y == 1)
+//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
+                                		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
                                     }
                                 }
                             }
@@ -477,14 +530,21 @@ public class SkyIslandGenerator implements IGenerator
         int i = chunkX * 16;
         int j = chunkZ * 16;
         BlockPos blockpos = new BlockPos(i, 0, j);
+//        Biome biome = world.getBiome(blockpos.add(16, 0, 16));
         this.rand.setSeed(seed);
         long k = this.rand.nextLong() / 2L * 2L + 1L;
         long l = this.rand.nextLong() / 2L * 2L + 1L;
         this.rand.setSeed((long)chunkX * k + (long)chunkZ * l ^ seed);
-        boolean flag = false;
+//        boolean flag = false;
         
         final BlockPos pos = new BlockPos(i, 0, j);
-
+        
+//        if (biome == Biomes.RIVER)
+//        {
+//        	biome.decorate(world, this.rand, new BlockPos(i, 0, j));
+//        }
+//        else
+//        {
         outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j).entrySet())
         {
             final SkyIslandData data = set.getKey();
@@ -512,6 +572,7 @@ public class SkyIslandGenerator implements IGenerator
                 }
             }
         }
+//        }
         
         blockpos = blockpos.add(8, 0, 8);
 
@@ -542,6 +603,15 @@ public class SkyIslandGenerator implements IGenerator
     @Override
     public GenLayer getLayer(World world, GenLayer parent)
     {
-        return new GenLayerBiomeSkyIslands(world.getSeed(), this);
+//    	GenLayer river = new GenLayerRiverInit(1001, parent);
+//        river = GenLayerZoom.magnify(1000L, river, 4); //Raise to reduce frequency
+//        river = new GenLayerRiver(1L, river);
+//        river = GenLayerZoom.magnify(1000L, river, 3); //Lower to reduce size
+//        river = new GenLayerSmooth(1000L, river);
+//        river = GenLayerZoom.magnify(1000L, river, 1);
+        GenLayer biomes = new GenLayerBiomeSkyIslands(world.getSeed(), this);
+//        GenLayerRiverMixDC mix = new GenLayerRiverMixDC(1000L, biomes, river);
+//        mix.setRiverBiome(Biome.getIdForBiome(Biomes.VOID), Biome.getIdForBiome(Biomes.VOID));
+        return biomes;
     }
 }

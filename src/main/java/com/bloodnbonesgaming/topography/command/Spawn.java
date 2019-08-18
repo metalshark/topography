@@ -3,8 +3,10 @@ package com.bloodnbonesgaming.topography.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.event.EventSubscriber.ReTeleporter;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
@@ -69,10 +71,30 @@ public class Spawn extends CommandBase
     	
     	WorldServer world = DimensionManager.getWorld(0);
     	
-    	if (world.provider instanceof WorldProviderConfigurable)
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
     	{
-        	player.sendMessage(new TextComponentString("Teleporting you to world spawn."));
-    		this.teleportPlayer(player, 0, Spawn.getTopSolidOrLiquidBlock(world, world.getSpawnPoint()));
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
+            {
+            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{
+                	player.sendMessage(new TextComponentString("Teleporting you to world spawn."));
+            		this.teleportPlayer(player, 0, Spawn.getTopSolidOrLiquidBlock(world, world.getSpawnPoint()));
+            	}
+            	else
+            	{
+                    throw new CommandException("Command can only be used if the overworld is created using Topography.");
+            	}
+            }
+        	else
+        	{
+                throw new CommandException("Command can only be used if the overworld is created using Topography.");
+        	}
     	}
     	else
     	{

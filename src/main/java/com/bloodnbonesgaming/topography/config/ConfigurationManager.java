@@ -16,6 +16,7 @@ import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
+import com.bloodnbonesgaming.topography.world.WorldProviderConfigurableSurface;
 
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldType;
@@ -30,6 +31,7 @@ public class ConfigurationManager {
     final Map<String, ConfigPreset> presets = new LinkedHashMap<String, ConfigPreset>();
     private final Map<Integer, DimensionType> dimensionMapCopy = new HashMap<Integer, DimensionType>();
     private static final Map<Integer, DimensionType> dimensionTypes = new HashMap<Integer, DimensionType>();
+    private static final Map<Integer, DimensionType> dimensionTypesSurface = new HashMap<Integer, DimensionType>();
     private final List<Integer> registeredDimensions = new ArrayList<Integer>();
     private final LockHandler locks = new LockHandler();
     
@@ -130,19 +132,42 @@ public class ConfigurationManager {
         
         if (preset != null)
         {
-            Topography.instance.getLog().info("dim preset " + preset.getName());
+            Topography.instance.getLog().info("Preset " + preset.getName());
+            Topography.instance.getLog().info("Loading all dimension definitions");
+            
+            if (preset != null)
+            {
+            	preset.loadAllDefinitions();
+            }
+            Topography.instance.getLog().info("All dimension definitions loaded");
+            
             for (final int dimension : preset.getDimensions())
             {
                 final DimensionType type;
                 
-                if (!ConfigurationManager.dimensionTypes.containsKey(dimension))
+                if (preset.getDefinition(dimension).isCompatSurface())
                 {
-                    type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurable.class, dimension == 0);
-                    ConfigurationManager.dimensionTypes.put(dimension, type);
+                	if (!ConfigurationManager.dimensionTypesSurface.containsKey(dimension))
+                    {
+                		type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurableSurface.class, dimension == 0);
+                        ConfigurationManager.dimensionTypesSurface.put(dimension, type);
+                    }
+                    else
+                    {
+                        type = ConfigurationManager.dimensionTypesSurface.get(dimension);
+                    }
                 }
                 else
                 {
-                    type = ConfigurationManager.dimensionTypes.get(dimension);
+                	if (!ConfigurationManager.dimensionTypes.containsKey(dimension))
+                    {
+                    	type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurable.class, dimension == 0);
+                        ConfigurationManager.dimensionTypes.put(dimension, type);
+                    }
+                    else
+                    {
+                        type = ConfigurationManager.dimensionTypes.get(dimension);
+                    }
                 }
                 
                 if (DimensionManager.isDimensionRegistered(dimension))
@@ -156,14 +181,6 @@ public class ConfigurationManager {
             }
         }
         Topography.instance.getLog().info("Done Re-Registering dimensions");
-        
-        Topography.instance.getLog().info("Loading all dimension definitions");
-        
-        if (preset != null)
-        {
-        	preset.loadAllDefinitions();
-        }
-        Topography.instance.getLog().info("All dimension definitions loaded");
     }
     
     private void loadDimensionMap()

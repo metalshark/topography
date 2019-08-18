@@ -13,6 +13,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.client.renderer.SkyRendererCustom;
+import com.bloodnbonesgaming.topography.client.renderer.TopographyWeatherRenderer;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.world.StructureHandler;
 import com.bloodnbonesgaming.topography.world.biome.provider.BiomeProviderConfigurable;
@@ -75,7 +76,10 @@ public class DimensionDefinition
     private float cloudHeight = -999;
     private boolean disableNetherPortal = false;
     
+    private boolean compatSurface = false;
+    
     private SkyRendererCustom skyRenderer = null;
+    private TopographyWeatherRenderer weatherRenderer = null;
     
     private final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fog = new LinkedHashMap<Integer, Map<MinMaxBounds, MinMaxBounds>>();
     
@@ -400,6 +404,20 @@ public class DimensionDefinition
 		return this.skyRenderer;
 	}
 	
+	@ClientOnly
+	public TopographyWeatherRenderer getWeatherRenderer()
+	{
+		return this.weatherRenderer;
+	}
+	
+	@ClientOnly
+	@ScriptMethodDocumentation(usage = "", notes = "Adds a custom WeatherRenderer for the dimension, and returns it.")
+	public TopographyWeatherRenderer overrideWeatherRenderer()
+	{
+		this.weatherRenderer = new TopographyWeatherRenderer();
+		return this.weatherRenderer;
+	}
+	
 	@ScriptMethodDocumentation(usage = "", notes = "If this dimension has a spawn structure set, then when teleporting to the dimension, "
 			+ "this option cancels the dimension change and has Topography transfer the player itself, placing them in the spawn position on the spawn structure.")
 	public void captureTeleports()
@@ -522,5 +540,15 @@ public class DimensionDefinition
 			this.simpleBiomeProvider = new SimpleBiomeProviderDefinition();
 		}
 		this.simpleBiomeProvider.setRiver(biomes, river);
+	}
+	
+	public void compatSurface()
+	{
+		this.compatSurface = true;
+	}
+	
+	public boolean isCompatSurface()
+	{
+		return this.compatSurface;
 	}
 }

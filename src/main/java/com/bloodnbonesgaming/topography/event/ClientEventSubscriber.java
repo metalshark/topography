@@ -6,9 +6,9 @@ import java.util.Map.Entry;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorldTopography;
 import com.bloodnbonesgaming.topography.client.gui.GuiWorldSelectionOverride;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -57,66 +57,67 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public void getFogColors(final FogColors event)
     {
-    	if (event.getEntity().world.provider instanceof WorldProviderConfigurable)
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
     	{
-    		final DimensionDefinition definition = ((WorldProviderConfigurable)event.getEntity().world.provider).getDefinition();
-
-        	final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fogMap = definition.getFog();
+        	final ConfigPreset preset = manager.getPreset();
         	
-        	if (fogMap != null && !fogMap.isEmpty())
-        	{
-        		float angle = event.getEntity().world.getCelestialAngle((float) event.getRenderPartialTicks());
-        		
-        		Vec3d color = new Vec3d(0, 0, 0);
-        		
-        		for (final Entry<Integer, Map<MinMaxBounds, MinMaxBounds>> fog : fogMap.entrySet())
-        		{
-        			float alpha = 0.0F;
-        			
-        			for (final Entry<MinMaxBounds, MinMaxBounds> entry : fog.getValue().entrySet())
-        			{
-        				if (entry.getKey().test(angle))
-        				{
-        					final MinMaxBounds key = entry.getKey();
-        					final MinMaxBounds value = entry.getValue();
-        					
-        					if (value.min != null && value.max != null)
-        					{
-        						float diff = key.max - key.min;
-        						float distIntoRange = angle - key.min;
-        						float percent = distIntoRange / diff;
-        						
-        						if (value.min > value.max)
-        						{
-        							float alphaDiff = value.min - value.max;
-        							alpha = value.min - alphaDiff * percent;
-        						}
-        						else
-        						{
-        							float alphaDiff = value.max - value.min;
-        							alpha = value.min + alphaDiff * percent;
-        						}
-        						break;
-        					}
-        				}
-        			}
-        			float alphaOpposite = 1.0F - alpha;
-        			
-        			color = new Vec3d((((fog.getKey() >> 16) & 255) / 255F) * alpha + color.x * alphaOpposite, (((fog.getKey() >> 8) & 255) / 255F) * alpha + color.y * alphaOpposite, ((fog.getKey() & 255) / 255F) * alpha + color.z * alphaOpposite);
-//        			
-//        			float remaining = 1.0F - totalAlpha;
-//        			color = color.addVector(((((fog.getKey() >> 16) & 255) / 255F) * alpha) * remaining, ((((fog.getKey() >> 8) & 255) / 255F) * alpha) * remaining, (((fog.getKey() & 255) / 255F) * alpha) * remaining);
-//        			totalAlpha += (alpha * remaining);
-//        			
-//        			if (alpha == 1.0F)
-//        			{
-//        				break;
-//        			}
-        		}
-        		event.setRed((float) color.x);
-        		event.setGreen((float) color.y);
-        		event.setBlue((float) color.z);
-        	}
+        	if (preset != null)
+            {
+            	final DimensionDefinition dimensionDef = preset.getDefinition(event.getEntity().world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
+            	{
+            		final Map<Integer, Map<MinMaxBounds, MinMaxBounds>> fogMap = dimensionDef.getFog();
+                	
+                	if (fogMap != null && !fogMap.isEmpty())
+                	{
+                		float angle = event.getEntity().world.getCelestialAngle((float) event.getRenderPartialTicks());
+                		
+                		Vec3d color = new Vec3d(0, 0, 0);
+                		
+                		for (final Entry<Integer, Map<MinMaxBounds, MinMaxBounds>> fog : fogMap.entrySet())
+                		{
+                			float alpha = 0.0F;
+                			
+                			for (final Entry<MinMaxBounds, MinMaxBounds> entry : fog.getValue().entrySet())
+                			{
+                				if (entry.getKey().test(angle))
+                				{
+                					final MinMaxBounds key = entry.getKey();
+                					final MinMaxBounds value = entry.getValue();
+                					
+                					if (value.min != null && value.max != null)
+                					{
+                						float diff = key.max - key.min;
+                						float distIntoRange = angle - key.min;
+                						float percent = distIntoRange / diff;
+                						
+                						if (value.min > value.max)
+                						{
+                							float alphaDiff = value.min - value.max;
+                							alpha = value.min - alphaDiff * percent;
+                						}
+                						else
+                						{
+                							float alphaDiff = value.max - value.min;
+                							alpha = value.min + alphaDiff * percent;
+                						}
+                						break;
+                					}
+                				}
+                			}
+                			float alphaOpposite = 1.0F - alpha;
+                			
+                			color = new Vec3d((((fog.getKey() >> 16) & 255) / 255F) * alpha + color.x * alphaOpposite, (((fog.getKey() >> 8) & 255) / 255F) * alpha + color.y * alphaOpposite, ((fog.getKey() & 255) / 255F) * alpha + color.z * alphaOpposite);
+                		}
+                		event.setRed((float) color.x);
+                		event.setGreen((float) color.y);
+                		event.setBlue((float) color.z);
+                	}
+            	}
+            }
     	}
     }
 }

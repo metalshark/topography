@@ -5,11 +5,12 @@ import java.util.List;
 
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.StructureHelper;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.util.SpawnStructure;
 import com.bloodnbonesgaming.topography.util.capabilities.ITopographyPlayerData;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
-import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
@@ -77,26 +78,45 @@ public class IslandInfo extends CommandBase
     	
     	WorldServer world = DimensionManager.getWorld(0);
     	
-    	if (world.provider instanceof WorldProviderConfigurable)
+    	final ConfigurationManager manager = ConfigurationManager.getInstance();
+    	
+    	if (manager != null)
     	{
-        	DimensionDefinition definition = ((WorldProviderConfigurable)world.provider).getDefinition();
-        	ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
-            
-            if (data != null)
+        	final ConfigPreset preset = manager.getPreset();
+        	
+        	if (preset != null)
             {
-            	if (data.getIslandX() != 0 || data.getIslandZ() != 0)
+            	final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+            	
+            	if (dimensionDef != null)
             	{
-                	sender.sendMessage(new TextComponentString(this.findPlayerIsland(player, world, definition).toString()));
+            		ITopographyPlayerData data = player.getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null);
+                    
+                    if (data != null)
+                    {
+                    	if (data.getIslandX() != 0 || data.getIslandZ() != 0)
+                    	{
+                        	sender.sendMessage(new TextComponentString(this.findPlayerIsland(player, world, dimensionDef).toString()));
+                    	}
+                    	else
+                    	{
+                            throw new CommandException("Player island is 0, 0.");
+                    	}
+                    }
+                    else
+                    {
+                        throw new CommandException("No island data found.");
+                    }
             	}
             	else
             	{
-                    throw new CommandException("Player island is 0, 0.");
+                    throw new CommandException("Command can only be used if the overworld is created using Topography.");
             	}
             }
-            else
-            {
-                throw new CommandException("No island data found.");
-            }
+        	else
+        	{
+                throw new CommandException("Command can only be used if the overworld is created using Topography.");
+        	}
     	}
     	else
     	{

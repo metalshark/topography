@@ -1854,16 +1854,23 @@ public class FastNoise {
                     for (int yi = yr - 1; yi <= yr + 1; yi++) {
                         for (int zi = zr - 1; zi <= zr + 1; zi++) {
                             Float3 vec = CELL_3D[Hash3D(m_seed, xi, yi, zi) & 255];
-
+                            
                             float vecX = xi - x + vec.x;
                             float vecY = yi - y + vec.y;
                             float vecZ = zi - z + vec.z;
-
+                            
                             float newDistance = (Math.abs(vecX) + Math.abs(vecY) + Math.abs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
-
-                            distance3 = Math.max(Math.min(distance3, newDistance), distance2);
-                            distance2 = Math.max(Math.min(distance2, newDistance), distance);
-                            distance = Math.min(distance, newDistance);
+                            
+							if (newDistance < distance) {
+								distance3 = distance2;
+								distance2 = distance;
+								distance = newDistance;
+							} else if (newDistance < distance2) {
+								distance3 = distance2;
+								distance2 = newDistance;
+							} else if (newDistance < distance3) {
+								distance3 = newDistance;
+							}
                         }
                     }
                 }
@@ -1990,6 +1997,7 @@ public class FastNoise {
 
         float distance = 999999;
         float distance2 = 999999;
+        float distance3 = 999999;
 
         switch (m_cellularDistanceFunction) {
             default:
@@ -2033,6 +2041,7 @@ public class FastNoise {
 
                         float newDistance = (Math.abs(vecX) + Math.abs(vecY)) + (vecX * vecX + vecY * vecY);
 
+                        distance3 = Math.max(Math.min(distance3, newDistance), distance2);
                         distance2 = Math.max(Math.min(distance2, newDistance), distance);
                         distance = Math.min(distance, newDistance);
                     }
@@ -2051,6 +2060,8 @@ public class FastNoise {
                 return distance2 * distance - 1;
             case Distance2Div:
                 return distance / distance2 - 1;
+            case Distance3Div:
+                return distance / distance3 - 1;
             default:
                 return 0;
         }

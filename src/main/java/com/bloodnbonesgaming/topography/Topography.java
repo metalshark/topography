@@ -45,6 +45,67 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
+//    	ConfigurationManager.setup();
+//        double[] smallNoiseArray = new double[825];
+//        double[] largeNoiseArray = new double[65536];
+//    	
+//    	FastNoise noise = new FastNoise((int) 6969420);
+//		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        noise.SetFrequency(0.005f);
+//        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+////        noise.SetSeed((int) 6969420);
+//        
+//        for (int iteration = 0; iteration < 60; iteration++)
+//        {
+//        	long start = System.nanoTime();
+//            
+//            for (int i = 0; i < 1000; i++)
+//            {
+//            	for (int x = 0; x < 5; x++)
+//                {
+//                	for (int z = 0; z < 5; z++)
+//                	{
+//                		for (int y = 0; y < 33; y++)
+//                		{
+//                			noise.GetNoise(x * 4 + 16 * i, y * 8, z * 4 + 16 * i);
+//                		}
+//                	}
+//                }
+////            	NumberHelper.interpolate(smallNoiseArray, largeNoiseArray, 5, 33, 5, 4, 8, 4);
+//            }
+//            
+//            long time = System.nanoTime() - start;
+//            if (iteration > 50)
+//            	Topography.instance.getLog().info(time);
+//            else
+//            	Topography.clearTimes();
+//        }
+//        Topography.printTimes();
+//    	Topography.instance.getLog().info("-------------------");
+//        
+//        for (int iteration = 0; iteration < 60; iteration++)
+//        {
+//        	long start = System.nanoTime();
+//            
+//        	for (int chunk = 0; chunk < 1000; chunk++)
+//            {
+//
+//            	RunnableSimplexSkewedCellNoise.getNoise(smallNoiseArray, 6969420, chunk * 16, 0, chunk * 16, 5, 33, 4, 8, 0.005f);
+//            	NumberHelper.interpolate(smallNoiseArray, largeNoiseArray, 5, 33, 5, 4, 8, 4);
+//            }
+//            
+//            long time = System.nanoTime() - start;
+//            if (iteration > 50)
+//            	Topography.instance.getLog().info(time);
+//        }
+        
+        
+        
+    	
+    	
+    	
+    	
 		if (Loader.isModLoaded("worldbook"))
         {
 			Topography.worldbook = true;

@@ -2,9 +2,10 @@ package com.bloodnbonesgaming.topography.world.generator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.data.BlockPredicate;
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
@@ -26,29 +27,47 @@ public class LayerGenerator implements IGenerator
     {
         for (int y = 0; y < 256; y++)
         {
-            for (final Entry<MinMaxBounds, IBlockState> entry : layers.entrySet())
+            for (final Entry<MinMaxBounds, Map<IBlockState, BlockPredicate>> entry : layers.entrySet())
             {
-                if (entry.getKey().test(y))
-                {
-                    for (int x = 0; x < 16; x++)
+            	for (final Entry<IBlockState, BlockPredicate> inner : entry.getValue().entrySet())
+            	{
+                    if (entry.getKey().test(y))
                     {
-                        for (int z = 0; z < 16; z++)
+                        for (int x = 0; x < 16; x++)
                         {
-                            primer.setBlockState(x, y, z, entry.getValue());
+                            for (int z = 0; z < 16; z++)
+                            {
+                            	BlockPredicate predicate = inner.getValue();
+                            	
+                            	if (predicate == null || predicate == BlockPredicate.ANY || predicate.test(primer.getBlockState(x, y, z)))
+                            	{
+                                    primer.setBlockState(x, y, z, inner.getKey());
+                            	}
+                            }
                         }
                     }
-                }
+            	}
             }
         }
     }
 
     
-    private final Map<MinMaxBounds, IBlockState> layers = new LinkedHashMap<MinMaxBounds, IBlockState>();
+    private final Map<MinMaxBounds, Map<IBlockState, BlockPredicate>> layers = new LinkedHashMap<MinMaxBounds, Map<IBlockState, BlockPredicate>>();
     
     @ScriptMethodDocumentation(args = "MinMaxBounds, ItemBlockData", usage = "y axis bounds, block to place", notes = "Adds a layer of blocks to be generated within the provided bounds, made of the provided block.")
 	public void addLayer(final MinMaxBounds bounds, final ItemBlockData block) throws Exception
     {
-        this.layers.put(bounds, block.buildBlockState());
+    	final Map<IBlockState, BlockPredicate> whitelist = new LinkedHashMap<IBlockState, BlockPredicate>();
+    	whitelist.put(block.buildBlockState(), null);
+        this.layers.put(bounds, whitelist);
+    }
+    
+    @ScriptMethodDocumentation(args = "MinMaxBounds, ItemBlockData, ItemBlockData", usage = "y axis bounds, block to place, block to replace", notes = "Adds a layer of blocks to be generated within the provided bounds, made of the provided block, replacing only the provided block.")
+	public void addLayer(final MinMaxBounds bounds, final ItemBlockData block, final ItemBlockData toReplace) throws Exception
+    {
+    	final Map<IBlockState, BlockPredicate> whitelist = new LinkedHashMap<IBlockState, BlockPredicate>();
+    	whitelist.put(block.buildBlockState(), toReplace.buildBlockPredicate());
+        this.layers.put(bounds, whitelist);
     }
 
     @Override

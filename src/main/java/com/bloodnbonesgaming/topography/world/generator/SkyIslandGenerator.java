@@ -15,9 +15,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.util.noise.FastNoise;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
-import com.bloodnbonesgaming.topography.world.biome.provider.layers.GenLayerRiverMixDC;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
@@ -36,10 +34,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.layer.GenLayer;
-import net.minecraft.world.gen.layer.GenLayerRiver;
-import net.minecraft.world.gen.layer.GenLayerRiverInit;
-import net.minecraft.world.gen.layer.GenLayerSmooth;
-import net.minecraft.world.gen.layer.GenLayerZoom;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGenerator", classExplaination = 
 "This file is for the SkyIslandGenerator. This generator generates sky islands in a pseudo-random pattern within grid regions, "
@@ -239,7 +233,6 @@ public class SkyIslandGenerator implements IGenerator
     		for (int z = 0; z < 16; z++)
     		{
     			boolean water = false;
-    			int distance = 0;
     			
     			for (int y = 255; y >= 0; y--)
     			{

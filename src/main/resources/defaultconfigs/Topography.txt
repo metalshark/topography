@@ -25,6 +25,9 @@ overworld.registerDimension(0, "examples/Overworld_With_Z_Axis_Repeating_Heat_Ma
 cellNether = registerPreset("Cell Nether", "images/Cell_Nether", "Replaces the nether with a nether made with cell noise tendrils.")
 cellNether.registerDimension(-1, "examples/Cell_Nether")
 
+volcano = registerPreset("Volcano", "images/Volcano", "Example world of lava and obsidian with customized weather to simulate ash falling from the sky.")
+volcano.registerDimension(0, "examples/Volcano_World")
+
 structureExample = registerPreset("Spawn Structure Example", "images/Basic_Tree", "A basic tree spawn structure.")
 structureExample.registerDimension(0, "examples/Spawn_Structure")
 

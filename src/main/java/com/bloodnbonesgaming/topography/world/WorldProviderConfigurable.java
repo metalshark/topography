@@ -55,7 +55,16 @@ public class WorldProviderConfigurable extends WorldProvider
             if (this.world.isRemote)
             {
             	if (!this.definition.renderSky())
+            	{
                     this.setSkyRenderer(SkyRendererDisabled.instance);
+                	
+                	final TopographyWeatherRenderer weather = this.definition.getWeatherRenderer();
+                	
+                	if (weather != null)
+                	{
+                		this.setWeatherRenderer(weather);
+                	}
+            	}
                 else
                 {
                 	final SkyRendererCustom renderer = this.definition.getSkyRenderer();

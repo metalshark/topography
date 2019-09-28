@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.structure.MapGenVillage;
 
 public class StructureHandler
 {
@@ -34,7 +35,7 @@ public class StructureHandler
     private OceanMonumentGenerator monument;
     private ScatteredFeatureGenerator scattered;
     private StrongholdGenerator stronghold;
-    private VillageGenerator village;
+    private MapGenVillage village;
     
     
     public void generateStructures(final World world, final int chunkX, final int chunkZ, final ChunkPrimer primer)
@@ -295,7 +296,7 @@ public class StructureHandler
     
     public void generateVillage()
     {
-    	this.village = new VillageGenerator();
+    	this.village = (MapGenVillage)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new VillageGenerator(), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.VILLAGE);
     }
     
     public void generateStronghold()

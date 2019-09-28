@@ -15,6 +15,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.util.noise.FastNoise;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
@@ -272,12 +273,12 @@ public class SkyIslandGenerator implements IGenerator
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         
-//        FastNoise noise = new FastNoise();
-//		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        noise.SetFrequency(0.01f);
-//        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-//        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
-//        noise.SetSeed((int) seed);
+        FastNoise noise = new FastNoise();
+		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
+        noise.SetFrequency(0.01f);
+        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+        noise.SetSeed((int) seed);
         
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
@@ -316,7 +317,15 @@ public class SkyIslandGenerator implements IGenerator
                         {
                             final SkyIslandType type = islandPos.getValue();
                             final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
-//                            float river = noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16);
+                            float waterNoise = (noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16) + 1) / 2;
+                            double antiWaterRingDistance = maxFeatureRadius / 10;
+                            double waterRingHeightDivision = maxFeatureRadius * 0.07;
+                            double maxWaterHeight = maxFeatureRadius * 0.05;
+                            double something = maxFeatureRadius * 0.04;
+                            //distance from the anti water ring radius
+                            double distanceFromWaterRing = Math.abs(antiWaterRingDistance - (maxFeatureRadius - Math.sqrt(xDistance + zDistance)));
+                            //
+                            double scaledDistanceFromWaterRing = Math.max((antiWaterRingDistance - distanceFromWaterRing) / waterRingHeightDivision, 0);
                             
                             for (double y = 0; y < midHeight; y++)
                             {
@@ -324,27 +333,32 @@ public class SkyIslandGenerator implements IGenerator
                                  double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
                                 
                                 final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                final double topHeight;//skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
+                                double topHeight;//skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
                                 
                                 boolean water = false;
+                                //Increases exponentially increases the max height the closer to the center of the island it is.
+                                double maxTopNoise = ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) + (maxFeatureRadius - Math.sqrt(xDistance + zDistance)) * ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) / maxFeatureRadius)) * 1.5;
                                 
-                                //Create slope going up at edge, then slope back down to 0
-                                if (maxNoiseDistance - noiseDistance > 16)
-                                {
-                                	water = true;
-                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
-                                }
-                                else
-                                {
-                                	skewedNoise *= 1.1;
-                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
-                                }
+//                                //Create slope going up at edge, then slope back down to 0
+//                                if (maxNoiseDistance - noiseDistance > 16)
+//                                {
+//                                	water = true;
+//                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
+//                                }
+//                                else
+//                                {
+//                                	skewedNoise *= 1.1;
+                                	topHeight = skewedNoise * Math.max(maxTopNoise * (1 + scaledDistanceFromWaterRing), 0) / 3;
+//                                }
                                 
+//                                topHeight += Math.floor(distanceFrom8);
+                                //Distance from center
+//                                topHeight = maxFeatureRadius - (maxFeatureRadius - Math.sqrt(xDistance + zDistance));
                                 
+                                double waterHeight = waterNoise * Math.max(maxNoiseDistance - noiseDistance, 0);
                                 
-                                
-                                
-                                
+                                topHeight -= waterHeight;
+                                topHeight = Math.max(Math.max(topHeight, (antiWaterRingDistance - distanceFromWaterRing) / (antiWaterRingDistance / maxWaterHeight)), 0);
                                 
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
@@ -385,12 +399,16 @@ public class SkyIslandGenerator implements IGenerator
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
 //                                    	else if (y == 0 || y == 1)
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-                                    	if (!water || skewedNoise > 0.4)
+//                                    	if (!water || skewedNoise > 0.4)
                                     		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
 //                                    	if (water && y < 4 && skewedNoise < 0.5)
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-                                    	else if (y < 3)
-                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
+//                                    	else if (y < 3)
+//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
+                                    }
+                                    else if ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
+                                    {
+                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
                                     }
                                 }
                             }

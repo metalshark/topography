@@ -22,6 +22,10 @@ public class TopographyWeatherRenderer extends IRenderHandler {
 	private boolean persistentRain = false;
 	private boolean persistentClear = false;
 	
+	private boolean overrideBiomeRestrictions = false;
+	private boolean replaceRainWithSnow = false;
+	private boolean replaceSnowWithRain = false;
+	
 	private float persistentStrength = -1;
 	
 	private ResourceLocation snowTexture = EntityRenderer.SNOW_TEXTURES;
@@ -34,6 +38,24 @@ public class TopographyWeatherRenderer extends IRenderHandler {
 	private float redRain = 1;
 	private float greenRain = 1;
 	private float blueRain = 1;
+	
+	@ScriptMethodDocumentation(usage = "", notes = "Makes all rain render as snow.")
+	public void replaceRainWithSnow()
+	{
+		this.replaceRainWithSnow = true;
+	}
+	
+	@ScriptMethodDocumentation(usage = "", notes = "Makes all snow render as rain.")
+	public void replaceSnowWithRain()
+	{
+		this.replaceRainWithSnow = true;
+	}
+	
+	@ScriptMethodDocumentation(usage = "", notes = "Allows weather to render in biomes which normally do not allow it, such as the desert.")
+	public void overrideBiomeRestrictions()
+	{
+		this.overrideBiomeRestrictions = true;
+	}
 	
 	@ScriptMethodDocumentation(usage = "", notes = "Makes snowfall permanently render, regardless of whether or not it's actually snowing, or if the biome allows snow.")
 	public void persistentSnow()
@@ -144,7 +166,7 @@ public class TopographyWeatherRenderer extends IRenderHandler {
                     blockpos$mutableblockpos.setPos(l1, 0, k1);
                     Biome biome = world.getBiome(blockpos$mutableblockpos);
 
-                    if ((biome.canRain() || biome.getEnableSnow() || persistentSnow || persistentRain))
+                    if (this.overrideBiomeRestrictions || biome.canRain() || biome.getEnableSnow() || persistentSnow || persistentRain)
                     {
                         int j2 = world.getPrecipitationHeight(blockpos$mutableblockpos).getY();
                         int k2 = j - i1;
@@ -173,7 +195,7 @@ public class TopographyWeatherRenderer extends IRenderHandler {
                             blockpos$mutableblockpos.setPos(l1, k2, k1);
                             float f2 = biome.getTemperature(blockpos$mutableblockpos);
 
-                            if (persistentRain || (world.getBiomeProvider().getTemperatureAtHeight(f2, j2) >= 0.15F && !persistentSnow))
+                            if (this.replaceSnowWithRain || persistentRain || (world.getBiomeProvider().getTemperatureAtHeight(f2, j2) >= 0.15F && !persistentSnow && !this.replaceRainWithSnow))
                             {
                                 if (j1 != 0)
                                 {

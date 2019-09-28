@@ -4,7 +4,9 @@ setSingleBiome("minecraft:hell")
 
 //Makes the dimension have render permanent snow, colored black, for an effect akin to ash falling from the sky.
 weather = overrideWeatherRenderer()
-weather.persistentSnow()
+//weather.persistentSnow()
+weather.replaceRainWithSnow()
+weather.overrideBiomeRestrictions()
 weather.setSnowColor(#000000)
 
 //Adds a basic overworld terrain generator and sets it to generate obsidian and lava instead of stone and water, with a higher sea level.

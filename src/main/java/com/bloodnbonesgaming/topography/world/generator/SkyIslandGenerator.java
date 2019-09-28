@@ -35,6 +35,17 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.layer.GenLayer;
 
+
+/*
+ * Change top noise layer to be able to go down, but keep the cone max height limit. Also want to make sure there is a minimum height limit, otherwise the height will be able to go too low close to the edge.
+ * Any blocks placed in the top layer below a certain level can be set as water to create lakes.
+ * 
+ * The difficult is that the top and bottom are done separately and the top has very limited room for depth in the lakes.
+ * The cone should be almost like a modulator rather than only a max height limit. Effecting both up and downwards limits, making it very standard towards the edges but able to be quite different in the center. 
+ */
+
+
+
 @ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGenerator", classExplaination = 
 "This file is for the SkyIslandGenerator. This generator generates sky islands in a pseudo-random pattern within grid regions, "
 + "allowing for a high level of generation control while giving the appearance of randomness. These can be created in a dimension file using 'new SkyIslandGenerator()'. "
@@ -310,10 +321,31 @@ public class SkyIslandGenerator implements IGenerator
                             for (double y = 0; y < midHeight; y++)
                             {
                                 final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-                                final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
+                                 double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
                                 
                                 final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                final double topHeight = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
+                                final double topHeight;//skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
+                                
+                                boolean water = false;
+                                
+                                //Create slope going up at edge, then slope back down to 0
+                                if (maxNoiseDistance - noiseDistance > 16)
+                                {
+                                	water = true;
+                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
+                                }
+                                else
+                                {
+                                	skewedNoise *= 1.1;
+                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
+                                }
+                                
+                                
+                                
+                                
+                                
+                                
+                                
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
                                 
@@ -342,6 +374,7 @@ public class SkyIslandGenerator implements IGenerator
                                         if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
                                         {
                                             state = bounds.getValue();
+                                            break;
                                         }
                                     }
                                     
@@ -352,7 +385,12 @@ public class SkyIslandGenerator implements IGenerator
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
 //                                    	else if (y == 0 || y == 1)
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-                                		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+                                    	if (!water || skewedNoise > 0.4)
+                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+//                                    	if (water && y < 4 && skewedNoise < 0.5)
+//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
+                                    	else if (y < 3)
+                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
                                     }
                                 }
                             }

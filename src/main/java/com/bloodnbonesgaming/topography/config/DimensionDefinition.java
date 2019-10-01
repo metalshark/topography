@@ -36,6 +36,7 @@ import com.bloodnbonesgaming.topography.world.generator.OverworldGenerator;
 import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SimplexNoiseGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
+import com.bloodnbonesgaming.topography.world.generator.SkyIslandGeneratorV2;
 import com.bloodnbonesgaming.topography.world.generator.VineGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaAnimalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.VanillaCaveGenerator;
@@ -103,6 +104,7 @@ public class DimensionDefinition
         this.classKeywords.put("CellNoiseGenerator", CellNoiseGenerator.class);
         this.classKeywords.put("LayerGenerator", LayerGenerator.class);
         this.classKeywords.put("SkyIslandGenerator", SkyIslandGenerator.class);
+        this.classKeywords.put("SkyIslandGeneratorV2", SkyIslandGeneratorV2.class);
         this.classKeywords.put("SkyIslandType", SkyIslandType.class);
         
 

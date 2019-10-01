@@ -32,6 +32,9 @@ public class SkyIslandType
     private final Map<MinMaxBounds, IBlockState> boundsToState = new LinkedHashMap<MinMaxBounds, IBlockState>();
     private boolean genAnimals = true;
     private final List<DecorationData> decorators = new ArrayList<DecorationData>();
+    private double waterDivisionValue = 2;
+    private IBlockState fluidBlock = Blocks.WATER.getDefaultState();
+    private boolean generateFluid = true;
     
     public SkyIslandType()
     {
@@ -127,5 +130,35 @@ public class SkyIslandType
     public List<DecorationData> getDecorators()
     {
         return this.decorators;
+    }
+    
+    public void setWaterDivisionValue(double value)
+    {
+    	this.waterDivisionValue = value;
+    }
+    
+    public double getWaterDivisionValue()
+    {
+    	return this.waterDivisionValue;
+    }
+    
+    public void setFluidBlock(final ItemBlockData data) throws Exception
+    {
+        this.fluidBlock = data.buildBlockState();
+    }
+    
+    public IBlockState getFluidBlock()
+    {
+    	return this.fluidBlock;
+    }
+    
+    public void disableFluid()
+    {
+    	this.generateFluid = false;
+    }
+    
+    public boolean generateFluid()
+    {
+    	return this.generateFluid;
     }
 }

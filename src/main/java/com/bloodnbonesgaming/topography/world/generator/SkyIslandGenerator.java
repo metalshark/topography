@@ -221,7 +221,7 @@ public class SkyIslandGenerator implements IGenerator
     protected double[] depthBuffer = new double[256];
     
     
-    private void generateNoise(final double[] array, final int arraySizeX, final int arraySizeY, final int arraySizeZ, final int x, final int y, final int z, final int xCoordinateScale, final int yCoordinateScale, final int zCoordinateScale)
+    protected void generateNoise(final double[] array, final int arraySizeX, final int arraySizeY, final int arraySizeZ, final int x, final int y, final int z, final int xCoordinateScale, final int yCoordinateScale, final int zCoordinateScale)
     {
         for (int xI = 0; xI < arraySizeX; xI++)
         {
@@ -323,14 +323,14 @@ public class SkyIslandGenerator implements IGenerator
                             double maxWaterHeight = maxFeatureRadius * 0.05;
                             double something = maxFeatureRadius * 0.04;
                             //distance from the anti water ring radius
-                            double distanceFromWaterRing = Math.abs(antiWaterRingDistance - (maxFeatureRadius - Math.sqrt(xDistance + zDistance)));
+                            double distanceFromWaterRing = Math.abs(antiWaterRingDistance - ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)));
                             //
                             double scaledDistanceFromWaterRing = Math.max((antiWaterRingDistance - distanceFromWaterRing) / waterRingHeightDivision, 0);
                             
                             for (double y = 0; y < midHeight; y++)
                             {
                                 final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-                                 double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
+                                 double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / (noiseDistance * 2), (realZ + 16 * skewNoise) / (noiseDistance * 2), 3, 0.5);
                                 
                                 final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
                                 double topHeight;//skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
@@ -348,7 +348,7 @@ public class SkyIslandGenerator implements IGenerator
 //                                else
 //                                {
 //                                	skewedNoise *= 1.1;
-                                	topHeight = skewedNoise * Math.max(maxTopNoise * (1 + scaledDistanceFromWaterRing), 0) / 3;
+                                	topHeight = skewedNoise * Math.max((maxTopNoise - noiseDistance * noise2) * (1 + scaledDistanceFromWaterRing), 0) / 3;
 //                                }
                                 
 //                                topHeight += Math.floor(distanceFrom8);
@@ -358,8 +358,7 @@ public class SkyIslandGenerator implements IGenerator
                                 double waterHeight = waterNoise * Math.max(maxNoiseDistance - noiseDistance, 0);
                                 
                                 topHeight -= waterHeight;
-                                topHeight = Math.max(Math.max(topHeight, (antiWaterRingDistance - distanceFromWaterRing) / (antiWaterRingDistance / maxWaterHeight)), 0);
-                                
+                                topHeight = Math.max(Math.max(topHeight, ((antiWaterRingDistance - distanceFromWaterRing) / (antiWaterRingDistance / maxWaterHeight)) - noiseDistance * noise2), 0);
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
                                 
@@ -406,7 +405,7 @@ public class SkyIslandGenerator implements IGenerator
 //                                    	else if (y < 3)
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
                                     }
-                                    else if ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
+                                    else if (((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
                                     {
                                     	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
                                     }

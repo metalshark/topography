@@ -2,13 +2,12 @@ package com.bloodnbonesgaming.topography.world.generator;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
-import com.bloodnbonesgaming.lib.util.NumberHelper;
+import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.util.noise.FastNoise;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -18,24 +17,24 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
+	
+	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise;
+	
+	@Override
+    public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
+    {
+        this.horizontalConeSkewNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
+        super.generate(world, primer, chunkX, chunkZ, random);
+    }
 		
 	@Override
 	public void generateIslands(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
-        this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
-        NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
-        
-        FastNoise noise = new FastNoise();
-		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.01f);
-        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
-        noise.SetSeed((int) seed);
-        
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
         while (iterator.hasNext())
@@ -63,53 +62,35 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                         
                         final double zDistance = Math.pow(Math.abs(featureCenterZ - realZ), 2);
                         
-                        final double maxNoiseDistance = (maxFeatureRadius - Math.sqrt(xDistance + zDistance)) * 1.5;
-                        
-                        final double noiseDistance = maxFeatureRadius * 0.32;
-                        
-                        final double noise2 = this.terrainNoise.eval((realX) / noiseDistance, (realZ) / noiseDistance, 3, 0.5);
-                        
                         if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
                         {
                             final SkyIslandType type = islandPos.getValue();
                             final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
-                            double waterNoise = (noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16) + 1) / type.getWaterDivisionValue();
-                            double antiWaterRingDistance = maxFeatureRadius / 10;
-                            double waterRingHeightDivision = maxFeatureRadius * 0.07;
-                            double maxWaterHeight = maxFeatureRadius * 0.05;
                             //distance from the anti water ring radius
-                            double distanceFromWaterRing = Math.abs(antiWaterRingDistance - ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)));
                             //
-                            double scaledDistanceFromWaterRing = Math.max((antiWaterRingDistance - distanceFromWaterRing) / waterRingHeightDivision, 0);
                             
-                            for (double y = 0; y < midHeight; y++)
+                            for (double y = 0; y < maxFeatureRadius * 2; y++)
                             {
-                                final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-                                 double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / (noiseDistance * 2), (realZ + 16 * skewNoise) / (noiseDistance * 2), 3, 0.5);
+                            	final double maxConeCoordinateSkewValue = 50;
+                            	//Value between -25 and 25
+                            	final Double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / 64, y / 64, realZ / 64, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
+                            	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
+                            	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
+                            	final double maxConeHeightAtPos = maxFeatureRadius - maxConeCoordinateSkewValue / 2 - Math.sqrt(skewedXDistance + skewedZDistance);
+                            	
+                            	
+                            	
                                 
-                                final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                double topHeight;
+                                final double bottomHeight = midHeight - maxConeHeightAtPos;
+                                double topHeight = maxConeHeightAtPos;;
                                 
-                                //Increases exponentially increases the max height the closer to the center of the island it is.
-                                double maxTopNoise = ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) + (maxFeatureRadius - Math.sqrt(xDistance + zDistance)) * ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) / maxFeatureRadius)) * 1.5;
-                                
-                                topHeight = skewedNoise * Math.max((maxTopNoise - noiseDistance * noise2) * (1 + scaledDistanceFromWaterRing), 0) / 3;
-                                
-                                double waterHeight = waterNoise * Math.max(maxNoiseDistance - noiseDistance, 0);
-                                
-                                topHeight -= waterHeight;
-                                topHeight = Math.max(Math.max(topHeight, ((antiWaterRingDistance - distanceFromWaterRing) / (antiWaterRingDistance / maxWaterHeight))), 0);
-                                
-                                if (distanceFromWaterRing < 1)
-                                {
-                                	topHeight = Math.max(maxWaterHeight, topHeight);
-                                }
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
                                 
                                 final double distance = Math.floor(((topHeight + midHeight) - bottomHeight) / 2);
                                 IBlockState state = type.getMainBlock();
                                 //Bottom
+                                if (y < midHeight)
                                 {                                    
                                     for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                     {
@@ -121,12 +102,10 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                     
                                     if (bottomHeight < y)
                                     {
-                                        primer.setBlockState((int) x, (int) y, (int) z, state);
+                                    	primer.setBlockState((int) x, (int) y, (int) z, state);
                                     }
                                 }
-                                
-                                //Top
-                                {//                                                                        
+                                else {//Top
                                     for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                     {
                                         if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
@@ -136,14 +115,14 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                         }
                                     }
                                     
-                                    if (topHeight != 0 && topHeight >= y)
+                                    if (topHeight != 0 && topHeight + midHeight >= y)
                                     {
-                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
+                                    	primer.setBlockState((int) x, (int) (y), (int) z, state);
                                     }
-                                    else if (type.generateFluid() && ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
-                                    {
-                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getFluidBlock());
-                                    }
+//                                    else if (type.generateFluid() && ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
+//                                    {
+//                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getFluidBlock());
+//                                    }
                                 }
                             }
                         }

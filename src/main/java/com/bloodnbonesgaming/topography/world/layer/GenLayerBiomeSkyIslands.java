@@ -44,7 +44,7 @@ public class GenLayerBiomeSkyIslands extends GenLayer
                 for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : islandPositions.entrySet())
                 {
                     final SkyIslandData data = set.getKey();
-                    final double minDistance = data.getRadius();
+                    final double minDistance = data.getHorizontalRadius();
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {

@@ -77,7 +77,7 @@ public class SkyIslandGenerator implements IGenerator
         
     }
 
-    private final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
+    protected final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
     private Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
     private final Random islandPositionRandom = new Random();
     private double regionSize = 464;
@@ -96,13 +96,13 @@ public class SkyIslandGenerator implements IGenerator
             int genCount = 0;
             countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
-                final double maxFeatureRadius = data.getRadius();
-                final double midHeight = Math.min(maxFeatureRadius, 110) + this.islandPositionRandom.nextInt((int) Math.max(220 - (maxFeatureRadius * 2), 1));
+                final double maxHorizontalFeatureRadius = data.getHorizontalRadius();
+                final double midHeight = Math.min(maxHorizontalFeatureRadius, 110) + this.islandPositionRandom.nextInt((int) Math.max(220 - (maxHorizontalFeatureRadius * 2), 1));
 
                 final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
                 final int regionCenterZ = (int) ((this.currentRegionZ) * regionSize + regionSize / 2);
 
-                final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
+                final int randomSpace = (int) (regionSize - maxHorizontalFeatureRadius * 2);
 
                 final int featureCenterX = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
                 final int featureCenterZ = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
@@ -111,7 +111,7 @@ public class SkyIslandGenerator implements IGenerator
 
                 for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.islandPositions.entrySet())
                 {
-                    final double minDistance = set.getKey().getRadius() + maxFeatureRadius + 25;
+                    final double minDistance = set.getKey().getHorizontalRadius() + maxHorizontalFeatureRadius + 25;
 
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
@@ -169,7 +169,7 @@ public class SkyIslandGenerator implements IGenerator
     {
         this.regionSize = size * 16;
     }
-
+  //TODO Update documentation
     @ScriptMethodDocumentation(args = "int, int, boolean", usage = "radius, count, randomTypes", notes = "Generates a SkyIslandData and returns it. "
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
@@ -177,7 +177,8 @@ public class SkyIslandGenerator implements IGenerator
 	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
     {
         final SkyIslandData data = new SkyIslandData();
-        data.setRadius(radius);
+        data.setHorizontalRadius(radius);
+        data.setVerticalRadius(radius);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
 
@@ -185,7 +186,7 @@ public class SkyIslandGenerator implements IGenerator
 
         return data;
     }
-
+//TODO Update documentation
     @ScriptMethodDocumentation(args = "int, int, boolean, int", usage = "radius, count, randomTypes, minCount", notes = "Generates a SkyIslandData and returns it. "
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
@@ -193,7 +194,8 @@ public class SkyIslandGenerator implements IGenerator
 	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes, final int minCount)
     {
         final SkyIslandData data = new SkyIslandData();
-        data.setRadius(radius);
+        data.setHorizontalRadius(radius);
+        data.setVerticalRadius(radius);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
         data.setMinCount(minCount);
@@ -294,7 +296,7 @@ public class SkyIslandGenerator implements IGenerator
                 final int featureCenterX = islandPos.getKey().getX();
                 final int featureCenterZ = islandPos.getKey().getZ();
                 final int midHeight = islandPos.getKey().getY();
-                final int maxFeatureRadius = data.getRadius();
+                final double maxFeatureRadius = data.getHorizontalRadius();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -435,7 +437,7 @@ public class SkyIslandGenerator implements IGenerator
                 {
                     final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = iterator.next();
                     final SkyIslandData data = set.getKey();
-                    final double minDistance = data.getRadius();
+                    final double minDistance = data.getHorizontalRadius();
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
@@ -552,7 +554,7 @@ public class SkyIslandGenerator implements IGenerator
         outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet())
         {
             final SkyIslandData data = set.getKey();
-            final double minDistance = data.getRadius();
+            final double minDistance = data.getHorizontalRadius();
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
@@ -596,7 +598,7 @@ public class SkyIslandGenerator implements IGenerator
         outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j).entrySet())
         {
             final SkyIslandData data = set.getKey();
-            final double minDistance = data.getRadius();
+            final double minDistance = data.getHorizontalRadius();
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {

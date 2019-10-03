@@ -1,7 +1,6 @@
 package com.bloodnbonesgaming.topography.world;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,6 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -23,14 +21,6 @@ public class SkyIslandDataHandler
 
     private int currentRegionX = -100000000;
     private int currentRegionZ = -100000000;
-
-    public static final Map<String, Class> classKeywords = new HashMap<String, Class>();
-
-    static
-    {
-        SkyIslandDataHandler.classKeywords.put("SkyIslandType", SkyIslandType.class);
-        SkyIslandDataHandler.classKeywords.put("DecoratorScattered", DecoratorScattered.class);
-    }
 
     public SkyIslandDataHandler()
     {
@@ -46,7 +36,7 @@ public class SkyIslandDataHandler
             int genCount = 0;
             countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
-                final double maxFeatureRadius = data.getRadius();
+                final double maxFeatureRadius = data.getHorizontalRadius();
                 final double midHeight = maxFeatureRadius + this.islandPositionRandom.nextInt((int) (220 - (maxFeatureRadius * 2)));
 
                 final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
@@ -61,7 +51,7 @@ public class SkyIslandDataHandler
 
                 for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.islandPositions.entrySet())
                 {
-                    final double minDistance = set.getKey().getRadius() + maxFeatureRadius + 25;
+                    final double minDistance = set.getKey().getHorizontalRadius() + maxFeatureRadius + 25;
 
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
@@ -117,17 +107,5 @@ public class SkyIslandDataHandler
     public void setRegionSize(final int size)
     {
         this.regionSize = size * 16;
-    }
-
-    public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
-    {
-        final SkyIslandData data = new SkyIslandData();
-        data.setRadius(radius);
-        data.setCount(count);
-        data.setRandomTypes(randomTypes);
-
-        this.skyIslandData.add(data);
-
-        return data;
     }
 }

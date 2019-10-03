@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
@@ -49,7 +50,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                 final int featureCenterX = islandPos.getKey().getX();
                 final int featureCenterZ = islandPos.getKey().getZ();
                 final int midHeight = islandPos.getKey().getY();
-                final int maxFeatureRadius = data.getRadius();
+                final double maxHorizontalRadius = data.getHorizontalRadius();
+                final double maxVerticalRadius = data.getVerticalRadius();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -62,27 +64,26 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                         
                         final double zDistance = Math.pow(Math.abs(featureCenterZ - realZ), 2);
                         
-                        if (Math.sqrt(xDistance + zDistance) <= maxFeatureRadius)
+                        if (Math.sqrt(xDistance + zDistance) <= maxHorizontalRadius)
                         {
                             final SkyIslandType type = islandPos.getValue();
                             final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
                             //distance from the anti water ring radius
-                            //
+                            //they can be 100 in any direction already.
+                            //If the skew is 60%, they can be another +30 
+                            //If the radius is reduced by 30%, they can still be 100 in any direction, they are just unlikely to hit it
                             
-                            for (double y = 0; y < maxFeatureRadius * 2; y++)
+                            for (double y = 0; y <= 255; y++)
                             {
-                            	final double maxConeCoordinateSkewValue = 50;
-                            	//Value between -25 and 25
-                            	final Double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / 64, y / 64, realZ / 64, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
+                            	final double maxConeCoordinateSkewValue = maxHorizontalRadius * 0.6;
+                            	final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
                             	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
                             	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
-                            	final double maxConeHeightAtPos = maxFeatureRadius - maxConeCoordinateSkewValue / 2 - Math.sqrt(skewedXDistance + skewedZDistance);
-                            	
-                            	
+                            	final double maxConeHeightAtPos = maxVerticalRadius / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
                             	
                                 
-                                final double bottomHeight = midHeight - maxConeHeightAtPos;
-                                double topHeight = maxConeHeightAtPos;;
+                                final double bottomHeight = maxConeHeightAtPos + midHeight - maxVerticalRadius;
+                                double topHeight = maxConeHeightAtPos;
                                 
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
@@ -100,12 +101,13 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                         }
                                     }
                                     
-                                    if (bottomHeight < y)
+                                    if (bottomHeight <= y)
                                     {
                                     	primer.setBlockState((int) x, (int) y, (int) z, state);
                                     }
                                 }
-                                else {//Top
+                                else 
+                                {//Top
                                     for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                     {
                                         if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
@@ -115,7 +117,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                         }
                                     }
                                     
-                                    if (topHeight != 0 && topHeight + midHeight >= y)
+                                    if (midHeight + maxVerticalRadius - topHeight >= y)
                                     {
                                     	primer.setBlockState((int) x, (int) (y), (int) z, state);
                                     }
@@ -148,7 +150,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                 {
                     final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = iterator.next();
                     final SkyIslandData data = set.getKey();
-                    final double minDistance = data.getRadius();
+                    final double minDistance = data.getHorizontalRadius();
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
@@ -250,4 +252,52 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
             }
         }
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	  //TODO Update documentation
+    @ScriptMethodDocumentation(args = "int, int, boolean", usage = "radius, count, randomTypes", notes = "Generates a SkyIslandData and returns it. "
+    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
+    		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
+    		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
+	public SkyIslandData addSkyIslands(final int horizontalRadius, final int verticalRadius, final int count, final boolean randomTypes)
+    {
+        final SkyIslandData data = new SkyIslandData();
+        data.setHorizontalRadius(horizontalRadius);
+        data.setVerticalRadius(verticalRadius);
+        data.setCount(count);
+        data.setRandomTypes(randomTypes);
+
+        this.skyIslandData.add(data);
+
+        return data;
+    }
+//TODO Update documentation
+    @ScriptMethodDocumentation(args = "int, int, boolean, int", usage = "radius, count, randomTypes, minCount", notes = "Generates a SkyIslandData and returns it. "
+    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
+    		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
+    		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
+	public SkyIslandData addSkyIslands(final int horizontalRadius, final int verticalRadius, final int count, final boolean randomTypes, final int minCount)
+    {
+        final SkyIslandData data = new SkyIslandData();
+        data.setHorizontalRadius(horizontalRadius);
+        data.setVerticalRadius(verticalRadius);
+        data.setCount(count);
+        data.setRandomTypes(randomTypes);
+        data.setMinCount(minCount);
+
+        this.skyIslandData.add(data);
+
+        return data;
+    }
 }

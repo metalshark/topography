@@ -26,7 +26,7 @@ public class DecoratorScattered
     
     public void generateForSkyIsland(final int count, final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandGenerator generator, final int regionSize)
     {
-        final int radius = data.getRadius();
+        final double radius = data.getHorizontalRadius();
         final int regionStartX = (int) (Math.floor(chunkX * 16D / regionSize) * regionSize);
         final int regionStartZ = (int) (Math.floor(chunkZ * 16D / regionSize) * regionSize);
         

@@ -15,6 +15,8 @@ public class SkyIslandData
     private int count = 1;
     private double horizontalRadius = 100;
     private double verticalRadius = 100;
+    private double topHeight = verticalRadius;
+    private double bottomHeight = verticalRadius;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
     private boolean randomTypes = true;
     
@@ -41,15 +43,37 @@ public class SkyIslandData
         this.horizontalRadius = radius;
     }
 	
-    public double getVerticalRadius()
-    {
-        return verticalRadius;
-    }
+//    public double getVerticalRadius()
+//    {
+//        return verticalRadius;
+//    }
     
 	public void setVerticalRadius(int radius)
     {
         this.verticalRadius = radius;
+        this.topHeight = radius;
+        this.bottomHeight = radius;
     }
+	
+	public double getTopHeight()
+	{
+		return this.topHeight;
+	}
+	
+	public void setTopHeight(double height)
+	{
+		this.topHeight = height;
+	}
+	
+	public double getBottomHeight()
+	{
+		return this.bottomHeight;
+	}
+	
+	public void setBottomHeight(double height)
+	{
+		this.bottomHeight = height;
+	}
     
     @ScriptMethodDocumentation(args = "SkyIslandType", usage = "type", notes = "Adds a type of sky island to be generated.")
 	public void addType(final SkyIslandType type)

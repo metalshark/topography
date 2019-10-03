@@ -51,7 +51,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                 final int featureCenterZ = islandPos.getKey().getZ();
                 final int midHeight = islandPos.getKey().getY();
                 final double maxHorizontalRadius = data.getHorizontalRadius();
-                final double maxVerticalRadius = data.getVerticalRadius();
+                final double maxTopHeight = data.getTopHeight();
+                final double maxBottomHeight = data.getBottomHeight();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -79,11 +80,12 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                             	final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
                             	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
                             	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
-                            	final double maxConeHeightAtPos = maxVerticalRadius / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
+                            	final double maxTopConeHeightAtPos = maxTopHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
+                            	final double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
                             	
                                 
-                                final double bottomHeight = maxConeHeightAtPos + midHeight - maxVerticalRadius;
-                                double topHeight = maxConeHeightAtPos;
+                                final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
+                                double topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
                                 
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
@@ -117,7 +119,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                         }
                                     }
                                     
-                                    if (midHeight + maxVerticalRadius - topHeight >= y)
+                                    if (topHeight >= y)
                                     {
                                     	primer.setBlockState((int) x, (int) (y), (int) z, state);
                                     }
@@ -270,11 +272,12 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandData addSkyIslands(final int horizontalRadius, final int verticalRadius, final int count, final boolean randomTypes)
+	public SkyIslandData addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes)
     {
         final SkyIslandData data = new SkyIslandData();
         data.setHorizontalRadius(horizontalRadius);
-        data.setVerticalRadius(verticalRadius);
+        data.setTopHeight(topHeight);
+        data.setBottomHeight(bottomHeight);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
 
@@ -287,11 +290,12 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandData addSkyIslands(final int horizontalRadius, final int verticalRadius, final int count, final boolean randomTypes, final int minCount)
+	public SkyIslandData addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes, final int minCount)
     {
         final SkyIslandData data = new SkyIslandData();
         data.setHorizontalRadius(horizontalRadius);
-        data.setVerticalRadius(verticalRadius);
+        data.setTopHeight(topHeight);
+        data.setBottomHeight(bottomHeight);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
         data.setMinCount(minCount);

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
@@ -37,8 +36,6 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
 	@Override
 	public void generateIslands(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
-        this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
-        NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
         while (iterator.hasNext())
@@ -56,6 +53,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                 final double maxHorizontalRadius = data.getHorizontalRadius();
                 final double maxTopHeight = data.getTopHeight();
                 final double maxBottomHeight = data.getBottomHeight();
+                final double maxWaterHeight = data.getWaterHeight();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -79,27 +77,39 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                             
                             for (double y = 0; y <= 255; y++)
                             {
-                            	//0-1
-                            	final double noiseSkewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)];
-                            	final double verticalSkewNoise = this.terrainNoise.eval((realX + 16 * noiseSkewNoise) / (30 * 2), (realZ + 16 * noiseSkewNoise) / (30 * 2), 3, 0.5);
-                            	//With cone skewing
                             	final double maxConeCoordinateSkewValue = maxHorizontalRadius * 0.6;
                             	final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
                             	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
                             	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
                             	final double maxTopConeHeightAtPos = maxTopHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
                             	final double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
-                            	//Without cone skewing
-//                            	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX)), 2);
-//                            	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ)), 2);
-//                            	double maxTopConeHeightAtPos = (maxTopHeight) / (maxHorizontalRadius) * Math.sqrt(skewedXDistance + skewedZDistance);
-//                            	double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius) * Math.sqrt(skewedXDistance + skewedZDistance);
-                            	double skewedMaxTopConeHeightAtPos = maxTopConeHeightAtPos * verticalSkewNoise;
-                            	double skewedMaxBottomConeHeightAtPos = maxBottomConeHeightAtPos * verticalSkewNoise;
+                            	
+                            	//Rather than having an artificial minimum height ring, instead use the normal height of the cone. 
+                            	//This should be possible because of the horizontal skew on the cones, which allows them to look fine without extra noise.
+                            	//Noise can be applied, using the height above the minimum required for keeping water from falling into the void as a maximum that the noise can reduce the height by.
+                            	//This will need to go up faster than the actual height changes, so that it can go below the height required for water to spawn.
+                            	
+                            	//Need to do this calculation so that when the noise is below a certain set value, it will reduce the height enough to create 1 block of water.
+                            	final double waterPercentage = Math.max(1 - 0.5, 0.0001);
                                 
-                                final double bottomHeight = Math.ceil(maxBottomConeHeightAtPos + midHeight - maxBottomHeight + (maxBottomConeHeightAtPos - skewedMaxBottomConeHeightAtPos));
-                                double topHeight = Math.ceil(midHeight + maxTopHeight - maxTopConeHeightAtPos - (maxTopConeHeightAtPos - skewedMaxTopConeHeightAtPos));
+                                final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
+                                double waterHeightReductionNoise = this.horizontalConeSkewNoise.eval(realX / (maxConeCoordinateSkewValue * 1.5), y / (maxConeCoordinateSkewValue * 1.5), realZ / (maxConeCoordinateSkewValue * 1.5), 3, 0.5);
+                                double topHeight;
                                 
+                                boolean water = false;
+                                //If far enough into the island to be safe with water.
+                                if (maxTopHeight - maxTopConeHeightAtPos > maxWaterHeight)
+                                {
+                                	//If low enough to generate water.
+                                	if (y < midHeight + maxWaterHeight) {
+                                    	water = true;
+                                	}
+                                	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos - ((maxTopHeight - maxTopConeHeightAtPos - maxWaterHeight) / waterPercentage) * waterHeightReductionNoise;
+                                }
+                                else
+                                {
+                                	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
+                                }
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
                                 
@@ -136,10 +146,10 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                     {
                                     	primer.setBlockState((int) x, (int) (y), (int) z, state);
                                     }
-//                                    else if (type.generateFluid() && ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
-//                                    {
-//                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, type.getFluidBlock());
-//                                    }
+                                    else if (water && type.generateFluid())
+                                    {
+                                    	primer.setBlockState((int) x, (int) (y), (int) z, type.getFluidBlock());
+                                    }
                                 }
                             }
                         }

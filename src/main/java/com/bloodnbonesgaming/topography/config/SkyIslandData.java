@@ -17,6 +17,7 @@ public class SkyIslandData
     private double verticalRadius = 100;
     private double topHeight = verticalRadius;
     private double bottomHeight = verticalRadius;
+    private double waterHeight = -1;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
     private boolean randomTypes = true;
     
@@ -73,6 +74,20 @@ public class SkyIslandData
 	public void setBottomHeight(double height)
 	{
 		this.bottomHeight = height;
+	}
+	
+	public double getWaterHeight()
+	{
+		if (this.waterHeight < 0)
+		{
+	        waterHeight = Math.floor(this.horizontalRadius / 20D);
+		}
+		return this.waterHeight;
+	}
+	
+	public void setWaterHeight(final double height)
+	{
+		this.waterHeight = height;
 	}
     
     @ScriptMethodDocumentation(args = "SkyIslandType", usage = "type", notes = "Adds a type of sky island to be generated.")

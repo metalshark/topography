@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
@@ -36,6 +37,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
 	@Override
 	public void generateIslands(final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
+        this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
+        NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
         while (iterator.hasNext())
@@ -76,16 +79,26 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                             
                             for (double y = 0; y <= 255; y++)
                             {
+                            	//0-1
+                            	final double noiseSkewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)];
+                            	final double verticalSkewNoise = this.terrainNoise.eval((realX + 16 * noiseSkewNoise) / (30 * 2), (realZ + 16 * noiseSkewNoise) / (30 * 2), 3, 0.5);
+                            	//With cone skewing
                             	final double maxConeCoordinateSkewValue = maxHorizontalRadius * 0.6;
                             	final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
                             	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
                             	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
                             	final double maxTopConeHeightAtPos = maxTopHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
                             	final double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
-                            	
+                            	//Without cone skewing
+//                            	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX)), 2);
+//                            	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ)), 2);
+//                            	double maxTopConeHeightAtPos = (maxTopHeight) / (maxHorizontalRadius) * Math.sqrt(skewedXDistance + skewedZDistance);
+//                            	double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius) * Math.sqrt(skewedXDistance + skewedZDistance);
+                            	double skewedMaxTopConeHeightAtPos = maxTopConeHeightAtPos * verticalSkewNoise;
+                            	double skewedMaxBottomConeHeightAtPos = maxBottomConeHeightAtPos * verticalSkewNoise;
                                 
-                                final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
-                                double topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
+                                final double bottomHeight = Math.ceil(maxBottomConeHeightAtPos + midHeight - maxBottomHeight + (maxBottomConeHeightAtPos - skewedMaxBottomConeHeightAtPos));
+                                double topHeight = Math.ceil(midHeight + maxTopHeight - maxTopConeHeightAtPos - (maxTopConeHeightAtPos - skewedMaxTopConeHeightAtPos));
                                 
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);

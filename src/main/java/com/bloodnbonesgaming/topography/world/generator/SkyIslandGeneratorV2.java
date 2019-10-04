@@ -111,9 +111,9 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
                                 	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
                                 }
                                 
-                                final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
+                                final int mid = (int) Math.floor(((topHeight) - bottomHeight) / 2 + bottomHeight);
                                 
-                                final double distance = Math.floor(((topHeight + midHeight) - bottomHeight) / 2);
+                                final double distance = Math.floor(((topHeight) - bottomHeight) / 2);
                                 IBlockState state = type.getMainBlock();
                                 //Bottom
                                 if (y < midHeight)
@@ -250,7 +250,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
 
                     if (j1 >= i - 1)
                     {
-                        chunkPrimerIn.setBlockState(i1, j1, l, iblockstate);
+                        chunkPrimerIn.setBlockState(i1, j1, l, iblockstate == biome.topBlock && chunkPrimerIn.getBlockState(i1, j1 + 1, l) == Blocks.WATER.getDefaultState() ? biome.fillerBlock : iblockstate);
                     }
                     else if (j1 < i - 7 - k)
                     {

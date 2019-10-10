@@ -106,7 +106,7 @@ public class DeformedSphereGenerator implements IGenerator
         final List<BlockPos> positions = new ArrayList<BlockPos>();
         
         int genCount = 0;
-        countLoop: for (int i = 0; i < this.count || genCount < this.minCount; i++)
+        countLoop: for (int i = 0; i < this.count || (genCount < this.minCount && i < this.count * 2); i++)
         {
             final double maxFeatureRadius = this.radius;
             final double midHeight = maxFeatureRadius + random.nextInt((int) (256 - (maxFeatureRadius * 2)));

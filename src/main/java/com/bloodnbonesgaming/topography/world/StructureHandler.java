@@ -1,11 +1,13 @@
 package com.bloodnbonesgaming.topography.world;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
+import com.bloodnbonesgaming.topography.world.generator.IStructureHandler;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.structure.EndCityGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.structure.MansionGenerator;
 import com.bloodnbonesgaming.topography.world.generator.vanilla.structure.MineshaftGenerator;
@@ -24,22 +26,36 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.structure.MapGenMineshaft;
+import net.minecraft.world.gen.structure.MapGenScatteredFeature;
+import net.minecraft.world.gen.structure.MapGenStronghold;
 import net.minecraft.world.gen.structure.MapGenVillage;
+import net.minecraft.world.gen.structure.StructureOceanMonument;
+import net.minecraft.world.gen.structure.WoodlandMansion;
 
 public class StructureHandler
 {
     private NetherBridgeGenerator netherFortress;
     private EndCityGenerator endCity;
-    private MansionGenerator mansion;
-    private MineshaftGenerator mineshaft;
-    private OceanMonumentGenerator monument;
-    private ScatteredFeatureGenerator scattered;
-    private StrongholdGenerator stronghold;
+    private WoodlandMansion mansion;
+    private MapGenMineshaft mineshaft;
+    private StructureOceanMonument monument;
+    private MapGenScatteredFeature scattered;
+    private MapGenStronghold stronghold;
     private MapGenVillage village;
     
+    private final List<IStructureHandler> handlers = new ArrayList<IStructureHandler>();
+    
+    public void addStructureHandler(final IStructureHandler handler) {
+    	this.handlers.add(handler);
+    }
     
     public void generateStructures(final World world, final int chunkX, final int chunkZ, final ChunkPrimer primer)
     {
+    	for (final IStructureHandler handler : this.handlers) {
+    		handler.generateStructures(world, chunkX, chunkZ, primer);
+    	}
+    	
         if (this.netherFortress != null)
         {
             this.netherFortress.generate(world, chunkX, chunkZ, primer);
@@ -83,6 +99,10 @@ public class StructureHandler
     
     public void populateStructures(final World world, final Random rand, final ChunkPos chunkPos)
     {
+    	for (final IStructureHandler handler : this.handlers) {
+    		handler.populateStructures(world, rand, chunkPos);
+    	}
+    	
         if (this.netherFortress != null)
         {
             this.netherFortress.generateStructure(world, rand, chunkPos);
@@ -126,7 +146,15 @@ public class StructureHandler
     
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, final World world, BlockPos pos, final List<Biome.SpawnListEntry> spawns)
     {
-    	if (creatureType == EnumCreatureType.MONSTER)
+    	for (final IStructureHandler handler : this.handlers) {
+    		final List<Biome.SpawnListEntry> list = handler.getPossibleCreatures(creatureType, world, pos, spawns);
+    		
+    		if (list != spawns) {
+    			return list;
+    		}
+    	}
+    	
+        if (creatureType == EnumCreatureType.MONSTER)
         {
         	if (this.netherFortress != null)
             {
@@ -157,7 +185,14 @@ public class StructureHandler
     @Nullable
     public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
     {
-    	switch (structureName)
+    	for (final IStructureHandler handler : this.handlers) {
+    		BlockPos pos = handler.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
+    		
+    		if (pos != null)
+    			return pos;
+    	}
+    	
+        switch (structureName)
     	{
 	    	case "Fortress": {
 	    		return this.netherFortress != null ? this.netherFortress.getNearestStructurePos(worldIn, position, findUnexplored) : null;
@@ -191,7 +226,14 @@ public class StructureHandler
 
     public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos)
     {
-    	switch (structureName)
+    	for (final IStructureHandler handler : this.handlers) {
+    		boolean bool = handler.isInsideStructure(worldIn, structureName, pos);
+    		
+    		if (bool)
+    			return bool;
+    	}
+    	
+        switch (structureName)
     	{
 		    case "Fortress": {
 				return this.netherFortress != null ? this.netherFortress.isInsideStructure(pos) : false;
@@ -230,6 +272,10 @@ public class StructureHandler
      */
     public void recreateStructures(final World world, Chunk chunkIn, int x, int z)
     {
+    	for (final IStructureHandler handler : this.handlers) {
+    		handler.recreateStructures(world, chunkIn, x, z);
+    	}
+    	
         if (this.netherFortress != null)
         {
             this.netherFortress.generate(world, x, z, (ChunkPrimer)null);
@@ -269,6 +315,10 @@ public class StructureHandler
     public boolean generateStructures(World world, Random rand, Chunk chunkIn, int x, int z)
     {
         boolean flag = false;
+        
+    	for (final IStructureHandler handler : this.handlers) {
+    		flag |= handler.generateStructures(world, rand, chunkIn, x, z);
+    	}
 
         if (this.monument != null && chunkIn.getInhabitedTime() < 3600L)
         {
@@ -291,7 +341,7 @@ public class StructureHandler
     
     public void generateMineshaft()
     {
-    	this.mineshaft = new MineshaftGenerator();
+    	this.mineshaft = (MapGenMineshaft)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new MineshaftGenerator(), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.MINESHAFT);
     }
     
     public void generateVillage()
@@ -301,21 +351,21 @@ public class StructureHandler
     
     public void generateStronghold()
     {
-    	this.stronghold = new StrongholdGenerator();
+    	this.stronghold = (MapGenStronghold)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new StrongholdGenerator(), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.STRONGHOLD);
     }
     
     public void generateTemple()
     {
-    	this.scattered = new ScatteredFeatureGenerator();
+    	this.scattered = (MapGenScatteredFeature)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new ScatteredFeatureGenerator(), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.SCATTERED_FEATURE);
     }
     
     public void generateMonument()
     {
-    	this.monument = new OceanMonumentGenerator();
+    	this.monument = (StructureOceanMonument)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new OceanMonumentGenerator(), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.OCEAN_MONUMENT);
     }
     
     public void generateMansion(final IGenerator generator)
     {
-    	this.mansion = new MansionGenerator(generator);
+    	this.mansion = (WoodlandMansion)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(new MansionGenerator(generator), net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.WOODLAND_MANSION);
     }
 }

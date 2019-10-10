@@ -7,9 +7,15 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandMineshaftGenerator;
+import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandVillageGenerator;
+import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandMineshaftGenerator;
+import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandStrongholdGenerator;
+import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandVillageGenerator;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.BlockSand;
@@ -18,13 +24,43 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.structure.MapGenMineshaft;
+import net.minecraft.world.gen.structure.MapGenStronghold;
+import net.minecraft.world.gen.structure.MapGenVillage;
 
-public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
+public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructureHandler {
 	
 	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise;
+	private final MapGenMineshaft mineshaft;
+	private final MapGenStronghold stronghold = new SkyIslandStrongholdGenerator(this);
+	private final MapGenVillage village;
+	
+	public SkyIslandGeneratorV2()
+	{
+		MapGenVillage village = new SkyIslandVillageGenerator(this);
+		MapGenVillage eventVillage = (MapGenVillage)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(village, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.VILLAGE);
+		
+		if (Topography.betterWithMods) {
+			this.village = BWMSkyIslandVillageGenerator.getVillageGenerator(eventVillage, this);
+		}
+		else
+			this.village = village;
+		
+		MapGenMineshaft mineshaft = new SkyIslandMineshaftGenerator(this);
+		MapGenMineshaft eventMineshaft = (MapGenMineshaft)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(mineshaft, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.MINESHAFT);
+		
+		if (Topography.betterWithMods) {
+			this.mineshaft = BWMSkyIslandMineshaftGenerator.getMineshaftGenerator(eventMineshaft, this);
+		}
+		else {
+			this.mineshaft = mineshaft;
+		}
+	}
 	
 	@Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
@@ -327,4 +363,96 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator {
 
         return data;
     }
+
+	@Override
+	public void generateStructures(World world, int chunkX, int chunkZ, ChunkPrimer primer) {
+		if (this.mineshaft != null)
+        {
+            this.mineshaft.generate(world, chunkX, chunkZ, primer);
+        }
+
+        if (this.village != null)
+        {
+            this.village.generate(world, chunkX, chunkZ, primer);
+        }
+
+        if (this.stronghold != null)
+        {
+            this.stronghold.generate(world, chunkX, chunkZ, primer);
+        }
+	}
+	
+	@Override
+	public void populateStructures(World world, Random rand, ChunkPos chunkPos) {
+		if (this.mineshaft != null)
+        {
+            this.mineshaft.generateStructure(world, rand, chunkPos);
+        }
+
+        if (this.village != null)
+        {
+            this.village.generateStructure(world, rand, chunkPos);
+        }
+
+        if (this.stronghold != null)
+        {
+            this.stronghold.generateStructure(world, rand, chunkPos);
+        }
+	}
+	
+	@Override
+	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored) {
+		switch (structureName)
+    	{
+	    	case "Stronghold": {
+	    		return this.stronghold != null ? this.stronghold.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+	    	}
+	    	case "Village": {
+	    		return this.village != null ? this.village.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+	    	}
+	    	case "Mineshaft": {
+	    		return this.mineshaft != null ? this.mineshaft.getNearestStructurePos(worldIn, position, findUnexplored) : null;
+	    	}
+	    	default: {
+	    		return null;
+	    	}
+    	}
+	}
+	
+	@Override
+	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+		switch (structureName)
+    	{
+	    	case "Stronghold": {
+	    		return this.stronghold != null ? this.stronghold.isInsideStructure(pos) : false;
+	    	}
+	    	case "Village": {
+	    		return this.village != null ? this.village.isInsideStructure(pos) : false;
+	    	}
+	    	case "Mineshaft": {
+	    		return this.mineshaft != null ? this.mineshaft.isInsideStructure(pos) : false;
+	    	}
+			default: {
+				return false;
+			}
+    	}
+	}
+	
+	@Override
+	public void recreateStructures(World world, Chunk chunkIn, int x, int z) {
+		if (this.mineshaft != null)
+        {
+            this.mineshaft.generate(world, x, z, (ChunkPrimer)null);
+        }
+
+        if (this.village != null)
+        {
+            this.village.generate(world, x, z, (ChunkPrimer)null);
+        }
+
+        if (this.stronghold != null)
+        {
+            this.stronghold.generate(world, x, z, (ChunkPrimer)null);
+        }
+	}
 }

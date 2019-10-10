@@ -30,10 +30,12 @@ import com.bloodnbonesgaming.topography.world.generator.DuneTestGenerator;
 import com.bloodnbonesgaming.topography.world.generator.FluidPocketGenerator;
 import com.bloodnbonesgaming.topography.world.generator.HangingCrystalGenerator;
 import com.bloodnbonesgaming.topography.world.generator.IGenerator;
+import com.bloodnbonesgaming.topography.world.generator.IStructureHandler;
 import com.bloodnbonesgaming.topography.world.generator.IceAndSnowGenerator;
 import com.bloodnbonesgaming.topography.world.generator.LayerGenerator;
 import com.bloodnbonesgaming.topography.world.generator.OverworldGenerator;
 import com.bloodnbonesgaming.topography.world.generator.ScatteredBlockGenerator;
+import com.bloodnbonesgaming.topography.world.generator.ScatteredPillarGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SimplexNoiseGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGeneratorV2;
@@ -121,6 +123,7 @@ public class DimensionDefinition
         this.classKeywords.put("VanillaDungeonGenerator", VanillaDungeonGenerator.class);
         this.classKeywords.put("VineGenerator", VineGenerator.class);
         this.classKeywords.put("SimplexNoiseGenerator", SimplexNoiseGenerator.class);
+        this.classKeywords.put("ScatteredPillarGenerator", ScatteredPillarGenerator.class);
     }
     
     public BiomeProvider getBiomeProvider(final World world)
@@ -312,6 +315,8 @@ public class DimensionDefinition
     @ScriptMethodDocumentation(args = "IGenerator", usage = "generator", notes = "Adds the generator to the dimension.")
 	public void addGenerator(final IGenerator generator)
     {
+    	if (generator instanceof IStructureHandler)
+    		this.structureHandler.addStructureHandler((IStructureHandler) generator);
         this.generators.add(generator);
     }
     

@@ -34,7 +34,7 @@ public class SkyIslandDataHandler
         for (final SkyIslandData data : this.skyIslandData)
         {
             int genCount = 0;
-            countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
+            countLoop: for (int i = 0; i < data.getCount() || (genCount < data.getMinCount() && i < data.getCount() * 2); i++)
             {
                 final double maxFeatureRadius = data.getHorizontalRadius();
                 final double midHeight = maxFeatureRadius + this.islandPositionRandom.nextInt((int) (220 - (maxFeatureRadius * 2)));

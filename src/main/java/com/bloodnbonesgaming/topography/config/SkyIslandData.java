@@ -18,6 +18,8 @@ public class SkyIslandData
     private double topHeight = verticalRadius;
     private double bottomHeight = verticalRadius;
     private double waterHeight = -1;
+    private int minHeight = 5;
+    private int maxHeight = 220;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
     private boolean randomTypes = true;
     
@@ -88,6 +90,22 @@ public class SkyIslandData
 	public void setWaterHeight(final double height)
 	{
 		this.waterHeight = height;
+	}
+	
+	public void setHeightRange(final int min, final int max)
+	{
+		this.minHeight = min;
+		this.maxHeight = max;
+	}
+	
+	public int getMinHeight()
+	{
+		return this.minHeight;
+	}
+	
+	public int getMaxHeight()
+	{
+		return this.maxHeight;
 	}
     
     @ScriptMethodDocumentation(args = "SkyIslandType", usage = "type", notes = "Adds a type of sky island to be generated.")

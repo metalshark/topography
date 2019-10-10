@@ -35,6 +35,12 @@ public class SkyIslandType
     private double waterDivisionValue = 2;
     private IBlockState fluidBlock = Blocks.WATER.getDefaultState();
     private boolean generateFluid = true;
+    private boolean generateMineshafts = false;
+    private int mineshaftChance = 4;
+    private boolean generateStrongholds = false;
+    private int strongholdChance = 4;
+    private boolean generateVillages = false;
+    private int villageChance = 4;
     
     public SkyIslandType()
     {
@@ -161,4 +167,40 @@ public class SkyIslandType
     {
     	return this.generateFluid;
     }
+
+	public boolean shouldGenerateMineshafts() {
+		return generateMineshafts;
+	}
+
+	public void generateMineshafts() {
+		this.generateMineshafts = true;
+	}
+
+	public boolean shouldGenerateStrongholds() {
+		return generateStrongholds;
+	}
+
+	public void generateStrongholds() {
+		this.generateStrongholds = true;
+	}
+
+	public boolean shouldGenerateVillages() {
+		return generateVillages;
+	}
+
+	public void generateVillages() {
+		this.generateVillages = true;
+	}
+
+	public int getMineshaftChance() {
+		return mineshaftChance;
+	}
+	
+	public int getStrongholdChance() {
+		return this.strongholdChance;
+	}
+	
+	public int getVillageChance() {
+		return this.villageChance;
+	}
 }

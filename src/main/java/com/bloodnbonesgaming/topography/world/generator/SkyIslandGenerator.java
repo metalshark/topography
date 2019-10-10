@@ -97,7 +97,11 @@ public class SkyIslandGenerator implements IGenerator
             countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
                 final double maxHorizontalFeatureRadius = data.getHorizontalRadius();
-                final double midHeight = Math.min(maxHorizontalFeatureRadius, 110) + this.islandPositionRandom.nextInt((int) Math.max(220 - (maxHorizontalFeatureRadius * 2), 1));
+                
+                final int minMidHeight = (int) Math.max(data.getMinHeight(), data.getBottomHeight());
+                final int maxMidHeight = (int) Math.min(data.getMaxHeight(), 256 - data.getTopHeight());
+                final int randomVerticalSpace = Math.max(maxMidHeight - minMidHeight, 1);
+                final double midHeight = this.islandPositionRandom.nextInt(randomVerticalSpace) + minMidHeight;
 
                 final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
                 final int regionCenterZ = (int) ((this.currentRegionZ) * regionSize + regionSize / 2);
@@ -108,9 +112,12 @@ public class SkyIslandGenerator implements IGenerator
                 final int featureCenterZ = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
 
                 final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
-
-                for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.islandPositions.entrySet())
+                
+                Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> setIterator = this.islandPositions.entrySet().iterator();
+                
+                while (setIterator.hasNext())
                 {
+                	final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = setIterator.next();
                     final double minDistance = set.getKey().getHorizontalRadius() + maxHorizontalFeatureRadius + 25;
 
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())

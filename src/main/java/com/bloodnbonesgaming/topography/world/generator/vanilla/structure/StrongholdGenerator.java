@@ -4,5 +4,4 @@ import net.minecraft.world.gen.structure.MapGenStronghold;
 
 public class StrongholdGenerator extends MapGenStronghold {
 	
-	
 }

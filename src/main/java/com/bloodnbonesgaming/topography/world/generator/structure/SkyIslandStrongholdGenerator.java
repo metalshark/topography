@@ -34,17 +34,21 @@ public class SkyIslandStrongholdGenerator extends MapGenStronghold {
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
-            if (positions.hasNext())
+            while (positions.hasNext())
             {
                 final Entry<BlockPos, SkyIslandType> island = positions.next();
                 
                 final BlockPos pos = island.getKey();
                 
-                if (island.getValue().shouldGenerateStrongholds() && chunkPos.equals(new ChunkPos(pos)))
+                if (chunkPos.equals(new ChunkPos(pos)))
                 {
-                	if (this.rand.nextInt(Math.max(1, island.getValue().getStrongholdChance())) == 0) {
-                    	return true;
+                	if (island.getValue().shouldGenerateStrongholds())
+                	{
+                    	if (this.rand.nextInt(Math.max(1, island.getValue().getStrongholdChance())) == 0) {
+                        	return true;
+                    	}
                 	}
+                	return false;
                 }
             }
         }
@@ -66,22 +70,25 @@ public class SkyIslandStrongholdGenerator extends MapGenStronghold {
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
-            if (positions.hasNext())
+            while (positions.hasNext())
             {
                 final Entry<BlockPos, SkyIslandType> island = positions.next();
                 
                 final BlockPos pos = island.getKey();
                 
-                if (island.getValue().shouldGenerateStrongholds() && chunkPos.equals(new ChunkPos(pos)))
+                if (chunkPos.equals(new ChunkPos(pos)))
                 {
-                	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islands.getKey().getBottomHeight() / 2);
-            		start.getBoundingBox().offset(0, j, 0);
-                	
-                	for (StructureComponent structurecomponent : start.getComponents())
-                    {
-                        structurecomponent.offset(0, j, 0);
-                    }
-                	break;
+                	if (island.getValue().shouldGenerateStrongholds())
+                	{
+                    	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islands.getKey().getBottomHeight() / 2);
+                		start.getBoundingBox().offset(0, j, 0);
+                    	
+                    	for (StructureComponent structurecomponent : start.getComponents())
+                        {
+                            structurecomponent.offset(0, j, 0);
+                        }
+                	}
+                	return start;
                 }
             }
         }

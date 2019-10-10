@@ -37,22 +37,25 @@ public class SkyIslandMineshaftGenerator extends MapGenMineshaft {
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
-            if (positions.hasNext())
+            while (positions.hasNext())
             {
                 final Entry<BlockPos, SkyIslandType> island = positions.next();
                 
                 final BlockPos pos = island.getKey();
                 
-                if (island.getValue().shouldGenerateMineshafts() && chunkPos.equals(new ChunkPos(pos)))
+                if (chunkPos.equals(new ChunkPos(pos)))
                 {
-                	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islands.getKey().getBottomHeight() / 2);
-            		start.getBoundingBox().offset(0, j, 0);
-                	
-                	for (StructureComponent structurecomponent : start.getComponents())
+                    if (island.getValue().shouldGenerateMineshafts())
                     {
-                        structurecomponent.offset(0, j, 0);
+                    	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islands.getKey().getBottomHeight() / 2);
+                		start.getBoundingBox().offset(0, j, 0);
+                    	
+                    	for (StructureComponent structurecomponent : start.getComponents())
+                        {
+                            structurecomponent.offset(0, j, 0);
+                        }
                     }
-                	break;
+                	return start;
                 }
             }
         }
@@ -72,17 +75,21 @@ public class SkyIslandMineshaftGenerator extends MapGenMineshaft {
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
-            if (positions.hasNext())
+            while (positions.hasNext())
             {
                 final Entry<BlockPos, SkyIslandType> island = positions.next();
                 
                 final BlockPos pos = island.getKey();
-                
-                if (island.getValue().shouldGenerateMineshafts() && chunkPos.equals(new ChunkPos(pos)))
+
+                if (chunkPos.equals(new ChunkPos(pos)))
                 {
-                	if (this.rand.nextInt(Math.max(1, island.getValue().getMineshaftChance())) == 0) {
-                    	return true;
-                	}
+                	if (island.getValue().shouldGenerateMineshafts())
+                    {
+                    	if (this.rand.nextInt(Math.max(1, island.getValue().getMineshaftChance())) == 0) {
+                        	return true;
+                    	}
+                    }
+                	return false;
                 }
             }
         }

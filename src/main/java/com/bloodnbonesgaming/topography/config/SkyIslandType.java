@@ -172,7 +172,8 @@ public class SkyIslandType
 		return generateMineshafts;
 	}
 
-	public void generateMineshafts() {
+	public void generateMineshafts(final int chance) {
+		this.mineshaftChance = chance;
 		this.generateMineshafts = true;
 	}
 
@@ -180,7 +181,8 @@ public class SkyIslandType
 		return generateStrongholds;
 	}
 
-	public void generateStrongholds() {
+	public void generateStrongholds(final int chance) {
+		this.strongholdChance = chance;
 		this.generateStrongholds = true;
 	}
 
@@ -188,7 +190,8 @@ public class SkyIslandType
 		return generateVillages;
 	}
 
-	public void generateVillages() {
+	public void generateVillages(final int chance) {
+		this.villageChance = chance;
 		this.generateVillages = true;
 	}
 

@@ -41,17 +41,21 @@ public class BWMSkyIslandVillageGenerator extends BWMapGenVillage {
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
-            if (positions.hasNext())
+            while (positions.hasNext())
             {
                 final Entry<BlockPos, SkyIslandType> island = positions.next();
                 
                 final BlockPos pos = island.getKey();
                 
-                if (island.getValue().shouldGenerateVillages() && chunkPos.equals(new ChunkPos(pos)))
+                if (chunkPos.equals(new ChunkPos(pos)))
                 {
-                	if (this.rand.nextInt(Math.max(1, island.getValue().getVillageChance())) == 0) {
-                    	return true;
+                	if (island.getValue().shouldGenerateVillages())
+                	{
+                    	if (this.rand.nextInt(Math.max(1, island.getValue().getVillageChance())) == 0) {
+                        	return true;
+                    	}
                 	}
+                	return false;
                 }
             }
         }

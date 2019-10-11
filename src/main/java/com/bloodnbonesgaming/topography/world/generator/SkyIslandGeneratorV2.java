@@ -7,7 +7,6 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
-import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
@@ -36,31 +35,11 @@ import net.minecraft.world.gen.structure.MapGenVillage;
 public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructureHandler {
 	
 	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise;
-	private final MapGenMineshaft mineshaft;
+	private MapGenMineshaft mineshaft;
 	private final MapGenStronghold stronghold = new SkyIslandStrongholdGenerator(this);
-	private final MapGenVillage village;
-	
-	public SkyIslandGeneratorV2()
-	{
-		MapGenVillage village = new SkyIslandVillageGenerator(this);
-		MapGenVillage eventVillage = (MapGenVillage)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(village, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.VILLAGE);
-		
-		if (Topography.betterWithMods) {
-			this.village = BWMSkyIslandVillageGenerator.getVillageGenerator(eventVillage, this);
-		}
-		else
-			this.village = village;
-		
-		MapGenMineshaft mineshaft = new SkyIslandMineshaftGenerator(this);
-		MapGenMineshaft eventMineshaft = (MapGenMineshaft)net.minecraftforge.event.terraingen.TerrainGen.getModdedMapGen(mineshaft, net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.MINESHAFT);
-		
-		if (Topography.betterWithMods) {
-			this.mineshaft = BWMSkyIslandMineshaftGenerator.getMineshaftGenerator(eventMineshaft, this);
-		}
-		else {
-			this.mineshaft = mineshaft;
-		}
-	}
+	private MapGenVillage village;
+	private boolean BWMVillageCompat = false;
+	private boolean BWMMineshaftCompat = false;
 	
 	@Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
@@ -90,6 +69,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
                 final double maxTopHeight = data.getTopHeight();
                 final double maxBottomHeight = data.getBottomHeight();
                 final double maxWaterHeight = data.getWaterHeight();
+                final double waterPercentage = Math.max(1 - islandPos.getValue().getWaterPercentage(), 0.0001);
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -125,8 +105,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
                             	//Noise can be applied, using the height above the minimum required for keeping water from falling into the void as a maximum that the noise can reduce the height by.
                             	//This will need to go up faster than the actual height changes, so that it can go below the height required for water to spawn.
                             	
-                            	//Need to do this calculation so that when the noise is below a certain set value, it will reduce the height enough to create 1 block of water.
-                            	final double waterPercentage = Math.max(1 - 0.5, 0.0001);
+                            	
                                 
                                 final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
                                 double waterHeightReductionNoise = this.horizontalConeSkewNoise.eval(realX / (maxConeCoordinateSkewValue * 1.5), y / (maxConeCoordinateSkewValue * 1.5), realZ / (maxConeCoordinateSkewValue * 1.5), 3, 0.5);
@@ -363,18 +342,36 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 
         return data;
     }
+    
+    public void enableBWMVillageCompat() {
+    	this.BWMVillageCompat = true;
+    }
+    
+    public void enableBWMMineshaftCompat() {
+    	this.BWMMineshaftCompat = true;
+    }
 
 	@Override
 	public void generateStructures(World world, int chunkX, int chunkZ, ChunkPrimer primer) {
-		if (this.mineshaft != null)
-        {
-            this.mineshaft.generate(world, chunkX, chunkZ, primer);
+		if (this.mineshaft == null) {
+			if (this.BWMMineshaftCompat) {
+				this.mineshaft = new BWMSkyIslandMineshaftGenerator(this);
+			}
+			else {
+				this.mineshaft = new SkyIslandMineshaftGenerator(this);
+			}
         }
+        this.mineshaft.generate(world, chunkX, chunkZ, primer);
 
-        if (this.village != null)
-        {
-            this.village.generate(world, chunkX, chunkZ, primer);
+        if (this.village == null) {
+    		if (this.BWMVillageCompat) {
+    			this.village = new BWMSkyIslandVillageGenerator(this);
+    		}
+    		else {
+    			this.village = new SkyIslandVillageGenerator(this);
+    		}
         }
+        this.village.generate(world, chunkX, chunkZ, primer);
 
         if (this.stronghold != null)
         {
@@ -384,20 +381,12 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	
 	@Override
 	public void populateStructures(World world, Random rand, ChunkPos chunkPos) {
-		if (this.mineshaft != null)
-        {
-            this.mineshaft.generateStructure(world, rand, chunkPos);
-        }
 
-        if (this.village != null)
-        {
-            this.village.generateStructure(world, rand, chunkPos);
-        }
+        this.mineshaft.generateStructure(world, rand, chunkPos);
 
-        if (this.stronghold != null)
-        {
-            this.stronghold.generateStructure(world, rand, chunkPos);
-        }
+        this.village.generateStructure(world, rand, chunkPos);
+
+        this.stronghold.generateStructure(world, rand, chunkPos);
 	}
 	
 	@Override

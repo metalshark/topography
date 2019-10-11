@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGeneratorV2;
@@ -19,8 +20,10 @@ public class BWMSkyIslandMineshaftGenerator extends BWMapGenMineshaft {
 	
 	public static MapGenMineshaft getMineshaftGenerator(final MapGenMineshaft mineshaft, final SkyIslandGeneratorV2 generator)
 	{
-		if (mineshaft instanceof BWMapGenMineshaft && !(mineshaft instanceof BWMSkyIslandMineshaftGenerator))
+		if (mineshaft instanceof BWMapGenMineshaft && !(mineshaft instanceof BWMSkyIslandMineshaftGenerator)) {
+			Topography.instance.getLog().info("Using BWM mineshafts");
 			return new BWMSkyIslandMineshaftGenerator(generator);
+		}
 		return mineshaft;
 	}
 	

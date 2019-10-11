@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGeneratorV2;
@@ -17,8 +18,14 @@ public class BWMSkyIslandVillageGenerator extends BWMapGenVillage {
 	
 	public static MapGenVillage getVillageGenerator(final MapGenVillage village, final SkyIslandGeneratorV2 generator)
 	{
-		if (village instanceof BWMapGenVillage && !(village instanceof BWMSkyIslandVillageGenerator))
+		if (village instanceof BWMapGenVillage && !(village instanceof BWMSkyIslandVillageGenerator)) {
+			Topography.instance.getLog().info("Using BWM villages");
 			return new BWMSkyIslandVillageGenerator(generator);
+		}
+		else
+		{
+			Topography.instance.getLog().info("Not BWM? " + village.getClass().getName());
+		}
 		return village;
 	}
 	

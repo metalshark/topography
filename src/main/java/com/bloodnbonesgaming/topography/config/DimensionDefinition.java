@@ -90,6 +90,9 @@ public class DimensionDefinition
     private String biomeProviderScript = null;
     private SimpleBiomeProviderDefinition simpleBiomeProvider = null;
     
+    private boolean useWorldTypeBiomeProvider = false;
+    private boolean useWorldTypeChunkGenerator = false;
+    
     private final StructureHandler structureHandler = new StructureHandler();
     
     public DimensionDefinition()
@@ -128,6 +131,9 @@ public class DimensionDefinition
     
     public BiomeProvider getBiomeProvider(final World world)
     {
+    	if (this.useWorldTypeBiomeProvider) {
+    		return world.getWorldInfo().getTerrainType().getBiomeProvider(world);
+    	}
     	if (this.biomeProviderScript != null)
     	{
     		final BiomeProviderScripted provider = new BiomeProviderScripted();
@@ -148,7 +154,22 @@ public class DimensionDefinition
     
     public IChunkGenerator getChunkGenerator(final World world)
     {
+    	if (this.useWorldTypeChunkGenerator) {
+    		return world.getWorldInfo().getTerrainType().getChunkGenerator(world, world.getWorldInfo().getGeneratorOptions());
+    	}
         return new ChunkGeneratorVoid(world, world.getSeed(), this);
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the dimension to use the ChunkGenerator from the WorldType. This handles all terrain/feature/decoration generation, and Topography features that do the same will not be useable.")
+	public void useWorldTypeTerrain()
+    {
+        this.useWorldTypeChunkGenerator = true;
+    }
+    
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the dimension to use the BiomeProvider from the WorldType. This handles all biome mapping, and Topography features that do the same will not be useable.")
+	public void useWorldTypeBiomes()
+    {
+        this.useWorldTypeBiomeProvider = true;
     }
     
     @ScriptMethodDocumentation(args = "String", usage = "structure file path", notes = "Sets the spawn structure for the dimension, at height 64. The file path is relative to the config/topography/structures folder and does not use the file extension.")

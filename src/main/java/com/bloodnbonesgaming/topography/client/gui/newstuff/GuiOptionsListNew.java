@@ -126,6 +126,11 @@ public class GuiOptionsListNew extends GuiScrollingList
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+    	//Do not draw screen if there are not multiple presets
+    	if (this.presets.size() < 2) {
+    		return;
+    	}
+    	
         this.mouseX = mouseX;
         this.mouseY = mouseY;
         this.drawBackground();

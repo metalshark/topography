@@ -13,7 +13,7 @@ import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
 import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandMineshaftGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandVillageGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandMineshaftGenerator;
-import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandStrongholdGenerator;
+import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandStrongholdSimpleGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandVillageGenerator;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -36,7 +36,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	
 	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise;
 	private MapGenMineshaft mineshaft;
-	private final MapGenStronghold stronghold = new SkyIslandStrongholdGenerator(this);
+	private final MapGenStronghold stronghold = new SkyIslandStrongholdSimpleGenerator(this);
 	private MapGenVillage village;
 	private boolean BWMVillageCompat = false;
 	private boolean BWMMineshaftCompat = false;

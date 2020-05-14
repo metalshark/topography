@@ -13,13 +13,7 @@ import com.bloodnbonesgaming.topography.ModInfo;
 public class SkyIslandData
 {
     private int count = 1;
-    private double horizontalRadius = 100;
-    private double verticalRadius = 100;
-    private double topHeight = verticalRadius;
-    private double bottomHeight = verticalRadius;
-    private double waterHeight = -1;
-    private int minHeight = 5;
-    private int maxHeight = 220;
+    private int radius = 100;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
     private boolean randomTypes = true;
     
@@ -31,82 +25,21 @@ public class SkyIslandData
         return count;
     }
     
+//    @ScriptMethodDocumentation(args = "int", usage = "count", notes = "Sets the number of times to attempt to generate an island of this size per region.")
 	public void setCount(int count)
     {
         this.count = count;
     }
-	
-    public double getHorizontalRadius()
+    public int getRadius()
     {
-        return horizontalRadius;
+        return radius;
     }
     
-	public void setHorizontalRadius(int radius)
+//    @ScriptMethodDocumentation(args = "int", usage = "radius", notes = "Sets the radius of the sky islands to be generated.")
+	public void setRadius(int radius)
     {
-        this.horizontalRadius = radius;
+        this.radius = radius;
     }
-	
-//    public double getVerticalRadius()
-//    {
-//        return verticalRadius;
-//    }
-    
-	public void setVerticalRadius(int radius)
-    {
-        this.verticalRadius = radius;
-        this.topHeight = radius;
-        this.bottomHeight = radius;
-    }
-	
-	public double getTopHeight()
-	{
-		return this.topHeight;
-	}
-	
-	public void setTopHeight(double height)
-	{
-		this.topHeight = height;
-	}
-	
-	public double getBottomHeight()
-	{
-		return this.bottomHeight;
-	}
-	
-	public void setBottomHeight(double height)
-	{
-		this.bottomHeight = height;
-	}
-	
-	public double getWaterHeight()
-	{
-		if (this.waterHeight < 0)
-		{
-	        waterHeight = Math.floor(this.horizontalRadius / 20D);
-		}
-		return this.waterHeight;
-	}
-	
-	public void setWaterHeight(final double height)
-	{
-		this.waterHeight = height;
-	}
-	
-	public void setHeightRange(final int min, final int max)
-	{
-		this.minHeight = min;
-		this.maxHeight = max;
-	}
-	
-	public int getMinHeight()
-	{
-		return this.minHeight;
-	}
-	
-	public int getMaxHeight()
-	{
-		return this.maxHeight;
-	}
     
     @ScriptMethodDocumentation(args = "SkyIslandType", usage = "type", notes = "Adds a type of sky island to be generated.")
 	public void addType(final SkyIslandType type)

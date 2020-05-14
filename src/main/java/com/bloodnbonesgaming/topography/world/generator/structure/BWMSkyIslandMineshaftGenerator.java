@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGeneratorV2;
 
@@ -45,6 +46,7 @@ public class BWMSkyIslandMineshaftGenerator extends BWMapGenMineshaft {
         while (iterator.hasNext())
         {
             final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> islands = iterator.next();
+            final SkyIslandDataV2 islandData = (SkyIslandDataV2) islands.getKey();
             
             final Iterator<Entry<BlockPos, SkyIslandType>> positions = islands.getValue().entrySet().iterator();
             
@@ -58,7 +60,7 @@ public class BWMSkyIslandMineshaftGenerator extends BWMapGenMineshaft {
                 {
                     if (island.getValue().shouldGenerateMineshafts())
                     {
-                    	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islands.getKey().getBottomHeight() / 2);
+                    	int j = pos.getY() - start.getBoundingBox().maxY + start.getBoundingBox().getYSize() / 2 - (int) Math.floor(islandData.getBottomHeight() / 2);
                 		start.getBoundingBox().offset(0, j, 0);
                     	
                     	for (StructureComponent structurecomponent : start.getComponents())

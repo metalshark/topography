@@ -15,8 +15,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.util.noise.FastNoise;
-import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.util.MathUtil;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
@@ -35,17 +34,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.layer.GenLayer;
-
-
-/*
- * Change top noise layer to be able to go down, but keep the cone max height limit. Also want to make sure there is a minimum height limit, otherwise the height will be able to go too low close to the edge.
- * Any blocks placed in the top layer below a certain level can be set as water to create lakes.
- * 
- * The difficult is that the top and bottom are done separately and the top has very limited room for depth in the lakes.
- * The cone should be almost like a modulator rather than only a max height limit. Effecting both up and downwards limits, making it very standard towards the edges but able to be quite different in the center. 
- */
-
-
 
 @ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGenerator", classExplaination = 
 "This file is for the SkyIslandGenerator. This generator generates sky islands in a pseudo-random pattern within grid regions, "
@@ -77,7 +65,7 @@ public class SkyIslandGenerator implements IGenerator
         
     }
 
-    protected final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
+    private final List<SkyIslandData> skyIslandData = new ArrayList<SkyIslandData>();
     private Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
     private final Random islandPositionRandom = new Random();
     private double regionSize = 464;
@@ -96,29 +84,22 @@ public class SkyIslandGenerator implements IGenerator
             int genCount = 0;
             countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
-                final double maxHorizontalFeatureRadius = data.getHorizontalRadius();
-                
-                final int minMidHeight = (int) Math.max(data.getMinHeight(), data.getBottomHeight());
-                final int maxMidHeight = (int) Math.min(data.getMaxHeight(), 256 - data.getTopHeight());
-                final int randomVerticalSpace = Math.max(maxMidHeight - minMidHeight, 1);
-                final double midHeight = this.islandPositionRandom.nextInt(randomVerticalSpace) + minMidHeight;
+                final double maxFeatureRadius = data.getRadius();
+                final double midHeight = Math.min(maxFeatureRadius, 110) + this.islandPositionRandom.nextInt((int) Math.max(220 - (maxFeatureRadius * 2), 1));
 
                 final int regionCenterX = (int) ((this.currentRegionX) * regionSize + regionSize / 2);
                 final int regionCenterZ = (int) ((this.currentRegionZ) * regionSize + regionSize / 2);
 
-                final int randomSpace = (int) (regionSize - maxHorizontalFeatureRadius * 2);
+                final int randomSpace = (int) (regionSize - maxFeatureRadius * 2);
 
                 final int featureCenterX = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
                 final int featureCenterZ = this.islandPositionRandom.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
 
                 final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
-                
-                Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> setIterator = this.islandPositions.entrySet().iterator();
-                
-                while (setIterator.hasNext())
+
+                for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.islandPositions.entrySet())
                 {
-                	final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = setIterator.next();
-                    final double minDistance = set.getKey().getHorizontalRadius() + maxHorizontalFeatureRadius + 25;
+                    final double minDistance = set.getKey().getRadius() + maxFeatureRadius + 25;
 
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
@@ -176,7 +157,7 @@ public class SkyIslandGenerator implements IGenerator
     {
         this.regionSize = size * 16;
     }
-  //TODO Update documentation
+
     @ScriptMethodDocumentation(args = "int, int, boolean", usage = "radius, count, randomTypes", notes = "Generates a SkyIslandData and returns it. "
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
@@ -184,8 +165,7 @@ public class SkyIslandGenerator implements IGenerator
 	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
     {
         final SkyIslandData data = new SkyIslandData();
-        data.setHorizontalRadius(radius);
-        data.setVerticalRadius(radius);
+        data.setRadius(radius);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
 
@@ -193,7 +173,7 @@ public class SkyIslandGenerator implements IGenerator
 
         return data;
     }
-//TODO Update documentation
+
     @ScriptMethodDocumentation(args = "int, int, boolean, int", usage = "radius, count, randomTypes, minCount", notes = "Generates a SkyIslandData and returns it. "
     		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
@@ -201,8 +181,7 @@ public class SkyIslandGenerator implements IGenerator
 	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes, final int minCount)
     {
         final SkyIslandData data = new SkyIslandData();
-        data.setHorizontalRadius(radius);
-        data.setVerticalRadius(radius);
+        data.setRadius(radius);
         data.setCount(count);
         data.setRandomTypes(randomTypes);
         data.setMinCount(minCount);
@@ -230,7 +209,7 @@ public class SkyIslandGenerator implements IGenerator
     protected double[] depthBuffer = new double[256];
     
     
-    protected void generateNoise(final double[] array, final int arraySizeX, final int arraySizeY, final int arraySizeZ, final int x, final int y, final int z, final int xCoordinateScale, final int yCoordinateScale, final int zCoordinateScale)
+    private void generateNoise(final double[] array, final int arraySizeX, final int arraySizeY, final int arraySizeZ, final int x, final int y, final int z, final int xCoordinateScale, final int yCoordinateScale, final int zCoordinateScale)
     {
         for (int xI = 0; xI < arraySizeX; xI++)
         {
@@ -282,12 +261,12 @@ public class SkyIslandGenerator implements IGenerator
         this.generateNoise(this.smallNoiseArray, 5, 33, 5, chunkX * 16, 0, chunkZ * 16, 4, 8, 4);
         NumberHelper.interpolate(this.smallNoiseArray, this.largeNoiseArray, 5, 33, 5, 4, 8, 4);
         
-        FastNoise noise = new FastNoise();
-		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noise.SetFrequency(0.01f);
-        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
-        noise.SetSeed((int) seed);
+//        FastNoise noise = new FastNoise();
+//		noise.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        noise.SetFrequency(0.01f);
+//        noise.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        noise.SetCellularReturnType(FastNoise.CellularReturnType.Distance3Div);
+//        noise.SetSeed((int) seed);
         
         final Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> iterator = this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet().iterator();
         
@@ -303,7 +282,7 @@ public class SkyIslandGenerator implements IGenerator
                 final int featureCenterX = islandPos.getKey().getX();
                 final int featureCenterZ = islandPos.getKey().getZ();
                 final int midHeight = islandPos.getKey().getY();
-                final double maxFeatureRadius = data.getHorizontalRadius();
+                final int maxFeatureRadius = data.getRadius();
                 
                 for (double x = 0; x < 16; x++)
                 {
@@ -326,48 +305,15 @@ public class SkyIslandGenerator implements IGenerator
                         {
                             final SkyIslandType type = islandPos.getValue();
                             final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
-                            float waterNoise = (noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16) + 1) / 2;
-                            double antiWaterRingDistance = maxFeatureRadius / 10;
-                            double waterRingHeightDivision = maxFeatureRadius * 0.07;
-                            double maxWaterHeight = maxFeatureRadius * 0.05;
-                            double something = maxFeatureRadius * 0.04;
-                            //distance from the anti water ring radius
-                            double distanceFromWaterRing = Math.abs(antiWaterRingDistance - ((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)));
-                            //
-                            double scaledDistanceFromWaterRing = Math.max((antiWaterRingDistance - distanceFromWaterRing) / waterRingHeightDivision, 0);
+//                            float river = noise.GetNoise((float) x + chunkX * 16, (float) z + chunkZ * 16);
                             
                             for (double y = 0; y < midHeight; y++)
                             {
                                 final double skewNoise = this.largeNoiseArray[(int) ((x * 16 + z) * 256 + y)] * 2 - 1;
-                                 double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / (noiseDistance * 2), (realZ + 16 * skewNoise) / (noiseDistance * 2), 3, 0.5);
+                                final double skewedNoise = this.terrainNoise.eval((realX + 16 * skewNoise) / noiseDistance, (realZ + 16 * skewNoise) / noiseDistance, 3, 0.5);
                                 
                                 final double bottomHeight = midHeight - skewedNoise * (maxNoiseDistance - noiseDistance * noise2);
-                                double topHeight;//skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
-                                
-                                boolean water = false;
-                                //Increases exponentially increases the max height the closer to the center of the island it is.
-                                double maxTopNoise = ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) + (maxFeatureRadius - Math.sqrt(xDistance + zDistance)) * ((maxFeatureRadius - Math.sqrt(xDistance + zDistance)) / maxFeatureRadius)) * 1.5;
-                                
-//                                //Create slope going up at edge, then slope back down to 0
-//                                if (maxNoiseDistance - noiseDistance > 16)
-//                                {
-//                                	water = true;
-//                                	topHeight = skewedNoise * Math.max(maxNoiseDistance - noiseDistance, 0) / 3;
-//                                }
-//                                else
-//                                {
-//                                	skewedNoise *= 1.1;
-                                	topHeight = skewedNoise * Math.max((maxTopNoise - noiseDistance * noise2) * (1 + scaledDistanceFromWaterRing), 0) / 3;
-//                                }
-                                
-//                                topHeight += Math.floor(distanceFrom8);
-                                //Distance from center
-//                                topHeight = maxFeatureRadius - (maxFeatureRadius - Math.sqrt(xDistance + zDistance));
-                                
-                                double waterHeight = waterNoise * Math.max(maxNoiseDistance - noiseDistance, 0);
-                                
-                                topHeight -= waterHeight;
-                                topHeight = Math.max(Math.max(topHeight, ((antiWaterRingDistance - distanceFromWaterRing) / (antiWaterRingDistance / maxWaterHeight)) - noiseDistance * noise2), 0);
+                                final double topHeight = skewedNoise * ((maxNoiseDistance - noiseDistance * noise2) / 4.0);
                                 
                                 final int mid = (int) Math.floor(((topHeight + midHeight) - bottomHeight) / 2 + bottomHeight);
                                 
@@ -396,7 +342,6 @@ public class SkyIslandGenerator implements IGenerator
                                         if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
                                         {
                                             state = bounds.getValue();
-                                            break;
                                         }
                                     }
                                     
@@ -407,16 +352,7 @@ public class SkyIslandGenerator implements IGenerator
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
 //                                    	else if (y == 0 || y == 1)
 //                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-//                                    	if (!water || skewedNoise > 0.4)
-                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
-//                                    	if (water && y < 4 && skewedNoise < 0.5)
-//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-//                                    	else if (y < 3)
-//                                    		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
-                                    }
-                                    else if (((maxFeatureRadius - noiseDistance * noise2) - Math.sqrt(xDistance + zDistance)) > antiWaterRingDistance && y < maxWaterHeight)
-                                    {
-                                    	primer.setBlockState((int) x, (int) (y + midHeight), (int) z, Blocks.WATER.getDefaultState());
+                                		primer.setBlockState((int) x, (int) (y + midHeight), (int) z, state);
                                     }
                                 }
                             }
@@ -444,11 +380,11 @@ public class SkyIslandGenerator implements IGenerator
                 {
                     final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = iterator.next();
                     final SkyIslandData data = set.getKey();
-                    final double minDistance = data.getHorizontalRadius();
+                    final double minDistance = data.getRadius();
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
-                        if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) <= minDistance)
+                        if (MathUtil.getDistance(pos, islandPos.getKey()) <= minDistance)
                         {
                             final SkyIslandType type = islandPos.getValue();
                             
@@ -561,7 +497,7 @@ public class SkyIslandGenerator implements IGenerator
         outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, chunkX * 16, chunkZ * 16).entrySet())
         {
             final SkyIslandData data = set.getKey();
-            final double minDistance = data.getHorizontalRadius();
+            final double minDistance = data.getRadius();
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
@@ -605,11 +541,11 @@ public class SkyIslandGenerator implements IGenerator
         outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j).entrySet())
         {
             final SkyIslandData data = set.getKey();
-            final double minDistance = data.getHorizontalRadius();
+            final double minDistance = data.getRadius();
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
-                if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) < minDistance + 16)
+                if (MathUtil.getDistance(pos, islandPos.getKey()) < minDistance + 16)
                 {
                     final SkyIslandType type = islandPos.getValue();
                     Biome typeBiome = Biome.getBiome(type.getBiome());

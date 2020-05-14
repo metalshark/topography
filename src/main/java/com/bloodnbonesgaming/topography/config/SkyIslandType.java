@@ -138,70 +138,85 @@ public class SkyIslandType
         return this.decorators;
     }
     
+    //V2 only
     public void setFluidBlock(final ItemBlockData data) throws Exception
     {
         this.fluidBlock = data.buildBlockState();
     }
     
+    //V2 only
     public IBlockState getFluidBlock()
     {
     	return this.fluidBlock;
     }
     
+    //V2 only
     public void disableFluid()
     {
     	this.generateFluid = false;
     }
     
+    //V2 only
     public boolean generateFluid()
     {
     	return this.generateFluid;
     }
 
-	public boolean shouldGenerateMineshafts() {
+    //V2 only
+    public boolean shouldGenerateMineshafts() {
 		return generateMineshafts;
 	}
 
-	public void generateMineshafts(final int chance) {
+    //V2 only
+    public void generateMineshafts(final int chance) {
 		this.mineshaftChance = chance;
 		this.generateMineshafts = true;
 	}
 
-	public boolean shouldGenerateStrongholds() {
+    //V2 only
+    public boolean shouldGenerateStrongholds() {
 		return generateStrongholds;
 	}
 
-	public void generateStrongholds(final int chance) {
+    //V2 only
+    public void generateStrongholds(final int chance) {
 		this.strongholdChance = chance;
 		this.generateStrongholds = true;
 	}
 
-	public boolean shouldGenerateVillages() {
+    //V2 only
+    public boolean shouldGenerateVillages() {
 		return generateVillages;
 	}
 
-	public void generateVillages(final int chance) {
+    //V2 only
+    public void generateVillages(final int chance) {
 		this.villageChance = chance;
 		this.generateVillages = true;
 	}
 
-	public int getMineshaftChance() {
+    //V2 only
+    public int getMineshaftChance() {
 		return mineshaftChance;
 	}
 	
-	public int getStrongholdChance() {
+    //V2 only
+    public int getStrongholdChance() {
 		return this.strongholdChance;
 	}
 	
-	public int getVillageChance() {
+    //V2 only
+    public int getVillageChance() {
 		return this.villageChance;
 	}
 	
-	public void setWaterPercentage(final double waterPercentage) {
+    //V2 only
+    public void setWaterPercentage(final double waterPercentage) {
 		this.waterPercentage = waterPercentage;
 	}
 	
-	public double getWaterPercentage() {
+    //V2 only
+    public double getWaterPercentage() {
 		return this.waterPercentage;
 	}
 }

@@ -6,8 +6,9 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.data.ItemBlockData;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.util.MathUtil;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +27,12 @@ public class DecoratorScattered
     
     public void generateForSkyIsland(final int count, final long seed, final int chunkX, final int chunkZ, final ChunkPrimer primer, final BlockPos center, final SkyIslandData data, final SkyIslandType type, final SkyIslandGenerator generator, final int regionSize)
     {
-        final double radius = data.getHorizontalRadius();
+    	final double radius;
+    	if (data instanceof SkyIslandDataV2) {
+            radius = ((SkyIslandDataV2) data).getHorizontalRadius();
+    	} else {
+    		radius = data.getRadius();
+    	}
         final int regionStartX = (int) (Math.floor(chunkX * 16D / regionSize) * regionSize);
         final int regionStartZ = (int) (Math.floor(chunkZ * 16D / regionSize) * regionSize);
         
@@ -53,7 +59,7 @@ public class DecoratorScattered
             {
                 if (pos.getZ() >= chunkMinZ && pos.getZ() < chunkMaxZ)
                 {
-                    if (SkyIslandDataHandler.getDistance(pos, center) <= radius && !posList.contains(pos))
+                    if (MathUtil.getDistance(pos, center) <= radius && !posList.contains(pos))
                     {
                         final int inChunkX = pos.getX() - chunkMinX;
                         final int inChunkZ = pos.getZ() - chunkMinZ;

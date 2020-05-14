@@ -4,8 +4,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
+import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
-import com.bloodnbonesgaming.topography.world.SkyIslandDataHandler;
+import com.bloodnbonesgaming.topography.util.MathUtil;
 import com.bloodnbonesgaming.topography.world.generator.SkyIslandGenerator;
 
 import net.minecraft.init.Biomes;
@@ -44,11 +45,17 @@ public class GenLayerBiomeSkyIslands extends GenLayer
                 for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : islandPositions.entrySet())
                 {
                     final SkyIslandData data = set.getKey();
-                    final double minDistance = data.getHorizontalRadius();
+                    final double minDistance;
+                    
+                    if (data instanceof SkyIslandDataV2) {
+                    	minDistance = ((SkyIslandDataV2) data).getHorizontalRadius();
+                    } else {
+                    	minDistance = data.getRadius();
+                    }
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
-                        if (SkyIslandDataHandler.getDistance(pos, islandPos.getKey()) <= minDistance)
+                        if (MathUtil.getDistance(pos, islandPos.getKey()) <= minDistance)
                         {
                             final SkyIslandType type = islandPos.getValue();
                             

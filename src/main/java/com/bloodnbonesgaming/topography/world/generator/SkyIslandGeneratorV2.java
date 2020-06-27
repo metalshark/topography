@@ -1077,17 +1077,19 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	}
 	
 	private boolean canBeInChunk(BlockPos center, double radius, final int chunkMinX, final int chunkMinZ) {
-		final MutableBlockPos pos = new MutableBlockPos();
-		double radiusSq = radius * radius;
-//    	if (center.getX() + radius > chunkMinX && center.getX() - radius < chunkMinZ + 16) {
-//    		if (center.getZ() + radius > chunkMinZ && center.getZ() - radius < chunkMinZ + 16) {
-//    	    	return true;
-//    		}
-//    	}
-    	if (MathUtil.getDistanceSq(pos.setPos(chunkMinX, 0, chunkMinZ), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX + 16, 0, chunkMinZ), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX, 0, chunkMinZ + 16), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX + 16, 0, chunkMinZ + 16), center) < radiusSq) {
-        	return true;
+    	if (center.getX() - radius > chunkMinX + 16) {//If outside chunk in +X direction, and radius isn't large enough to get into chunk
+    		return false;
     	}
-    	return false;
+    	if (center.getX() + radius < chunkMinX) {//If outside chunk in -X direction, and radius isn't large enough to get into chunk
+    		return false;
+    	}
+    	if (center.getZ() - radius > chunkMinZ + 16) {//If outside chunk in +Z direction, and radius isn't large enough to get into chunk
+    		return false;
+    	}
+    	if (center.getZ() + radius < chunkMinZ) {//If outside chunk in -Z direction, and radius isn't large enough to get into chunk
+    		return false;
+    	}
+    	return true;
     }
 
     @Override

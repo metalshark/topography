@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandAccept extends CommandBase
 {
@@ -219,6 +220,6 @@ public class IslandAccept extends CommandBase
     
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-    	return true;
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.accept");
     }
 }

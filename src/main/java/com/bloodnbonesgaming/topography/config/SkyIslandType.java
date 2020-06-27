@@ -13,6 +13,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.decorator.DecoratorScattered;
+import com.bloodnbonesgaming.topography.world.generator.IGenerator;
 
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.state.IBlockState;
@@ -41,6 +42,7 @@ public class SkyIslandType
     private int strongholdChance = 4;
     private boolean generateVillages = false;
     private int villageChance = 4;
+    private List<IGenerator> generators = new ArrayList<IGenerator>();
     
     public SkyIslandType()
     {
@@ -136,6 +138,15 @@ public class SkyIslandType
     public List<DecorationData> getDecorators()
     {
         return this.decorators;
+    }
+    
+    //V2 only
+    public void addGenerator(final IGenerator generator) {
+    	this.generators.add(generator);
+    }
+    
+    public List<IGenerator> getGenerators() {
+    	return this.generators;
     }
     
     //V2 only

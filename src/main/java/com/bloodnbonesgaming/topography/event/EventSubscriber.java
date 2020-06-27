@@ -110,12 +110,9 @@ public class EventSubscriber
     @SubscribeEvent
     public void onGetPotentialSpawns(final WorldEvent.PotentialSpawns event)
     {
-        if (event.getWorld().getWorldType() instanceof WorldTypeCustomizable)
+    	if (event.getWorld().getChunkFromBlockCoords(event.getPos()).isEmpty())
         {
-            if (event.getWorld().getChunkFromBlockCoords(event.getPos()).isEmpty())
-            {
-                event.setCanceled(true);
-            }
+            event.setCanceled(true);
         }
     }
     

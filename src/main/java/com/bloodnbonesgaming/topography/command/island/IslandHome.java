@@ -41,6 +41,7 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandHome extends CommandBase
 {
@@ -167,7 +168,7 @@ public class IslandHome extends CommandBase
     
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-    	return true;
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.home");
     }
     
     private void teleportPlayerHome(final EntityPlayerMP player, WorldServer world, DimensionDefinition definition) throws CommandException

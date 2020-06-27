@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class Spawn extends CommandBase
 {
@@ -115,7 +116,7 @@ public class Spawn extends CommandBase
     
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-    	return true;
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.world.spawn");
     }
     
     private void teleportPlayer(EntityPlayerMP player, int dimension, BlockPos pos)

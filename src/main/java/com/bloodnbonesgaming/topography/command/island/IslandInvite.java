@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandInvite extends CommandBase
 {
@@ -41,7 +42,7 @@ public class IslandInvite extends CommandBase
     
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-    	return true;
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.invite");
     }
     
     @Override

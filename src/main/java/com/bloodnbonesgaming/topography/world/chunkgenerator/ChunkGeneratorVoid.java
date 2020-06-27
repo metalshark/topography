@@ -105,6 +105,8 @@ public class ChunkGeneratorVoid implements IChunkGenerator
 
         ForgeEventFactory.onChunkPopulate(true, this, this.worldObj, this.rand, x, z, false);
         
+        this.definition.getStructureHandler().populateStructures(this.worldObj, this.rand, new ChunkPos(x, z));
+        
         //Set seed on all randoms
         for (final Entry<Integer, Random> entry : this.sizedRandoms.entrySet())
         {
@@ -134,8 +136,6 @@ public class ChunkGeneratorVoid implements IChunkGenerator
         		generator.populate(this.worldObj, x, z, this.sizedRandoms.get(regionSize));
         	}
         }
-        
-        this.definition.getStructureHandler().populateStructures(this.worldObj, this.rand, new ChunkPos(x, z));
         
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.worldObj, this.rand, new BlockPos(i, 0, j)));
         

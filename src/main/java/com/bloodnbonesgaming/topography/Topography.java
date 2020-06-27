@@ -6,11 +6,13 @@ import com.bloodnbonesgaming.lib.BNBGamingMod;
 import com.bloodnbonesgaming.lib.util.script.ScriptDocumentationHandler;
 import com.bloodnbonesgaming.topography.command.TopographyTreeCommand;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.event.CoreEventHandler;
 import com.bloodnbonesgaming.topography.network.PacketSyncPreset;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.world.WorldTypeCustomizable;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -27,6 +29,8 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 @Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.14.0,);after:crafttweaker;after:worldbook;",
         acceptedMinecraftVersions = "[1.12,1.13)")
@@ -46,6 +50,10 @@ public class Topography extends BNBGamingMod
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
     {
+    	if (Loader.isModLoaded("bnbgamingcore"))
+		{
+			MinecraftForge.EVENT_BUS.register(new CoreEventHandler());
+		}
 		if (Loader.isModLoaded("worldbook"))
         {
 			Topography.worldbook = true;
@@ -57,6 +65,16 @@ public class Topography extends BNBGamingMod
 		ScriptDocumentationHandler.setScriptDocs(event.getAsmData());
         Topography.proxy.registerEventHandlers();
         TopographyPlayerData.register();
+        
+        PermissionAPI.registerNode("topography.island.accept", DefaultPermissionLevel.ALL, "/topography island accept command");
+        PermissionAPI.registerNode("topography.island.home", DefaultPermissionLevel.ALL, "/topography island home command");
+        PermissionAPI.registerNode("topography.island.info", DefaultPermissionLevel.ALL, "/topography island info command");
+        PermissionAPI.registerNode("topography.island.invite", DefaultPermissionLevel.ALL, "/topography island invite command");
+        PermissionAPI.registerNode("topography.island.new", DefaultPermissionLevel.OP, "/topography island new command");
+        PermissionAPI.registerNode("topography.island.set", DefaultPermissionLevel.OP, "/topography island set command");
+        PermissionAPI.registerNode("topography.world.spawn", DefaultPermissionLevel.ALL, "/topography spawn command");
+        PermissionAPI.registerNode("topography.preset.lock", DefaultPermissionLevel.NONE, "/topography lock command");
+        PermissionAPI.registerNode("topography.preset.unlock", DefaultPermissionLevel.NONE, "/topography unlock command");
     }
 
     @EventHandler

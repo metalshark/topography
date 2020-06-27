@@ -27,6 +27,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandInfo extends CommandBase
 {
@@ -137,7 +138,7 @@ public class IslandInfo extends CommandBase
     
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-    	return true;
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.info");
     }
     
     private BlockPos findPlayerIsland(final EntityPlayerMP player, WorldServer world, DimensionDefinition definition) throws CommandException

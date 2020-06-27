@@ -10,6 +10,9 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.config.ConfigPreset;
+import com.bloodnbonesgaming.topography.config.ConfigurationManager;
+import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
@@ -22,6 +25,7 @@ import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandStron
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandVillageGenerator;
 import com.bloodnbonesgaming.topography.world.layer.GenLayerBiomeSkyIslands;
 
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockLiquid;
@@ -32,6 +36,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
@@ -42,10 +47,13 @@ import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenStronghold;
 import net.minecraft.world.gen.structure.MapGenVillage;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraft.world.gen.structure.StructureComponent;
+import net.minecraft.world.gen.structure.StructureStart;
 
 public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructureHandler {
 	
-	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise;
+	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise = null;
 	private MapGenMineshaft mineshaft;
 	private final MapGenStronghold stronghold = new SkyIslandStrongholdSimpleGenerator(this);
 	private MapGenVillage village;
@@ -55,7 +63,9 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	@Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
     {
-        this.horizontalConeSkewNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
+		if (this.horizontalConeSkewNoise == null) {
+	        this.horizontalConeSkewNoise = new OpenSimplexNoiseGeneratorOctaves(world.getSeed());
+		}
         
         final long seed = world.getSeed();
         this.terrainNoise = new OpenSimplexNoiseGeneratorOctaves(seed);
@@ -220,8 +230,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
                     
                     for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
                     {
-                        if (MathUtil.getDistance(pos, islandPos.getKey()) <= minDistance)
-                        {
+                        if (MathUtil.getDistance(pos, islandPos.getKey()) <= minDistance) {
                             final SkyIslandType type = islandPos.getValue();
                             
                             if (type.isGenBiomeBlocks())
@@ -408,8 +417,180 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	@Override
 	public void populateStructures(World world, Random rand, ChunkPos chunkPos) {
 
+		{
+        	int i = (chunkPos.x << 4) + 8;
+    		int j = (chunkPos.z << 4) + 8;
+
+    		ObjectIterator<StructureStart> objectiterator = this.mineshaft.structureMap.values().iterator();
+
+    		while (objectiterator.hasNext()) {
+    			StructureStart structurestart = (StructureStart) objectiterator.next();
+
+    			//if (structurestart.isSizeableStructure() && structurestart.isValidForPostProcess(chunkPos) && structurestart.getBoundingBox().intersectsWith(i, j, i + 15, j + 15)) {
+
+    				StructureBoundingBox structurebb = new StructureBoundingBox(i, j, i + 15, j + 15);
+    				structurestart.generateStructure(world, rand, structurebb);
+
+    				Iterator<StructureComponent> iterator = structurestart.getComponents().iterator();
+
+    				iterator: while (iterator.hasNext()) {
+    					StructureComponent structurecomponent = iterator.next();
+
+//                        if (structurecomponent.getBoundingBox().intersectsWith(structurebb) && !structurecomponent.addComponentParts(world, rand, structurebb))
+//                        {
+//                            iterator.remove();
+//                        }
+
+    					Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = null;
+
+    					final ConfigurationManager manager = ConfigurationManager.getInstance();
+
+    					if (manager != null) {
+    						final ConfigPreset preset = manager.getPreset();
+
+    						if (preset != null) {
+    							final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+
+    							if (dimensionDef != null) {
+    								for (final IGenerator generator : dimensionDef.getGenerators()) {
+    									if (generator instanceof SkyIslandGeneratorV2) {
+    										final SkyIslandGeneratorV2 islandGenerator = (SkyIslandGeneratorV2) generator;
+
+    										islandPositions = islandGenerator.getIslandPositions(world.getSeed(),
+    												(structurecomponent.getBoundingBox().maxX
+    														- structurecomponent.getBoundingBox().minX) / 2
+    														+ structurecomponent.getBoundingBox().minX,
+    												(structurecomponent.getBoundingBox().maxZ
+    														- structurecomponent.getBoundingBox().minZ) / 2
+    														+ structurecomponent.getBoundingBox().minZ);
+    										break;
+    									}
+    								}
+
+    								if (islandPositions != null) {
+
+    									BlockPos componentMid = new BlockPos(
+    											(structurecomponent.getBoundingBox().maxX
+    													- structurecomponent.getBoundingBox().minX) / 2
+    													+ structurecomponent.getBoundingBox().minX,
+    											0,
+    											(structurecomponent.getBoundingBox().maxZ
+    													- structurecomponent.getBoundingBox().minZ) / 2
+    													+ structurecomponent.getBoundingBox().minZ);
+
+    									for (Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : islandPositions
+    											.entrySet()) {
+    										for (Entry<BlockPos, SkyIslandType> innerSet : set.getValue().entrySet()) {
+    											if (set.getKey() instanceof SkyIslandDataV2) {
+    												SkyIslandDataV2 data = (SkyIslandDataV2) set.getKey();
+    												double distance = MathUtil.getDistance(componentMid, innerSet.getKey());
+
+    												if (distance < data.getHorizontalRadius() * 0.35) {
+    													// continue iterator loop
+    													continue iterator;
+    												}
+    											}
+    										}
+    									}
+    									iterator.remove();// Calls if iterator loop isn't continued
+    								}
+    							}
+    						}
+    					}
+    				}
+    			//}
+    		}
+        }
+		
+		
         this.mineshaft.generateStructure(world, rand, chunkPos);
 
+        
+        {
+        	int i = (chunkPos.x << 4) + 8;
+    		int j = (chunkPos.z << 4) + 8;
+
+    		ObjectIterator<StructureStart> objectiterator = this.village.structureMap.values().iterator();
+
+    		while (objectiterator.hasNext()) {
+    			StructureStart structurestart = (StructureStart) objectiterator.next();
+
+    			//if (structurestart.isSizeableStructure() && structurestart.isValidForPostProcess(chunkPos) && structurestart.getBoundingBox().intersectsWith(i, j, i + 15, j + 15)) {
+
+    				StructureBoundingBox structurebb = new StructureBoundingBox(i, j, i + 15, j + 15);
+    				structurestart.generateStructure(world, rand, structurebb);
+
+    				Iterator<StructureComponent> iterator = structurestart.getComponents().iterator();
+
+    				iterator: while (iterator.hasNext()) {
+    					StructureComponent structurecomponent = iterator.next();
+
+//                        if (structurecomponent.getBoundingBox().intersectsWith(structurebb) && !structurecomponent.addComponentParts(world, rand, structurebb))
+//                        {
+//                            iterator.remove();
+//                        }
+
+    					Map<SkyIslandData, Map<BlockPos, SkyIslandType>> islandPositions = null;
+
+    					final ConfigurationManager manager = ConfigurationManager.getInstance();
+
+    					if (manager != null) {
+    						final ConfigPreset preset = manager.getPreset();
+
+    						if (preset != null) {
+    							final DimensionDefinition dimensionDef = preset.getDefinition(world.provider.getDimension());
+
+    							if (dimensionDef != null) {
+    								for (final IGenerator generator : dimensionDef.getGenerators()) {
+    									if (generator instanceof SkyIslandGeneratorV2) {
+    										final SkyIslandGeneratorV2 islandGenerator = (SkyIslandGeneratorV2) generator;
+
+    										islandPositions = islandGenerator.getIslandPositions(world.getSeed(),
+    												(structurecomponent.getBoundingBox().maxX
+    														- structurecomponent.getBoundingBox().minX) / 2
+    														+ structurecomponent.getBoundingBox().minX,
+    												(structurecomponent.getBoundingBox().maxZ
+    														- structurecomponent.getBoundingBox().minZ) / 2
+    														+ structurecomponent.getBoundingBox().minZ);
+    										break;
+    									}
+    								}
+
+    								if (islandPositions != null) {
+
+    									BlockPos componentMid = new BlockPos(
+    											(structurecomponent.getBoundingBox().maxX
+    													- structurecomponent.getBoundingBox().minX) / 2
+    													+ structurecomponent.getBoundingBox().minX,
+    											0,
+    											(structurecomponent.getBoundingBox().maxZ
+    													- structurecomponent.getBoundingBox().minZ) / 2
+    													+ structurecomponent.getBoundingBox().minZ);
+
+    									for (Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : islandPositions
+    											.entrySet()) {
+    										for (Entry<BlockPos, SkyIslandType> innerSet : set.getValue().entrySet()) {
+    											if (set.getKey() instanceof SkyIslandDataV2) {
+    												SkyIslandDataV2 data = (SkyIslandDataV2) set.getKey();
+    												double distance = MathUtil.getDistance(componentMid, innerSet.getKey());
+
+    												if (distance < data.getHorizontalRadius() * 0.5) {
+    													// continue iterator loop
+    													continue iterator;
+    												}
+    											}
+    										}
+    									}
+    									iterator.remove();// Calls if iterator loop isn't continued
+    								}
+    							}
+    						}
+    					}
+    				}
+    			//}
+    		}
+        }
+        
         this.village.generateStructure(world, rand, chunkPos);
 
         this.stronghold.generateStructure(world, rand, chunkPos);
@@ -488,7 +669,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         for (final SkyIslandDataV2 data : this.SkyIslandDataV2)
         {
             int genCount = 0;
-            countLoop: for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
+            for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
             {
                 final double maxHorizontalFeatureRadius = data.getHorizontalRadius();
                 
@@ -507,40 +688,47 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 
                 final BlockPos pos = new BlockPos(featureCenterX, midHeight, featureCenterZ);
                 
-                Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> setIterator = this.islandPositions.entrySet().iterator();
-                
-                while (setIterator.hasNext())
-                {
-                	final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = setIterator.next();
-                	final SkyIslandDataV2 islandData = (com.bloodnbonesgaming.topography.config.SkyIslandDataV2) set.getKey();
-                    final double minDistance = islandData.getHorizontalRadius() + maxHorizontalFeatureRadius + 25;
-
-                    for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
+                if (this.islandPostionAcceptable(pos, maxHorizontalFeatureRadius)) {
+                	
+                    if (!this.islandPositions.containsKey(data))
                     {
-                        if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance)
-                        {
-                            continue countLoop;
-                        }
+                        this.islandPositions.put(data, new LinkedHashMap<BlockPos, SkyIslandType>());
                     }
+                    if (data.isRandomIslands())
+                    {
+                        final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
+                        positions.put(pos, data.getType(this.islandPositionRandom.nextInt(128)));
+                    }
+                    else
+                    {
+                        final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
+                        positions.put(pos, data.getType(genCount));
+                    }
+                    genCount++;
                 }
-
-                if (!this.islandPositions.containsKey(data))
-                {
-                    this.islandPositions.put(data, new LinkedHashMap<BlockPos, SkyIslandType>());
-                }
-                if (data.isRandomIslands())
-                {
-                    final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
-                    positions.put(pos, data.getType(this.islandPositionRandom.nextInt(128)));
-                }
-                else
-                {
-                    final Map<BlockPos, SkyIslandType> positions = this.islandPositions.get(data);
-                    positions.put(pos, data.getType(genCount));
-                }
-                genCount++;
             }
         }
+    }
+    
+    private boolean islandPostionAcceptable(BlockPos pos, double maxHorizontalFeatureRadius) {
+    	Iterator<Entry<SkyIslandData, Map<BlockPos, SkyIslandType>>> setIterator = this.islandPositions.entrySet().iterator();
+    	
+    	while (setIterator.hasNext())
+        {
+        	final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set = setIterator.next();
+        	final SkyIslandDataV2 islandData = (com.bloodnbonesgaming.topography.config.SkyIslandDataV2) set.getKey();
+            
+            final double minDistance = islandData.getHorizontalRadius() + maxHorizontalFeatureRadius + 16;
+
+            for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
+            {
+                if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance)
+                {
+                    return false;
+                }
+            }
+        }
+    	return true;
     }
 
     @Override
@@ -552,7 +740,16 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
             this.currentRegionZ = ((int) Math.floor(Math.floor(z / 16.0D) * 16D / this.regionSize));
             this.generateIslandPositions(worldSeed);
         }
-        return this.islandPositions;
+        //return this.islandPositions;
+        //return new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>(this.islandPositions);
+        
+        //Clone map to fix concurrency issues
+        LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>> positions = new LinkedHashMap<SkyIslandData, Map<BlockPos, SkyIslandType>>();
+        
+        for (Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> entry : this.islandPositions.entrySet()) {
+        	positions.put(entry.getKey(), entry.getValue());
+        }
+        return positions;
     }
 
     public static double getDistance(final BlockPos pos, final BlockPos pos2)
@@ -769,8 +966,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 
             for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
             {
-                if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance + 16)
-                {
+                //if (SkyIslandGenerator.getDistance(pos, islandPos.getKey()) < minDistance + 16) {
+    			if (this.canBeInChunk(islandPos.getKey(), data.getHorizontalRadius(), chunkX * 16, chunkZ * 16)) {
                     final SkyIslandType type = islandPos.getValue();
                     
                     for (final DecorationData decoration : type.getDecorators())
@@ -783,82 +980,114 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         }
     }
 
-    @Override
-    public void populate(World world, int chunkX, int chunkZ, Random rand)
-    {
-        final long seed = world.getSeed();
-        BlockFalling.fallInstantly = true;
-        int i = chunkX * 16;
-        int j = chunkZ * 16;
-        BlockPos blockpos = new BlockPos(i, 0, j);
+	@Override
+	public void populate(World world, int chunkX, int chunkZ, Random rand) {
+		final long seed = world.getSeed();
+		BlockFalling.fallInstantly = true;
+		int i = chunkX * 16;
+		int j = chunkZ * 16;
+		BlockPos blockpos = new BlockPos(i, 0, j);
 //        Biome biome = world.getBiome(blockpos.add(16, 0, 16));
-        this.rand.setSeed(seed);
-        long k = this.rand.nextLong() / 2L * 2L + 1L;
-        long l = this.rand.nextLong() / 2L * 2L + 1L;
-        this.rand.setSeed((long)chunkX * k + (long)chunkZ * l ^ seed);
+		this.rand.setSeed(seed);
+		long k = this.rand.nextLong() / 2L * 2L + 1L;
+		long l = this.rand.nextLong() / 2L * 2L + 1L;
+		this.rand.setSeed((long) chunkX * k + (long) chunkZ * l ^ seed);
 //        boolean flag = false;
-        
-        final BlockPos pos = new BlockPos(i, 0, j);
-        
+
+		final BlockPos pos = new BlockPos(i, 0, j);
+
 //        if (biome == Biomes.RIVER)
 //        {
 //        	biome.decorate(world, this.rand, new BlockPos(i, 0, j));
 //        }
 //        else
 //        {
-        outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j).entrySet())
-        {
-            final SkyIslandDataV2 data = (SkyIslandDataV2) set.getKey();
-            final double minDistance = data.getHorizontalRadius();
+		outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, i, j)
+				.entrySet()) {
+			final SkyIslandDataV2 data = (SkyIslandDataV2) set.getKey();
+			final double minDistance = data.getHorizontalRadius();
 
-            for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet())
-            {
-                if (MathUtil.getDistance(pos, islandPos.getKey()) < minDistance + 16)
-                {
-                    final SkyIslandType type = islandPos.getValue();
-                    Biome typeBiome = Biome.getBiome(type.getBiome());
+			for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet()) {
+				//if (MathUtil.getDistance(pos, islandPos.getKey()) < minDistance + 16) {
+				if (this.canBeInChunk(islandPos.getKey(), data.getHorizontalRadius(), i, j)) {
+					final SkyIslandType type = islandPos.getValue();
+					Biome typeBiome = Biome.getBiome(type.getBiome());
 
-                    if (type.isGenDecorations())
-                    {
-                        if (typeBiome != Biomes.VOID)
-                        {
-                            typeBiome.decorate(world, this.rand, new BlockPos(i, 0, j));
-                        }
-                    }
-                    if (type.genAnimals())
-                    {
-                        WorldEntitySpawner.performWorldGenSpawning(world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
-                    }
-                    break outer;
-                }
-            }
-        }
+					if (type.isGenDecorations()) {
+						if (typeBiome != Biomes.VOID) {
+							typeBiome.decorate(world, this.rand, new BlockPos(i, 0, j));
+						}
+					}
+					if (type.genAnimals()) {
+						WorldEntitySpawner.performWorldGenSpawning(world, typeBiome, i + 8, j + 8, 16, 16, this.rand);
+					}
+					break outer;
+				}
+			}
+		}
 //        }
-        
-        blockpos = blockpos.add(8, 0, 8);
 
-            {
-                for (int k2 = 0; k2 < 16; ++k2)
-                {
-                    for (int j3 = 0; j3 < 16; ++j3)
-                    {
-                        BlockPos blockpos1 = world.getPrecipitationHeight(blockpos.add(k2, 0, j3));
-                        BlockPos blockpos2 = blockpos1.down();
+		blockpos = blockpos.add(8, 0, 8);
 
-                        if (world.canBlockFreezeWater(blockpos2))
-                        {
-                            world.setBlockState(blockpos2, Blocks.ICE.getDefaultState(), 2);
-                        }
+		{
+			for (int k2 = 0; k2 < 16; ++k2) {
+				for (int j3 = 0; j3 < 16; ++j3) {
+					BlockPos blockpos1 = world.getPrecipitationHeight(blockpos.add(k2, 0, j3));
+					BlockPos blockpos2 = blockpos1.down();
 
-                        if (world.canSnowAt(blockpos1, true))
-                        {
-                            world.setBlockState(blockpos1, Blocks.SNOW_LAYER.getDefaultState(), 2);
-                        }
-                    }
-                }
-            }
+					if (world.canBlockFreezeWater(blockpos2)) {
+						world.setBlockState(blockpos2, Blocks.ICE.getDefaultState(), 2);
+					}
 
-        BlockFalling.fallInstantly = false;
+					if (world.canSnowAt(blockpos1, true)) {
+						world.setBlockState(blockpos1, Blocks.SNOW_LAYER.getDefaultState(), 2);
+					}
+				}
+			}
+		}
+		
+		this.genGenerators(world, this.rand, chunkX, chunkZ, seed);
+
+		BlockFalling.fallInstantly = false;
+	}
+    
+	private void genGenerators(final World world, final Random random, final int chunkX, final int chunkZ, final long seed) {
+		int x = chunkX * 16;
+		int z = chunkZ * 16;
+		
+		final BlockPos pos = new BlockPos(x, 0, z);
+		
+		outer: for (final Entry<SkyIslandData, Map<BlockPos, SkyIslandType>> set : this.getIslandPositions(seed, x, z)
+				.entrySet()) {
+			final SkyIslandDataV2 data = (SkyIslandDataV2) set.getKey();
+			final double minDistance = data.getHorizontalRadius();
+
+			for (final Entry<BlockPos, SkyIslandType> islandPos : set.getValue().entrySet()) {
+//				if (MathUtil.getDistance(pos, islandPos.getKey()) < minDistance + 16) {
+				if (this.canBeInChunk(islandPos.getKey(), data.getHorizontalRadius(), x, z)) {
+					final SkyIslandType type = islandPos.getValue();
+					
+					for (IGenerator generator : type.getGenerators()) {
+						generator.populate(world, chunkX, chunkZ, this.rand);
+					}
+					break outer;
+				}
+			}
+		}
+	}
+	
+	private boolean canBeInChunk(BlockPos center, double radius, final int chunkMinX, final int chunkMinZ) {
+		final MutableBlockPos pos = new MutableBlockPos();
+		double radiusSq = radius * radius;
+//    	if (center.getX() + radius > chunkMinX && center.getX() - radius < chunkMinZ + 16) {
+//    		if (center.getZ() + radius > chunkMinZ && center.getZ() - radius < chunkMinZ + 16) {
+//    	    	return true;
+//    		}
+//    	}
+    	if (MathUtil.getDistanceSq(pos.setPos(chunkMinX, 0, chunkMinZ), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX + 16, 0, chunkMinZ), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX, 0, chunkMinZ + 16), center) < radiusSq || MathUtil.getDistanceSq(pos.setPos(chunkMinX + 16, 0, chunkMinZ + 16), center) < radiusSq) {
+        	return true;
+    	}
+    	return false;
     }
 
     @Override

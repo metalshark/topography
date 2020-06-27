@@ -19,6 +19,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +29,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandSet extends CommandBase
 {
@@ -250,5 +252,10 @@ public class IslandSet extends CommandBase
         }
 
         return blockpos;
+    }
+    
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.set");
     }
 }

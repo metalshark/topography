@@ -15,60 +15,57 @@ public class RunnableSimplexNoise implements Runnable{
 	final int startX;
 	final int startY;
 	final int startZ;
-	final int height;
+	final int octaves;
+	final double persistence;
+	final double coordinateScale;
 	final double[] layerArray;
 
-	public RunnableSimplexNoise(final long seed, final int height, final OpenSimplexNoiseGeneratorOctaves noise, final int startX, final int startY, final int startZ)
+	public RunnableSimplexNoise( final OpenSimplexNoiseGeneratorOctaves noise, final int startX, final int startY, final int startZ, final double coordinateScale, final int octaves, final double persistence)
 	{
 		this.noise = noise;
         this.startX = startX;
         this.startY = startY;
         this.startZ = startZ;
-        this.height = height;
-        this.layerArray = new double[81];
+        this.coordinateScale = coordinateScale;
+        this.octaves = octaves;
+        this.persistence = persistence;
+        this.layerArray = new double[5 * 5 * 3];
 	}
 	
 	@Override
 	public void run() {
 		
-		for (int x = 0; x < 9; x++)
-		{
-			for (int z = 0; z < 9; z++)
-			{
-				this.layerArray[x * 9 + z] = this.noise.eval((x * 2 + this.startX) / 32.0, (this.height * 2 + this.startY) / 32.0, (z * 2 + this.startZ) / 32.0, 3, 0.5);
+		for (int x = 0; x < 5; x++) {
+			for (int z = 0; z < 5; z++) {
+				for (int y = 0; y < 3; y++) {
+					//int index = (xI * arraySizeX + zI) * arraySizeY + yI;
+					this.layerArray[(x * 5 + z) * 3 + y] = this.noise.eval((startX + x * 4) / coordinateScale, ((startY + y) * 8) / coordinateScale, (startZ + z * 4) / coordinateScale, octaves, persistence);
+				}
 			}
 		}
-		RunnableSimplexNoise.addToArray(this.layerArray, this.height);
+		RunnableSimplexNoise.addToArray(this.layerArray, this.startY);
 	}
 	
 	private static double[] array = null;
 	
-	public static synchronized void addToArray(final double value, final int arrayIndex)
+	public static synchronized void addToArray(final double[] layerArray, final int startY)
 	{
-		RunnableSimplexNoise.array[arrayIndex] = value;
-	}
-	
-	public static synchronized void addToArray(final double[] layerArray, final int layerHeight)
-	{
-		for (int x = 0; x < 9; x++)
-		{
-			for (int z = 0; z < 9; z++)
-			{
-				RunnableSimplexNoise.array[(x * 9 + z) * 129 + layerHeight] = layerArray[x * 9 + z];
+		for (int x = 0; x < 5; x++) {
+			for (int z = 0; z < 5; z++) {
+				for (int y = 0; y < 3; y++) {
+					RunnableSimplexNoise.array[(x * 5 + z) * 33 + startY + y] = layerArray[(x * 5 + z) * 3 + y];
+				}
 			}
 		}
 	}
 	
-	public static void getNoise(final double[] array, final long seed, final int startX, final int startY, final int startZ)
+	public static void getNoise(final double[] array, final OpenSimplexNoiseGeneratorOctaves generator, final int startX, final int startZ, final double coordinateScale, final int octaves, final double persistence)
 	{
 		RunnableSimplexNoise.array = array;
 		final List<Callable<Object>> callables = new ArrayList<Callable<Object>>();
-
-		OpenSimplexNoiseGeneratorOctaves noise = new OpenSimplexNoiseGeneratorOctaves(seed);
 		
-		for (int y = 0; y < 129; y++)
-		{
-			callables.add(Executors.callable(new RunnableSimplexNoise(seed, y, noise, startX, startY, startZ)));
+		for (int y = 0; y < 33; y += 3) {
+			callables.add(Executors.callable(new RunnableSimplexNoise(generator, startX, y, startZ, coordinateScale, octaves, persistence)));
 		}
 		
 		try {

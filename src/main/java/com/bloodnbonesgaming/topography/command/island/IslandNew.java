@@ -41,6 +41,7 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 public class IslandNew extends CommandBase
 {
@@ -323,5 +324,10 @@ public class IslandNew extends CommandBase
         }
 
         return blockpos;
+    }
+    
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    	return !(sender instanceof EntityPlayerMP) || PermissionAPI.hasPermission((EntityPlayerMP) sender, "topography.island.new");
     }
 }

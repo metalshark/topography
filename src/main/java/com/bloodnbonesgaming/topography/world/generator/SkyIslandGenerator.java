@@ -10,9 +10,6 @@ import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.NumberHelper;
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
-import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
-import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
-import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.util.MathUtil;
@@ -35,10 +32,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.layer.GenLayer;
 
-@ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGenerator", classExplaination = 
-"This file is for the SkyIslandGenerator. This generator generates sky islands in a pseudo-random pattern within grid regions, "
-+ "allowing for a high level of generation control while giving the appearance of randomness. These can be created in a dimension file using 'new SkyIslandGenerator()'. "
-+ "When a player spawns in a dimension with this generator, they will spawn in the center of the first island to be generated.")
 public class SkyIslandGenerator implements IGenerator
 {
 //	public Biome[] biomesForGeneration;
@@ -152,17 +145,12 @@ public class SkyIslandGenerator implements IGenerator
         return (int) this.regionSize;
     }
 
-    @ScriptMethodDocumentation(args = "int", usage = "size", notes = "Sets the grid region size in chunks. Default is 29.")
 	public void setRegionSize(final int size)
     {
         this.regionSize = size * 16;
     }
 
-    @ScriptMethodDocumentation(args = "int, int, boolean", usage = "radius, count, randomTypes", notes = "Generates a SkyIslandData and returns it. "
-    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
-    		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
-    		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
+    public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes)
     {
         final SkyIslandData data = new SkyIslandData();
         data.setRadius(radius);
@@ -174,11 +162,7 @@ public class SkyIslandGenerator implements IGenerator
         return data;
     }
 
-    @ScriptMethodDocumentation(args = "int, int, boolean, int", usage = "radius, count, randomTypes, minCount", notes = "Generates a SkyIslandData and returns it. "
-    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
-    		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
-    		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes, final int minCount)
+    public SkyIslandData addSkyIslands(final int radius, final int count, final boolean randomTypes, final int minCount)
     {
         final SkyIslandData data = new SkyIslandData();
         data.setRadius(radius);

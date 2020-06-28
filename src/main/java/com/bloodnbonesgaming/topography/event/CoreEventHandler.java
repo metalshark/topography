@@ -80,7 +80,7 @@ public class CoreEventHandler {
                                     		if (distance < data.getHorizontalRadius() * 2 + 25 && distance < shortestDistance) {
                                     			shortestDistance = distance;
                                     			closestIsland = innerSet.getKey();
-                                    			islandMid = innerSet.getKey().getY() + (int)((SkyIslandDataV2)set.getKey()).getWaterHeight();
+                                    			islandMid = innerSet.getKey().getY() + (int)((SkyIslandDataV2)set.getKey()).getFluidDepth();
                                     			
                                     			if (shortestDistance <= 25) {
                                         			break outer;

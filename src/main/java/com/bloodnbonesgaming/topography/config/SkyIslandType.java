@@ -22,7 +22,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.biome.Biome;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandType", classExplaination = 
-"This file is for the SkyIslandType. This data object is for creating island types for the SkyIslandGenerator. "
+"This file is for the SkyIslandType. This data object is for creating island types for the SkyIslandGeneratorV2. "
 + "These can be created in a dimension file using 'new SkyIslandType(biomeID)', with the biome id being the biome you want the island to be, or 'new SkyIslandType()' to default to the void biome.")
 public class SkyIslandType
 {
@@ -141,7 +141,8 @@ public class SkyIslandType
     }
     
     //V2 only
-    public void addGenerator(final IGenerator generator) {
+    @ScriptMethodDocumentation(args = "IGenerator", usage = "generator", notes = "Adds the provided generator. This generator will only generate in chunks containing islands generated with this type.")
+	public void addGenerator(final IGenerator generator) {
     	this.generators.add(generator);
     }
     
@@ -150,7 +151,8 @@ public class SkyIslandType
     }
     
     //V2 only
-    public void setFluidBlock(final ItemBlockData data) throws Exception
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "block", notes = "Sets the fluid block for the lakes on the islands to generate.")
+	public void setFluidBlock(final ItemBlockData data) throws Exception
     {
         this.fluidBlock = data.buildBlockState();
     }
@@ -162,7 +164,8 @@ public class SkyIslandType
     }
     
     //V2 only
-    public void disableFluid()
+    @ScriptMethodDocumentation(usage = "", notes = "Disables lake generation for the island type.")
+	public void disableFluid()
     {
     	this.generateFluid = false;
     }
@@ -179,7 +182,8 @@ public class SkyIslandType
 	}
 
     //V2 only
-    public void generateMineshafts(final int chance) {
+    @ScriptMethodDocumentation(args = "int", usage = "chance", notes = "Sets the 1/chance for mineshafts to generate for the island type. These are centered on the island, and size limited.")
+	public void generateMineshafts(final int chance) {
 		this.mineshaftChance = chance;
 		this.generateMineshafts = true;
 	}
@@ -190,7 +194,8 @@ public class SkyIslandType
 	}
 
     //V2 only
-    public void generateStrongholds(final int chance) {
+    @ScriptMethodDocumentation(args = "int", usage = "chance", notes = "Sets the 1/chance for strongholds to generate for the island type. These are centered on the island, and only generate the end portal room.")
+	public void generateStrongholds(final int chance) {
 		this.strongholdChance = chance;
 		this.generateStrongholds = true;
 	}
@@ -201,7 +206,8 @@ public class SkyIslandType
 	}
 
     //V2 only
-    public void generateVillages(final int chance) {
+    @ScriptMethodDocumentation(args = "int", usage = "chance", notes = "Sets the 1/chance for villages to generate for the island type. These are centered on the island, and size limited to avoid floating buildings.")
+	public void generateVillages(final int chance) {
 		this.villageChance = chance;
 		this.generateVillages = true;
 	}
@@ -222,7 +228,8 @@ public class SkyIslandType
 	}
 	
     //V2 only
-    public void setWaterPercentage(final double waterPercentage) {
+    @ScriptMethodDocumentation(args = "double", usage = "percentage", notes = "Defaults to 0.5. Higher values increase lake size, lower values decrease.")
+	public void setWaterPercentage(final double waterPercentage) {
 		this.waterPercentage = waterPercentage;
 	}
 	

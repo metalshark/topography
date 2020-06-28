@@ -1,6 +1,8 @@
 package com.bloodnbonesgaming.topography.client.renderer;
 
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -16,6 +18,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.client.IRenderHandler;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.DOCUMENTATION_FOLDER + "WeatherRenderer", classExplaination = 
+"A customizeable weather renderer. Can force the appearance of rain/snow. Can be accessed by calling `overrideWeatherRenderer()`.")
 public class TopographyWeatherRenderer extends IRenderHandler {
 	
 	private boolean persistentSnow = false;

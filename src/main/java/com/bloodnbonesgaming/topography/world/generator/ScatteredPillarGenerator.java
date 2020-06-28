@@ -19,7 +19,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.layer.GenLayer;
 
 @ScriptClassDocumentation(documentationFile = ModInfo.GENERATOR_DOCUMENTATION_FOLDER + "ScatteredPillarGenerator", classExplaination = 
-"This file is for the ScatteredPillarGenerator. This generator generates scattered clusters of block pillars per chunk. Similar to how fire is generated in the nether.")
+"This file is for the ScatteredPillarGenerator. This generator generates scattered clusters of block pillars per chunk. Similar to how sugarcane is generated.")
 public class ScatteredPillarGenerator implements IGenerator
 {
     private final int clusterCount;
@@ -32,7 +32,7 @@ public class ScatteredPillarGenerator implements IGenerator
     private final List<BlockPredicate> requiredBlocks = new ArrayList<BlockPredicate>();
     private final List<BlockPredicate> requiredAdjacentBlocks = new ArrayList<BlockPredicate>();
     
-    @ScriptMethodDocumentation(args = "ItemBlockData, int, int", usage = "block to generate, clusters per chunk, blocks per cluster", notes = "This constructs a ScatteredBlockGenerator.")
+    @ScriptMethodDocumentation(args = "ItemBlockData, int, int, int, int", usage = "block to generate, min height, max height, clusters per chunk, blocks per cluster", notes = "This constructs a ScatteredPillarGenerator.")
 	public ScatteredPillarGenerator(final ItemBlockData data, final int minHeight, final int maxHeight, final int clusterCount, final int clusterSize) throws Exception
     {
         this.block = data.buildBlockState();
@@ -42,7 +42,7 @@ public class ScatteredPillarGenerator implements IGenerator
         this.maxPillarHeight = maxHeight;
     }
     
-    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "required block", notes = "Adds a block the generator is allowed to generate blocks on top of.")
+    @ScriptMethodDocumentation(args = "ItemBlockData", usage = "required block", notes = "Adds a block the generator is allowed to generate pillars on top of.")
 	public void addRequiredBlock(final ItemBlockData data) throws Exception
     {
         this.requiredBlocks.add(data.buildBlockPredicate());

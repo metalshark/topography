@@ -17,7 +17,7 @@ public class SkyIslandDataV2 extends SkyIslandData {
     private double verticalRadius = 100;
     private double topHeight = verticalRadius;
     private double bottomHeight = verticalRadius;
-    private double waterHeight = -1;
+    private double fluidDepth = -1;
     private int minHeight = 5;
     private int maxHeight = 220;
     private List<SkyIslandType> types = new ArrayList<SkyIslandType>();
@@ -78,20 +78,22 @@ public class SkyIslandDataV2 extends SkyIslandData {
 		this.bottomHeight = height;
 	}
 	
-	public double getWaterHeight()
+	public double getFluidDepth()
 	{
-		if (this.waterHeight < 0)
+		if (this.fluidDepth < 0)
 		{
-	        waterHeight = Math.floor(this.horizontalRadius / 20D);
+	        fluidDepth = Math.floor(this.horizontalRadius / 20D);
 		}
-		return this.waterHeight;
+		return this.fluidDepth;
 	}
 	
-	public void setWaterHeight(final double height)
+	@ScriptMethodDocumentation(args = "double", usage = "depth", notes = "Sets the fluid depth for lakes on the islands. Default horizontalRadius / 20.")
+	public void setFluidDepth(final double depth)
 	{
-		this.waterHeight = height;
+		this.fluidDepth = depth;
 	}
 	
+	@ScriptMethodDocumentation(args = "int, int", usage = "min, max", notes = "Sets the min/max heights for islands to generate.")
 	public void setHeightRange(final int min, final int max)
 	{
 		this.minHeight = min;

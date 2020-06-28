@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
-import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
-import com.bloodnbonesgaming.topography.ModInfo;
-
-@ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandData", classExplaination = 
-"This file is for the SkyIslandData. This data object is for holding size and type data of islands for the SkyIslandGenerator.")
 public class SkyIslandData
 {
     private int count = 1;
@@ -41,7 +35,6 @@ public class SkyIslandData
         this.radius = radius;
     }
     
-    @ScriptMethodDocumentation(args = "SkyIslandType", usage = "type", notes = "Adds a type of sky island to be generated.")
 	public void addType(final SkyIslandType type)
     {
         this.types.add(type);

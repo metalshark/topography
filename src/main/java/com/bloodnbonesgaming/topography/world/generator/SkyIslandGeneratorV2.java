@@ -9,7 +9,9 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
+import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
@@ -51,6 +53,10 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.StructureStart;
 
+@ScriptClassDocumentation(documentationFile = ModInfo.SKY_ISLANDS_DOCUMENTATION_FOLDER + "SkyIslandGeneratorV2", classExplaination = 
+"This generator generates sky islands in a pseudo-random pattern within grid regions, "
++ "allowing for a high level of generation control while giving the appearance of randomness. These can be created in a dimension file using 'new SkyIslandGeneratorV2()'. "
++ "When a player spawns in a dimension with this generator, they will spawn in the center of the first island to be generated.")
 public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructureHandler {
 	
 	OpenSimplexNoiseGeneratorOctaves horizontalConeSkewNoise = null;
@@ -105,7 +111,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
                 final double maxHorizontalRadius = data.getHorizontalRadius();
                 final double maxTopHeight = data.getTopHeight();
                 final double maxBottomHeight = data.getBottomHeight();
-                final double maxWaterHeight = data.getWaterHeight();
+                final double maxWaterHeight = data.getFluidDepth();
                 final double waterPercentage = Math.max(1 - islandPos.getValue().getWaterPercentage(), 0.0001);
                 
                 for (double x = 0; x < 16; x++)
@@ -341,8 +347,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	
 	
 	  //TODO Update documentation
-    @ScriptMethodDocumentation(args = "int, int, boolean", usage = "radius, count, randomTypes", notes = "Generates a SkyIslandDataV2 and returns it. "
-    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
+    @ScriptMethodDocumentation(args = "int, int, int, int, boolean", usage = "horizontal radius, top height, bottom height, count, randomTypes", notes = "Generates a SkyIslandDataV2 and returns it. "
+    		+ "Count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
 	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes)
@@ -359,8 +365,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         return data;
     }
 //TODO Update documentation
-    @ScriptMethodDocumentation(args = "int, int, boolean, int", usage = "radius, count, randomTypes, minCount", notes = "Generates a SkyIslandDataV2 and returns it. "
-    		+ "Radius is the radius of the sky islands to be generated, count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
+    @ScriptMethodDocumentation(args = "int, int, int, int, boolean, int", usage = "horizontal radius, top height, bottom height, count, randomTypes, minCount", notes = "Generates a SkyIslandDataV2 and returns it. "
+    		+ "Count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
 	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes, final int minCount)
@@ -378,11 +384,13 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         return data;
     }
     
-    public void enableBWMVillageCompat() {
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the generator to use Better With Mods villages when generating villages.")
+	public void enableBWMVillageCompat() {
     	this.BWMVillageCompat = true;
     }
     
-    public void enableBWMMineshaftCompat() {
+    @ScriptMethodDocumentation(usage = "", notes = "Sets the generator to use Better With Mods mineshafts when generating mineshafts.")
+	public void enableBWMMineshaftCompat() {
     	this.BWMMineshaftCompat = true;
     }
 

@@ -65,6 +65,12 @@ public class Topography extends BNBGamingMod
 		ScriptDocumentationHandler.setScriptDocs(event.getAsmData());
         Topography.proxy.registerEventHandlers();
         TopographyPlayerData.register();
+    }
+
+    @EventHandler
+    public void init(final FMLInitializationEvent event)
+    {
+        new WorldTypeCustomizable("topography");
         
         PermissionAPI.registerNode("topography.island.accept", DefaultPermissionLevel.ALL, "/topography island accept command");
         PermissionAPI.registerNode("topography.island.home", DefaultPermissionLevel.ALL, "/topography island home command");
@@ -75,12 +81,6 @@ public class Topography extends BNBGamingMod
         PermissionAPI.registerNode("topography.world.spawn", DefaultPermissionLevel.ALL, "/topography spawn command");
         PermissionAPI.registerNode("topography.preset.lock", DefaultPermissionLevel.NONE, "/topography lock command");
         PermissionAPI.registerNode("topography.preset.unlock", DefaultPermissionLevel.NONE, "/topography unlock command");
-    }
-
-    @EventHandler
-    public void init(final FMLInitializationEvent event)
-    {
-        new WorldTypeCustomizable("topography");
     }
 
     @EventHandler

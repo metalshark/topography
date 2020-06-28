@@ -19,6 +19,7 @@ import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
 import com.bloodnbonesgaming.topography.util.MathUtil;
+import com.bloodnbonesgaming.topography.util.noise.RunnableSimplexNoise1x1;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
 import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandMineshaftGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandVillageGenerator;
@@ -65,6 +66,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	private MapGenVillage village;
 	private boolean BWMVillageCompat = false;
 	private boolean BWMMineshaftCompat = false;
+    double[] islandNoiseArray = new double[65536];
+    double[] islandWaterNoiseArray = new double[65536];
 	
 	@Override
     public void generate(final World world, ChunkPrimer primer, int chunkX, int chunkZ, final Random random)
@@ -74,7 +77,10 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 		}
         
         final long seed = world.getSeed();
-        this.terrainNoise = new OpenSimplexNoiseGeneratorOctaves(seed);
+        
+        if (this.terrainNoise == null) {
+            this.terrainNoise = new OpenSimplexNoiseGeneratorOctaves(seed);
+        }
         
         this.rand.setSeed((long)chunkX * 341873128712L + (long)chunkZ * 132897987541L);
 
@@ -105,108 +111,118 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
             
             for (final Entry<BlockPos, SkyIslandType> islandPos : entry.getValue().entrySet())
             {
-                final int featureCenterX = islandPos.getKey().getX();
-                final int featureCenterZ = islandPos.getKey().getZ();
-                final int midHeight = islandPos.getKey().getY();
-                final double maxHorizontalRadius = data.getHorizontalRadius();
-                final double maxTopHeight = data.getTopHeight();
-                final double maxBottomHeight = data.getBottomHeight();
-                final double maxWaterHeight = data.getFluidDepth();
-                final double waterPercentage = Math.max(1 - islandPos.getValue().getWaterPercentage(), 0.0001);
-                
-                for (double x = 0; x < 16; x++)
-                {
-                    final double realX = x + chunkBlockX;
-                    final double xDistance = Math.pow(Math.abs(featureCenterX - realX), 2);
+                if (this.canBeInChunk(islandPos.getKey(), data.getHorizontalRadius(), chunkBlockX, chunkBlockZ)) {
+                	
                     
-                    for (double z = 0; z < 16; z++)
+                    final int featureCenterX = islandPos.getKey().getX();
+                    final int featureCenterZ = islandPos.getKey().getZ();
+                    final int midHeight = islandPos.getKey().getY();
+                    final double maxHorizontalRadius = data.getHorizontalRadius();
+                	final double maxConeCoordinateSkewValue = maxHorizontalRadius * 0.6;
+                    final double maxTopHeight = data.getTopHeight();
+                    final double maxBottomHeight = data.getBottomHeight();
+                    final double maxWaterHeight = data.getFluidDepth();
+                    final double waterPercentage = Math.max(1 - islandPos.getValue().getFluidPercentage(), 0.0001);
+                    
+                	RunnableSimplexNoise1x1.getNoise(this.islandNoiseArray, this.horizontalConeSkewNoise, (int) (midHeight - maxBottomHeight), (int) (midHeight + maxTopHeight), chunkBlockX, chunkBlockZ, maxConeCoordinateSkewValue, 3, 0.5);
+                	RunnableSimplexNoise1x1.getNoise(this.islandWaterNoiseArray, this.horizontalConeSkewNoise, (int) (midHeight - maxBottomHeight), (int) (midHeight + maxTopHeight), chunkBlockX, chunkBlockZ, maxConeCoordinateSkewValue * 1.5, 3, 0.5);
+
+                    
+                    for (double x = 0; x < 16; x++)
                     {
-                        final double realZ = z + chunkBlockZ;
+                        final double realX = x + chunkBlockX;
+                        final double xDistance = Math.pow(Math.abs(featureCenterX - realX), 2);
                         
-                        final double zDistance = Math.pow(Math.abs(featureCenterZ - realZ), 2);
-                        
-                        if (Math.sqrt(xDistance + zDistance) <= maxHorizontalRadius)
+                        for (double z = 0; z < 16; z++)
                         {
-                            final SkyIslandType type = islandPos.getValue();
-                            final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
-                            //distance from the anti water ring radius
-                            //they can be 100 in any direction already.
-                            //If the skew is 60%, they can be another +30 
-                            //If the radius is reduced by 30%, they can still be 100 in any direction, they are just unlikely to hit it
+                            final double realZ = z + chunkBlockZ;
                             
-                            for (double y = 0; y <= 255; y++)
+                            final double zDistance = Math.pow(Math.abs(featureCenterZ - realZ), 2);
+                            
+                            if (Math.sqrt(xDistance + zDistance) <= maxHorizontalRadius)
                             {
-                            	final double maxConeCoordinateSkewValue = maxHorizontalRadius * 0.6;
-                            	final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
-                            	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
-                            	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
-                            	final double maxTopConeHeightAtPos = maxTopHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
-                            	final double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
-                            	
-                            	//Rather than having an artificial minimum height ring, instead use the normal height of the cone. 
-                            	//This should be possible because of the horizontal skew on the cones, which allows them to look fine without extra noise.
-                            	//Noise can be applied, using the height above the minimum required for keeping water from falling into the void as a maximum that the noise can reduce the height by.
-                            	//This will need to go up faster than the actual height changes, so that it can go below the height required for water to spawn.
-                            	
-                            	
+                                final SkyIslandType type = islandPos.getValue();
+                                final Map<MinMaxBounds, IBlockState> boundsToState = type.getBoundsToStateMap();
+                                //distance from the anti water ring radius
+                                //they can be 100 in any direction already.
+                                //If the skew is 60%, they can be another +30 
+                                //If the radius is reduced by 30%, they can still be 100 in any direction, they are just unlikely to hit it
                                 
-                                final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
-                                double waterHeightReductionNoise = this.horizontalConeSkewNoise.eval(realX / (maxConeCoordinateSkewValue * 1.5), y / (maxConeCoordinateSkewValue * 1.5), realZ / (maxConeCoordinateSkewValue * 1.5), 3, 0.5);
-                                double topHeight;
-                                
-                                boolean water = false;
-                                //If far enough into the island to be safe with water.
-                                if (maxTopHeight - maxTopConeHeightAtPos > maxWaterHeight)
+                                for (double y = midHeight - maxBottomHeight; y <= midHeight + maxTopHeight; y++)
                                 {
-                                	//If low enough to generate water.
-                                	if (y < midHeight + maxWaterHeight) {
-                                    	water = true;
-                                	}
-                                	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos - ((maxTopHeight - maxTopConeHeightAtPos - maxWaterHeight) / waterPercentage) * waterHeightReductionNoise;
-                                }
-                                else
-                                {
-                                	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
-                                }
-                                
-                                final int mid = (int) Math.floor(((topHeight) - bottomHeight) / 2 + bottomHeight);
-                                
-                                final double distance = Math.floor(((topHeight) - bottomHeight) / 2);
-                                IBlockState state = type.getMainBlock();
-                                //Bottom
-                                if (y < midHeight)
-                                {                                    
-                                    for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
+                                	//final double horizontalConeCoordinateSkew = (this.horizontalConeSkewNoise.eval(realX / maxConeCoordinateSkewValue, y / maxConeCoordinateSkewValue, realZ / maxConeCoordinateSkewValue, 3, 0.5) - 0.5) * maxConeCoordinateSkewValue;
+                                	final double horizontalConeCoordinateSkew = (this.islandNoiseArray[(int) ((x * 16 + z) * 256 + y)] - 0.5) * maxConeCoordinateSkewValue;
+                                	final double skewedXDistance = Math.pow(Math.abs(featureCenterX - (realX + horizontalConeCoordinateSkew)), 2);
+                                	final double skewedZDistance = Math.pow(Math.abs(featureCenterZ - (realZ + horizontalConeCoordinateSkew)), 2);
+                                	final double maxTopConeHeightAtPos = maxTopHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
+                                	final double maxBottomConeHeightAtPos = maxBottomHeight / (maxHorizontalRadius * 0.7) * Math.sqrt(skewedXDistance + skewedZDistance);
+                                	
+                                	//Rather than having an artificial minimum height ring, instead use the normal height of the cone. 
+                                	//This should be possible because of the horizontal skew on the cones, which allows them to look fine without extra noise.
+                                	//Noise can be applied, using the height above the minimum required for keeping water from falling into the void as a maximum that the noise can reduce the height by.
+                                	//This will need to go up faster than the actual height changes, so that it can go below the height required for water to spawn.
+                                	
+                                	
+                                    
+                                    final double bottomHeight = maxBottomConeHeightAtPos + midHeight - maxBottomHeight;
+                                    //double waterHeightReductionNoise = this.horizontalConeSkewNoise.eval(realX / (maxConeCoordinateSkewValue * 1.5), y / (maxConeCoordinateSkewValue * 1.5), realZ / (maxConeCoordinateSkewValue * 1.5), 3, 0.5);
+                                    double waterHeightReductionNoise = this.islandWaterNoiseArray[(int) ((x * 16 + z) * 256 + y)];
+                                	double topHeight;
+                                    
+                                    boolean water = false;
+                                    //If far enough into the island to be safe with water.
+                                    if (maxTopHeight - maxTopConeHeightAtPos > maxWaterHeight)
                                     {
-                                        if (bounds.getKey().test((float) (Math.floor(Math.abs(y - mid) + 1) / distance)))
-                                        {
-                                            state = bounds.getValue();
-                                        }
+                                    	//If low enough to generate water.
+                                    	if (y < midHeight + maxWaterHeight) {
+                                        	water = true;
+                                    	}
+                                    	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos - ((maxTopHeight - maxTopConeHeightAtPos - maxWaterHeight) / waterPercentage) * waterHeightReductionNoise;
+                                    }
+                                    else
+                                    {
+                                    	topHeight = midHeight + maxTopHeight - maxTopConeHeightAtPos;
                                     }
                                     
-                                    if (bottomHeight <= y)
-                                    {
-                                    	primer.setBlockState((int) x, (int) y, (int) z, state);
-                                    }
-                                }
-                                else 
-                                {//Top
-                                    for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
-                                    {
-                                        if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
+                                    final int mid = (int) Math.floor(((topHeight) - bottomHeight) / 2 + bottomHeight);
+                                    
+                                    final double distance = Math.floor(((topHeight) - bottomHeight) / 2);
+                                    IBlockState state = type.getMainBlock();
+                                    //Bottom
+                                    if (y < midHeight)
+                                    {                                    
+                                        for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
                                         {
-                                            state = bounds.getValue();
-                                            break;
+                                            if (bounds.getKey().test((float) (Math.floor(Math.abs(y - mid) + 1) / distance)))
+                                            {
+                                                state = bounds.getValue();
+                                            }
+                                        }
+                                        
+                                        if (bottomHeight <= y)
+                                        {
+                                        	primer.setBlockState((int) x, (int) y, (int) z, state);
                                         }
                                     }
-                                    
-                                    if (topHeight >= y)
-                                    {
-                                    	primer.setBlockState((int) x, (int) (y), (int) z, state);
-                                    }
-                                    else if (water && type.generateFluid())
-                                    {
-                                    	primer.setBlockState((int) x, (int) (y), (int) z, type.getFluidBlock());
+                                    else 
+                                    {//Top
+                                        for (final Entry<MinMaxBounds, IBlockState> bounds : boundsToState.entrySet())
+                                        {
+                                            if (bounds.getKey().test((float) (Math.floor(Math.abs(y + midHeight - mid) + 1) / distance)))
+                                            {
+                                                state = bounds.getValue();
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if (topHeight >= y)
+                                        {
+                                        	primer.setBlockState((int) x, (int) (y), (int) z, state);
+                                        }
+                                        else if (water && type.generateFluid())
+                                        {
+                                        	primer.setBlockState((int) x, (int) (y), (int) z, type.getFluidBlock());
+                                        }
                                     }
                                 }
                             }
@@ -821,10 +837,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
     //ChunkGenerator
     final Random rand = new Random();
     
-    protected OpenSimplexNoiseGeneratorOctaves terrainNoise;
+    protected OpenSimplexNoiseGeneratorOctaves terrainNoise = null;;
     final Random mountainRand = new Random();
-    double[] smallNoiseArray = new double[825];
-    double[] largeNoiseArray = new double[65536];
     
 
     protected NoiseGeneratorPerlin surfaceNoise = new NoiseGeneratorPerlin(this.rand, 4);

@@ -105,8 +105,8 @@ public class SkyIslandStrongholdGenerator extends MapGenStronghold {
         this.rand.setSeed(worldIn.getSeed());
         long j = this.rand.nextLong();
         long k = this.rand.nextLong();
-        int x = startPos.getX() / 16;
-        int z = startPos.getZ() / 16;
+        int x = (int) Math.floor(startPos.getX() / 16D);
+        int z = (int) Math.floor(startPos.getZ() / 16D);
         long j1 = (long)x * j;
         long k1 = (long)z * k;
         this.rand.setSeed(j1 ^ k1 ^ worldIn.getSeed());

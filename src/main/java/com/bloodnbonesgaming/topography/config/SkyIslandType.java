@@ -33,7 +33,7 @@ public class SkyIslandType
     private final Map<MinMaxBounds, IBlockState> boundsToState = new LinkedHashMap<MinMaxBounds, IBlockState>();
     private boolean genAnimals = true;
     private final List<DecorationData> decorators = new ArrayList<DecorationData>();
-    private double waterPercentage = 0.5;
+    private double fluidPercentage = 0.5;
     private IBlockState fluidBlock = Blocks.WATER.getDefaultState();
     private boolean generateFluid = true;
     private boolean generateMineshafts = false;
@@ -229,12 +229,12 @@ public class SkyIslandType
 	
     //V2 only
     @ScriptMethodDocumentation(args = "double", usage = "percentage", notes = "Defaults to 0.5. Higher values increase lake size, lower values decrease.")
-	public void setWaterPercentage(final double waterPercentage) {
-		this.waterPercentage = waterPercentage;
+	public void setFluidPercentage(final double fluidPercentage) {
+		this.fluidPercentage = fluidPercentage;
 	}
 	
     //V2 only
-    public double getWaterPercentage() {
-		return this.waterPercentage;
+    public double getFluidPercentage() {
+		return this.fluidPercentage;
 	}
 }

@@ -4,7 +4,6 @@ setSingleBiome("minecraft:hell")
 
 //Makes the dimension have render permanent snow, colored black, for an effect akin to ash falling from the sky.
 weather = overrideWeatherRenderer()
-//weather.persistentSnow()
 weather.replaceRainWithSnow()
 weather.overrideBiomeRestrictions()
 weather.setSnowColor(#000000)

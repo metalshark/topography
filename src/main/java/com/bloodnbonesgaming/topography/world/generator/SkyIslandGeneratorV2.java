@@ -12,17 +12,17 @@ import com.bloodnbonesgaming.lib.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.lib.util.script.ScriptClassDocumentation;
 import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.ModInfo;
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.config.ConfigPreset;
 import com.bloodnbonesgaming.topography.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.config.DimensionDefinition;
 import com.bloodnbonesgaming.topography.config.SkyIslandData;
 import com.bloodnbonesgaming.topography.config.SkyIslandDataV2;
 import com.bloodnbonesgaming.topography.config.SkyIslandType;
+import com.bloodnbonesgaming.topography.util.BWMUtil;
 import com.bloodnbonesgaming.topography.util.MathUtil;
 import com.bloodnbonesgaming.topography.util.noise.RunnableSimplexNoise1x1;
 import com.bloodnbonesgaming.topography.world.decorator.DecorationData;
-import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandMineshaftGenerator;
-import com.bloodnbonesgaming.topography.world.generator.structure.BWMSkyIslandVillageGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandMineshaftGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandStrongholdSimpleGenerator;
 import com.bloodnbonesgaming.topography.world.generator.structure.SkyIslandVillageGenerator;
@@ -39,7 +39,6 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
@@ -413,8 +412,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	@Override
 	public void generateStructures(World world, int chunkX, int chunkZ, ChunkPrimer primer) {
 		if (this.mineshaft == null) {
-			if (this.BWMMineshaftCompat) {
-				this.mineshaft = new BWMSkyIslandMineshaftGenerator(this);
+			if (this.BWMMineshaftCompat && Topography.betterWithMods) {
+				this.mineshaft = BWMUtil.getMineshaft(this);
 			}
 			else {
 				this.mineshaft = new SkyIslandMineshaftGenerator(this);
@@ -423,8 +422,8 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         this.mineshaft.generate(world, chunkX, chunkZ, primer);
 
         if (this.village == null) {
-    		if (this.BWMVillageCompat) {
-    			this.village = new BWMSkyIslandVillageGenerator(this);
+    		if (this.BWMVillageCompat && Topography.betterWithMods) {
+    			this.village = BWMUtil.getVillage(this);
     		}
     		else {
     			this.village = new SkyIslandVillageGenerator(this);

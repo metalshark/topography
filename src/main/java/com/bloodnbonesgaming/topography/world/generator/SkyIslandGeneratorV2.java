@@ -366,8 +366,11 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
     		+ "Count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes)
+	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes) throws Exception
     {
+        if (topHeight + bottomHeight > 256) {
+        	throw new Exception("Top height and bottom height cannot add to more than 256.");
+        }
         final SkyIslandDataV2 data = new SkyIslandDataV2();
         data.setHorizontalRadius(horizontalRadius);
         data.setTopHeight(topHeight);
@@ -384,8 +387,11 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
     		+ "Count is the number of times to attempt to generate sky islands, randomTypes is how to use the SkyIslandTypes, minCount is the minimum number of the sky islands which must be generated. "
     		+ "If randomTypes is set to true it will randomly choose a SkyIslandType from the list when an island is generated. "
     		+ "If it is set to false, then every time an island is generated it will use the next SkyIslandType in the list. This allows you to guarantee certain islands are generated in a region.")
-	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes, final int minCount)
+	public SkyIslandDataV2 addSkyIslands(final int horizontalRadius, final int topHeight, final int bottomHeight, final int count, final boolean randomTypes, final int minCount) throws Exception
     {
+        if (topHeight + bottomHeight > 256) {
+        	throw new Exception("Top height and bottom height cannot add to more than 256.");
+        }
         final SkyIslandDataV2 data = new SkyIslandDataV2();
         data.setHorizontalRadius(horizontalRadius);
         data.setTopHeight(topHeight);
@@ -440,7 +446,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
 	@Override
 	public void populateStructures(World world, Random rand, ChunkPos chunkPos) {
 
-		{
+		if (this.mineshaft != null && this.mineshaft.structureMap != null) {
         	int i = (chunkPos.x << 4) + 8;
     		int j = (chunkPos.z << 4) + 8;
 
@@ -523,13 +529,11 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
     				}
     			//}
     		}
+            this.mineshaft.generateStructure(world, rand, chunkPos);
         }
-		
-		
-        this.mineshaft.generateStructure(world, rand, chunkPos);
 
         
-        {
+		if (this.village != null && this.village.structureMap != null) {
         	int i = (chunkPos.x << 4) + 8;
     		int j = (chunkPos.z << 4) + 8;
 
@@ -612,11 +616,11 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
     				}
     			//}
     		}
+            this.village.generateStructure(world, rand, chunkPos);
         }
-        
-        this.village.generateStructure(world, rand, chunkPos);
-
-        this.stronghold.generateStructure(world, rand, chunkPos);
+		if (this.stronghold != null) {
+	        this.stronghold.generateStructure(world, rand, chunkPos);
+		}
 	}
 	
 	@Override
@@ -692,7 +696,7 @@ public class SkyIslandGeneratorV2 extends SkyIslandGenerator implements IStructu
         for (final SkyIslandDataV2 data : this.SkyIslandDataV2)
         {
             int genCount = 0;
-            for (int i = 0; i < data.getCount() || genCount < data.getMinCount(); i++)
+            for (int i = 0; i < data.getCount() || (genCount < data.getMinCount() && i < data.getCount() * 2); i++)
             {
                 final double maxHorizontalFeatureRadius = data.getHorizontalRadius();
                 

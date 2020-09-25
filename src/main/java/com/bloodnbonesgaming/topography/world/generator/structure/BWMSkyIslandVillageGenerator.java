@@ -19,7 +19,6 @@ public class BWMSkyIslandVillageGenerator extends BWMapGenVillage {
 	public static MapGenVillage getVillageGenerator(final MapGenVillage village, final SkyIslandGeneratorV2 generator)
 	{
 		if (village instanceof BWMapGenVillage && !(village instanceof BWMSkyIslandVillageGenerator)) {
-			Topography.instance.getLog().info("Using BWM villages");
 			return new BWMSkyIslandVillageGenerator(generator);
 		}
 		else

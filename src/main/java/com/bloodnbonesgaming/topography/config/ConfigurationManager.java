@@ -16,6 +16,7 @@ import com.bloodnbonesgaming.lib.util.script.ScriptMethodDocumentation;
 import com.bloodnbonesgaming.topography.IOHelper;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.util.RTGUtil;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurable;
 import com.bloodnbonesgaming.topography.world.WorldProviderConfigurableSurface;
 
@@ -152,6 +153,9 @@ public class ConfigurationManager {
                     {
                 		type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurableSurface.class, dimension == 0);
                         ConfigurationManager.dimensionTypesSurface.put(dimension, type);
+                        if (Topography.rtg) {
+                        	RTGUtil.addAllowedDimensionType(type);
+                        }
                     }
                     else
                     {
@@ -164,6 +168,9 @@ public class ConfigurationManager {
                     {
                     	type = DimensionType.register("DIM_" + dimension, "_DIM_" + dimension, dimension, WorldProviderConfigurable.class, dimension == 0);
                         ConfigurationManager.dimensionTypes.put(dimension, type);
+                        if (Topography.rtg) {
+                        	RTGUtil.addAllowedDimensionType(type);
+                        }
                     }
                     else
                     {

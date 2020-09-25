@@ -32,7 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.14.0,);after:crafttweaker;after:worldbook;",
+@Mod(modid = ModInfo.MODID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = "required-after:bnbgaminglib@[2.14.0,);after:crafttweaker;after:worldbook;after:rtg;",
         acceptedMinecraftVersions = "[1.12,1.13)")
 public class Topography extends BNBGamingMod
 {
@@ -46,6 +46,7 @@ public class Topography extends BNBGamingMod
     
     public static boolean worldbook = false;
     public static boolean betterWithMods = false;
+    public static boolean rtg = false;
 
     @EventHandler
     public void preInit(final FMLPreInitializationEvent event)
@@ -61,6 +62,10 @@ public class Topography extends BNBGamingMod
 		if (Loader.isModLoaded("betterwithmods"))
         {
 			Topography.betterWithMods = true;
+        }
+		if (Loader.isModLoaded("rtg"))
+        {
+			Topography.rtg = true;
         }
 		ScriptDocumentationHandler.setScriptDocs(event.getAsmData());
         Topography.proxy.registerEventHandlers();

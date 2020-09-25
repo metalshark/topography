@@ -46,10 +46,12 @@ minecraft {
 }
 
 dependencies {
-	//compile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.15.527"
     compile fileTree(dir: 'dependencies/BNBGamingLib', include: '*.jar')
+    compile fileTree(dir: 'dependencies/BNBGamingCore', include: '*.jar')
     compile fileTree(dir: 'dependencies/CraftTweaker', include: '*.jar')
     compile fileTree(dir: 'dependencies/WorldBook', include: '*.jar')
+    compile fileTree(dir: 'dependencies/BetterWithMods', include: '*.jar')
+    compile fileTree(dir: 'dependencies/RTG', include: '*.jar')
 }
 
 processResources
@@ -74,5 +76,6 @@ processResources
 jar {
 	manifest {
 		attributes 'FMLAT': 'topography_at.cfg'
+		attributes 'RequiresBNBCoreEvent': 'StructureVillageFillBlocksDown'
 	}
 }

@@ -1,17 +1,15 @@
 package com.bloodnbonesgaming.topography.client.gui.element;
 
 import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
+import javax.imageio.ImageIO;
 
 import com.bloodnbonesgaming.topography.Topography;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
+import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class GuiElementTexture extends GuiElementBase
@@ -31,22 +29,15 @@ public abstract class GuiElementTexture extends GuiElementBase
         int width = 0;
         int height = 0;
         
-        IResource iresource = null;
-
-        try
+        try (IResource iresource = Minecraft.getInstance().getResourceManager().getResource(texture))
         {
-            iresource = Minecraft.getMinecraft().getResourceManager().getResource(texture);
-            BufferedImage bufferedimage = TextureUtil.readBufferedImage(iresource.getInputStream());
+            BufferedImage bufferedimage = ImageIO.read(iresource.getInputStream());
             width = bufferedimage.getWidth();
             height = bufferedimage.getHeight();
         }
         catch (IOException e)
         {
-            Topography.instance.getLog().error("Could not load texture for " + texture.toString());
-        }
-        finally
-        {
-            IOUtils.closeQuietly((Closeable)iresource);
+            Topography.getLog().error("Could not load texture for " + texture.toString());
         }
         this.imageWidth = width;
         this.imageHeight = height;
@@ -94,26 +85,14 @@ public abstract class GuiElementTexture extends GuiElementBase
     
     public void render(final Minecraft minecraft, final int guiWidth, final int guiHeight)
     {
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
+//        GlStateManager.disableLighting();
+//        GlStateManager.disableFog();
         minecraft.getTextureManager().bindTexture(this.texture);
-        this.drawTexture(this.location.getX(guiWidth, (int)(this.relRenderWidth * guiWidth)), this.location.getY(guiHeight, (int)(this.relRenderHeight * guiHeight)), this.imageWidth, this.imageHeight, (int)(this.relRenderWidth * guiWidth), (int)(this.relRenderHeight * guiHeight), 0.0, 0.0, (double)this.imageWidth, (double)this.imageHeight);
+        this.drawTexture(this.location.getX(guiWidth, (int)(this.relRenderWidth * guiWidth)), this.location.getY(guiHeight, (int)(this.relRenderHeight * guiHeight)), this.imageWidth, this.imageHeight, (int)(this.relRenderWidth * guiWidth), (int)(this.relRenderHeight * guiHeight), 0.0F, 0.0F, (float)this.imageWidth, (float)this.imageHeight);
     }
     
     /*
      * xPos, yPos, texWidth, texHeight, width to render as, height to render as, tex positions
      */
-    abstract void drawTexture(int x, int y, int texWidth, int texHeight, int width, int height, double texStartX, double texStartY, double texEndX, double texEndY);
-//    double yStartPos = 0;
-//    double xEndPos = width / this.tileXSize * 2;
-//    double yEndPos = height / this.tileYSize * 2;
-//    
-//    Tessellator tessellator = Tessellator.getInstance();
-//    BufferBuilder bufferbuilder = tessellator.getBuffer();
-//    bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-//    bufferbuilder.pos((double)(x + 0), (double)(y + height), 0.0).tex(xStartPos, yEndPos).endVertex();
-//    bufferbuilder.pos((double)(x + width), (double)(y + height), 0.0).tex(xEndPos, yEndPos).endVertex();
-//    bufferbuilder.pos((double)(x + width), (double)(y + 0), 0.0).tex(xEndPos, yStartPos).endVertex();
-//    bufferbuilder.pos((double)(x + 0), (double)(y + 0), 0.0).tex(xStartPos, yStartPos).endVertex();
-//    tessellator.draw();
+    abstract void drawTexture(int x, int y, int texWidth, int texHeight, int width, int height, float texStartX, float texStartY, float texEndX, float texEndY);
 }

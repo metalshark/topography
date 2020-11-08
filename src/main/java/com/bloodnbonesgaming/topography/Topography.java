@@ -12,6 +12,7 @@ import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -109,6 +110,11 @@ public class Topography
         @SubscribeEvent
         public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
             // register a new block here
+        }
+        
+        @SubscribeEvent
+        public static void onRecipeRegister(final RegistryEvent.Register<IRecipeSerializer<?>> event) {
+        	
         }
         
         static {

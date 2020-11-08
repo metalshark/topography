@@ -30,8 +30,6 @@ public class OreHelper {
 			feature = FeatureHelper.square(feature);
 		}
 		return feature;
-//		return Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD, blockState, clusterSize)).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(minHeight, 0, maxHeight))).square();
-		//return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, blockState, clusterSize)).range(maxHeight).square();
 	}
 	
 	public static ConfiguredFeature<?, ?> buildOreForNetherrack(BlockState blockState, int clusterSize, int minHeight, int maxHeight, boolean square) {
@@ -41,7 +39,6 @@ public class OreHelper {
 			feature = FeatureHelper.square(feature);
 		}
 		return feature;
-//		return Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, blockState, clusterSize)).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(minHeight, 0, maxHeight))).square();
 	}
 	
 	public static ConfiguredFeature<?, ?> buildOreForNetherStone(BlockState blockState, int clusterSize, int minHeight, int maxHeight, boolean square) {
@@ -51,6 +48,35 @@ public class OreHelper {
 			feature = FeatureHelper.square(feature);
 		}
 		return feature;
-//		return Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, blockState, clusterSize)).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(minHeight, 0, maxHeight))).square();
+	}
+	
+	public static ConfiguredFeature<?, ?> buildOreForOverworldStone(BlockState blockState, int clusterSize, int clusterCount, int minHeight, int maxHeight, boolean square) {
+		ConfiguredFeature<?, ?> feature = Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD, blockState, clusterSize));
+		feature = FeatureHelper.heightRange(feature, minHeight, maxHeight);
+		feature = FeatureHelper.count(feature, clusterCount);
+		if (square) {
+			feature = FeatureHelper.square(feature);
+		}
+		return feature;
+	}
+	
+	public static ConfiguredFeature<?, ?> buildOreForNetherrack(BlockState blockState, int clusterSize, int clusterCount, int minHeight, int maxHeight, boolean square) {
+		ConfiguredFeature<?, ?> feature = Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, blockState, clusterSize));
+		feature = FeatureHelper.heightRange(feature, minHeight, maxHeight);
+		feature = FeatureHelper.count(feature, clusterCount);
+		if (square) {
+			feature = FeatureHelper.square(feature);
+		}
+		return feature;
+	}
+	
+	public static ConfiguredFeature<?, ?> buildOreForNetherStone(BlockState blockState, int clusterSize, int clusterCount, int minHeight, int maxHeight, boolean square) {
+		ConfiguredFeature<?, ?> feature = Feature.ORE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, blockState, clusterSize));
+		feature = FeatureHelper.heightRange(feature, minHeight, maxHeight);
+		feature = FeatureHelper.count(feature, clusterCount);
+		if (square) {
+			feature = FeatureHelper.square(feature);
+		}
+		return feature;
 	}
 }

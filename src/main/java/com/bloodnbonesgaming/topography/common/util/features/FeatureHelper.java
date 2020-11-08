@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.FeatureSpread;
+import net.minecraft.world.gen.feature.FeatureSpreadConfig;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.structure.MineshaftConfig;
@@ -51,6 +53,10 @@ public class FeatureHelper {
 	
 	public static ConfiguredFeature chance(ConfiguredFeature feature, int chance) {
 		return feature.withPlacement(Placement.CHANCE.configure(new ChanceConfig(chance)));
+	}
+	
+	public static ConfiguredFeature count(ConfiguredFeature feature, int count) {		
+		return feature.withPlacement(Placement.COUNT.configure(new FeatureSpreadConfig(FeatureSpread.func_242252_a(count))));
 	}
 	
 	public static void removeStructure(BiomeLoadingEvent event, String id) {

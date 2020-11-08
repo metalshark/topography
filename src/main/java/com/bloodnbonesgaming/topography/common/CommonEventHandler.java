@@ -1,6 +1,5 @@
 package com.bloodnbonesgaming.topography.common;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -9,22 +8,18 @@ import com.bloodnbonesgaming.topography.common.commands.ModCommands;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
-import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
 
 public class CommonEventHandler {
 	
@@ -206,5 +201,10 @@ public class CommonEventHandler {
 	@SubscribeEvent
 	public void onRegisterCommands(RegisterCommandsEvent event) {
 		ModCommands.registerCommands(event.getDispatcher());
+	}
+	
+	@SubscribeEvent
+	public void onDataPackRegistriesReload(AddReloadListenerEvent event) {
+		//event.addListener(listener);
 	}
 }

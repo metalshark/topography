@@ -1,6 +1,6 @@
 package com.bloodnbonesgaming.topography.proxy;
 
-import com.bloodnbonesgaming.topography.server.ServerEventHandler;
+import com.bloodnbonesgaming.topography.dedicated.ServerEventHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 

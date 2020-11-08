@@ -4,6 +4,7 @@ import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class RegistryHelper {
 	
@@ -25,5 +26,9 @@ public class RegistryHelper {
 	
 	public static Registry<Structure<?>> getStructureRegistry() {
 		return INSTANCE.implRegistries.getRegistry(Registry.STRUCTURE_FEATURE_KEY);
+	}
+	
+	public static void registerRecipe() {
+		
 	}
 }

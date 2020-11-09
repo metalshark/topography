@@ -1,13 +1,13 @@
 package com.bloodnbonesgaming.topography.common.util;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.bloodnbonesgaming.topography.Topography;
 
@@ -44,5 +44,9 @@ public class FileHelper {
 			Topography.getLog().error("Exception reading file: " + e.getMessage());
 		}
 		return null;
+	}
+	
+	public static BufferedInputStream openStreamReader(final File file) throws FileNotFoundException {
+		return new BufferedInputStream(new FileInputStream(file));
 	}
 }

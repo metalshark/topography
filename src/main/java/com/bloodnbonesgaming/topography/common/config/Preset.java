@@ -95,4 +95,8 @@ public class Preset {
 			def.fireEventSubscribers(eventType, event);
 		}
 	}
+	
+	public String getImageLocation() {
+		return this.imageLocation;
+	}
 }

@@ -78,11 +78,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class GuiCreateWorld extends Screen {
 	   public static final Logger field_238935_p_ = LogManager.getLogger();
 	   public static final ITextComponent field_243417_q = new TranslationTextComponent("selectWorld.gameMode");
-	   public static final ITextComponent field_243418_r = new TranslationTextComponent("selectWorld.enterSeed");
-	   public static final ITextComponent field_243419_s = new TranslationTextComponent("selectWorld.seedInfo");
-	   public static final ITextComponent field_243420_t = new TranslationTextComponent("selectWorld.enterName");
 	   public static final ITextComponent field_243421_u = new TranslationTextComponent("selectWorld.resultFolder");
-	   public static final ITextComponent field_243422_v = new TranslationTextComponent("selectWorld.allowCommands.info");
 	   public final Screen parentScreen;
 	   public TextFieldWidget worldNameField;
 	   public String saveDirName;
@@ -113,8 +109,6 @@ public class GuiCreateWorld extends Screen {
 	   public Button field_238930_G_;
 	   public Button field_238931_H_;
 	   public Button btnAllowCommands;
-	   public ITextComponent gameModeDesc1;
-	   public ITextComponent gameModeDesc2;
 	   public String worldName;
 	   public GameRules field_238932_M_ = new GameRules();
 	   public final GuiWorldOptions field_238934_c_;
@@ -131,11 +125,9 @@ public class GuiCreateWorld extends Screen {
 		final String imageName = preset.getImageLocation();
 
 		if (imageName != null && !imageName.isEmpty()) {
-			Topography.getLog().info("name not null");
 			final NativeImage image = IOHelper.loadNativeImage(imageName);
 
 			if (image != null) {
-				Topography.getLog().info("image not null");
 				this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, this.minecraft.getTextureManager().getDynamicTextureLocation("preset_image", new DynamicTexture(image)), image.getWidth(), image.getHeight());
 				this.texture.setRelRender(1, 1);
 			} else {
@@ -208,7 +200,7 @@ public class GuiCreateWorld extends Screen {
 			this.children.add(presetList);
 			//End custom stuff
 	      this.minecraft.keyboardListener.enableRepeatEvents(true);
-	      this.worldNameField = new TextFieldWidget(this.font, this.width / 2 - 100, 60, 200, 20, new TranslationTextComponent("selectWorld.enterName")) {
+	      this.worldNameField = new TextFieldWidget(this.font, 1, 1, 200, 20, new TranslationTextComponent("selectWorld.enterName")) {
 	         protected IFormattableTextComponent getNarrationMessage() {
 	            return super.getNarrationMessage().appendString(". ").append(new TranslationTextComponent("selectWorld.resultFolder")).appendString(" ").appendString(GuiCreateWorld.this.saveDirName);
 	         }
@@ -241,7 +233,7 @@ public class GuiCreateWorld extends Screen {
 	         }
 
 	         protected IFormattableTextComponent getNarrationMessage() {
-	            return super.getNarrationMessage().appendString(". ").append(GuiCreateWorld.this.gameModeDesc1).appendString(" ").append(GuiCreateWorld.this.gameModeDesc2);
+	            return super.getNarrationMessage().appendString(". ");
 	         }
 	      });
 	      this.field_238929_E_ = this.addButton(new Button(j, 100, 150, 20, new TranslationTextComponent("options.difficulty"), (p_238956_1_) -> {
@@ -281,11 +273,11 @@ public class GuiCreateWorld extends Screen {
 	      this.btnMoreOptions = this.addButton(new Button(j, 185, 150, 20, new TranslationTextComponent("selectWorld.moreWorldOptions"), (p_214321_1_) -> {
 	         this.toggleMoreWorldOptions();
 	      }));
-	      this.btnCreateWorld = this.addButton(new Button(i, this.height - 28, 150, 20, new TranslationTextComponent("selectWorld.create"), (p_214318_1_) -> {
+	      this.btnCreateWorld = this.addButton(new Button(0, this.height - 20, 100, 20, new TranslationTextComponent("selectWorld.create"), (p_214318_1_) -> {
 	         this.createWorld();
 	      }));
 	      this.btnCreateWorld.active = !this.worldName.isEmpty();
-	      this.addButton(new Button(j, this.height - 28, 150, 20, DialogTexts.GUI_CANCEL, (p_214317_1_) -> {
+	      this.addButton(new Button(100, this.height - 20, 100, 20, DialogTexts.GUI_CANCEL, (p_214317_1_) -> {
 	         this.func_243430_k();
 	      }));
 	      this.func_238955_g_();
@@ -295,8 +287,6 @@ public class GuiCreateWorld extends Screen {
 	   }
 
 	   private void func_228199_a_() {
-	      this.gameModeDesc1 = new TranslationTextComponent("selectWorld.gameMode." + this.field_228197_f_.field_228217_e_ + ".line1");
-	      this.gameModeDesc2 = new TranslationTextComponent("selectWorld.gameMode." + this.field_228197_f_.field_228217_e_ + ".line2");
 	   }
 
 	   /**
@@ -429,7 +419,6 @@ public class GuiCreateWorld extends Screen {
 	      }
 
 	      this.field_238934_c_.func_239059_b_(this.inMoreWorldOptionsDisplay);
-	      this.worldNameField.setVisible(!this.inMoreWorldOptionsDisplay);
 	      if (this.inMoreWorldOptionsDisplay) {
 	         this.btnMoreOptions.setMessage(DialogTexts.GUI_DONE);
 	      } else {
@@ -483,21 +472,11 @@ public class GuiCreateWorld extends Screen {
 
 //		    this.renderBackground(matrixStack);
 			//End custom stuff
-	      drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 20, -1);
 	      if (this.inMoreWorldOptionsDisplay) {
-	         drawString(matrixStack, this.font, field_243418_r, this.width / 2 - 100, 47, -6250336);
-	         drawString(matrixStack, this.font, field_243419_s, this.width / 2 - 100, 85, -6250336);
 	         this.field_238934_c_.render(matrixStack, mouseX, mouseY, partialTicks);
-	      } else {
-	         drawString(matrixStack, this.font, field_243420_t, this.width / 2 - 100, 47, -6250336);
+	      }
 	         drawString(matrixStack, this.font, (new StringTextComponent("")).append(field_243421_u).appendString(" ").appendString(this.saveDirName), this.width / 2 - 100, 85, -6250336);
 	         this.worldNameField.render(matrixStack, mouseX, mouseY, partialTicks);
-	         drawString(matrixStack, this.font, this.gameModeDesc1, this.width / 2 - 150, 122, -6250336);
-	         drawString(matrixStack, this.font, this.gameModeDesc2, this.width / 2 - 150, 134, -6250336);
-	         if (this.btnAllowCommands.visible) {
-	            drawString(matrixStack, this.font, field_243422_v, this.width / 2 - 150, 172, -6250336);
-	         }
-	      }
 
 	      super.render(matrixStack, mouseX, mouseY, partialTicks);
 	   }

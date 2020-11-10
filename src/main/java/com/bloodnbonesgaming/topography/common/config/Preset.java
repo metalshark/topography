@@ -21,6 +21,7 @@ public class Preset {
 	public String displayName;
 	public String imageLocation = null;
 	public String description = null;
+	private String guiBackground = null;
 	
 	//ID, script path
 	public final Map<ResourceLocation, String> dimensions = new HashMap<ResourceLocation, String>();
@@ -72,6 +73,11 @@ public class Preset {
 		return this;
 	}
 	
+	public Preset setGuiBackground(String location) {
+		this.guiBackground = location;
+		return this;
+	}
+	
 	public Preset registerEventHandler(String eventType, Consumer event) {
 		if (!this.scriptEventSubscribers.containsKey(eventType)) {
 			this.scriptEventSubscribers.put(eventType, new ArrayList<Consumer>());
@@ -98,5 +104,9 @@ public class Preset {
 	
 	public String getImageLocation() {
 		return this.imageLocation;
+	}
+	
+	public String getGuiBackground() {
+		return this.guiBackground;
 	}
 }

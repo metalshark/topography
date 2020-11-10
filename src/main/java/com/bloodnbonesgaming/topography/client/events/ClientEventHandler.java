@@ -7,10 +7,15 @@ import java.util.function.Supplier;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.ChatListenerCopy;
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorld;
+import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
+import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
+import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStretch;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
+import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
+import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.util.StructureHelper;
 import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
@@ -22,6 +27,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -49,6 +57,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.ServerWorldInfo;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -219,6 +228,83 @@ public class ClientEventHandler {
 //				(Minecraft.getMinecraft().ingameGUI.chatListeners.get(ChatType.GAME_INFO)).add(new ChatListenerCopy());
 				this.registeredChatListener = true;
 			}
+		}
+	}
+	
+	{
+		
+	}
+	
+	private ResourceLocation backgroundLoc = null;
+	private GuiElementTexture texture = null;
+	private String currentImage = null;
+	
+	@SubscribeEvent
+	public void onBackgroundDrawn(final BackgroundDrawnEvent event) {
+		Topography.getLog().info("Background");
+		if (backgroundLoc == null) {
+			backgroundLoc = event.getGui().getMinecraft().getTextureManager().getDynamicTextureLocation("background_img", MissingTextureSprite.getDynamicTexture());
+		}
+		final GlobalConfig config = ConfigurationManager.getGlobalConfig();
+		
+		if (config != null) {
+			String imageName = null;
+			
+			if (config.getGlobalGuiBackground() != null) {
+				imageName = config.getGlobalGuiBackground();
+			}
+			final Preset preset = config.getPreset();
+			
+			if (preset != null) {
+				if (preset.getGuiBackground() != null) {
+					imageName = preset.getGuiBackground();
+				}
+				World world = event.getGui().getMinecraft().world;
+				
+				if (world != null) {
+					DimensionDef def = preset.defs.get(world.getDimensionKey().getLocation());
+					
+					if (def != null) {
+						if (def.getGuiBackground() != null) {
+							imageName = def.getGuiBackground();
+						}
+					}
+				}
+			}
+			
+			if (imageName != null && !imageName.isEmpty() && !imageName.equals(currentImage)) {
+				final NativeImage image = IOHelper.loadNativeImage(imageName);
+
+				if (image != null) {
+					event.getGui().getMinecraft().getTextureManager().loadTexture(backgroundLoc, new DynamicTexture(image));
+					this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, backgroundLoc, image.getWidth(), image.getHeight());
+					this.texture.setRelRender(1, 1);
+				}
+			}
+		}
+//		if (texture == null) {
+//			final String imageName = "images/Basic_Tree";
+//
+//			if (imageName != null && !imageName.isEmpty()) {
+//				final NativeImage image = IOHelper.loadNativeImage(imageName);
+//
+//				if (image != null) {
+//					event.getGui().getMinecraft().getTextureManager().loadTexture(backgroundLoc, new DynamicTexture(image));
+//					this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, backgroundLoc, image.getWidth(), image.getHeight());
+//					this.texture.setRelRender(1, 1);
+//				} else {
+//					this.texture = null;
+//				}
+//			} else {
+//				this.texture = null;
+//			}
+//		}
+//		this.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, event.getGui().getMinecraft().getTextureManager().getDynamicTextureLocation("preset_image", new DynamicTexture(image)), image.getWidth(), image.getHeight());
+//		this.texture.setRelRender(1, 1);
+		//texture.setRelRender(1, 1);
+		if (texture != null) {
+			texture.render(event.getGui().getMinecraft(), event.getGui().width, event.getGui().height);
+			Topography.getLog().info("Drawn");
 		}
 	}
 }

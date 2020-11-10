@@ -51,6 +51,7 @@ public class DimensionDef {
 	public final Map<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>> features = new HashMap<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>>();
 	//Script event subscribers
 	private final Map<String, List<Consumer<Event>>> scriptEventSubscribers = new HashMap<String, List<Consumer<Event>>>();
+	private String guiBackground = null;
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -218,6 +219,15 @@ public class DimensionDef {
 				consumer.accept(event);
 			}
 		}
+	}
+	
+	public DimensionDef setGuiBackground(String location) {
+		this.guiBackground = location;
+		return this;
+	}
+	
+	public String getGuiBackground() {
+		return this.guiBackground;
 	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {

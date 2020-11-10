@@ -17,6 +17,7 @@ public class GlobalConfig {
 	
 	public final Map<String, Preset> presets = new ConcurrentHashMap<String, Preset>();
 	private Preset currentPreset = null;
+	private String globalGuiBackground = null;
 	
 	public Preset getPreset() {
 		synchronized(presets) {
@@ -78,6 +79,7 @@ public class GlobalConfig {
 			
 			Invocable invocable = (Invocable)engine;
 			invocable.invokeFunction("registerPresets");
+			invocable.invokeFunction("setConfigOptions");
 			
 			
 		} catch (final Exception e)
@@ -102,5 +104,13 @@ public class GlobalConfig {
 			this.presets.put(internalID, preset);
 			return preset;
 		}
+	}
+	
+	public void setGlobalGuiBackground(String location) {
+		this.globalGuiBackground = location;
+	}
+	
+	public String getGlobalGuiBackground() {
+		return this.globalGuiBackground;
 	}
 }

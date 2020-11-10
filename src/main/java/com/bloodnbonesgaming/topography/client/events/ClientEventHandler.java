@@ -241,7 +241,6 @@ public class ClientEventHandler {
 	
 	@SubscribeEvent
 	public void onBackgroundDrawn(final BackgroundDrawnEvent event) {
-		Topography.getLog().info("Background");
 		if (backgroundLoc == null) {
 			backgroundLoc = event.getGui().getMinecraft().getTextureManager().getDynamicTextureLocation("background_img", MissingTextureSprite.getDynamicTexture());
 		}
@@ -250,8 +249,8 @@ public class ClientEventHandler {
 		if (config != null) {
 			String imageName = null;
 			
-			if (config.getGlobalGuiBackground() != null) {
-				imageName = config.getGlobalGuiBackground();
+			if (config.getGuiBackground() != null) {
+				imageName = config.getGuiBackground();
 			}
 			final Preset preset = config.getPreset();
 			
@@ -304,7 +303,6 @@ public class ClientEventHandler {
 		//texture.setRelRender(1, 1);
 		if (texture != null) {
 			texture.render(event.getGui().getMinecraft(), event.getGui().width, event.getGui().height);
-			Topography.getLog().info("Drawn");
 		}
 	}
 }

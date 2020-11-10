@@ -1,7 +1,10 @@
 package com.bloodnbonesgaming.topography.common.util.features;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Supplier;
+
+import com.bloodnbonesgaming.topography.Topography;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.gen.GenerationStage;
@@ -69,6 +72,21 @@ public class FeatureHelper {
 			
 			if (toRemove.equals(location)) {
 				iterator.remove();
+			}
+		}
+	}
+	
+	public static void removeFeature(BiomeLoadingEvent event, String id) {
+		ResourceLocation toRemove = new ResourceLocation(id);
+		Iterator<Supplier<ConfiguredFeature<?, ?>>> iterator = event.getGeneration().getFeatures(Decoration.TOP_LAYER_MODIFICATION).iterator();
+		
+		while (iterator.hasNext()) {
+			Supplier<ConfiguredFeature<?, ?>> supplier = iterator.next();
+			ResourceLocation location = ForgeRegistries.FEATURES.getKey(supplier.get().feature);
+			
+			if (toRemove.equals(location)) {
+				iterator.remove();
+				Topography.getLog().info("Removed " + id + " from " + event.getName());
 			}
 		}
 	}

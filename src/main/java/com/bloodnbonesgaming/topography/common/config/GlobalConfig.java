@@ -17,7 +17,7 @@ public class GlobalConfig {
 	
 	public final Map<String, Preset> presets = new ConcurrentHashMap<String, Preset>();
 	private Preset currentPreset = null;
-	private String globalGuiBackground = null;
+	private String guiBackground = null;
 	
 	public Preset getPreset() {
 		synchronized(presets) {
@@ -107,10 +107,10 @@ public class GlobalConfig {
 	}
 	
 	public void setGlobalGuiBackground(String location) {
-		this.globalGuiBackground = location;
+		this.guiBackground = location;
 	}
 	
-	public String getGlobalGuiBackground() {
-		return this.globalGuiBackground;
+	public String getGuiBackground() {
+		return this.guiBackground;
 	}
 }

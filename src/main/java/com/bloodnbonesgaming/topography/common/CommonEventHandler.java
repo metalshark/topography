@@ -8,7 +8,6 @@ import com.bloodnbonesgaming.topography.common.commands.ModCommands;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
-import com.bloodnbonesgaming.topography.common.util.BiomeHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
 
 import net.minecraft.world.gen.GenerationStage;
@@ -153,7 +152,6 @@ public class CommonEventHandler {
 //						}
 //					}
 				}
-				BiomeHelper.setSurfaceGenerator(event);
 				
 				//Adds a feature object for every decoration stage which calls all features added via script. This has to be done, as features must be added before the CreateWorld gui is opened.
 				for (GenerationStage.Decoration stage : GenerationStage.Decoration.values()) {

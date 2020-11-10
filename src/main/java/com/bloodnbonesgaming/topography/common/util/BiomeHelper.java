@@ -23,6 +23,8 @@ import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.gen.feature.template.AlwaysTrueRuleTest;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -170,5 +172,10 @@ public class BiomeHelper {
 	public static ConfiguredFeature<?, ?> buildOreGen(BlockState blockState, int clusterSize, int minHeight, int maxHeight) {
 		return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, blockState, clusterSize)).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(minHeight, 0, maxHeight))).square();
 		//return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, blockState, clusterSize)).range(maxHeight).square();
+	}
+	
+	public static void setSurfaceGenerator(BiomeLoadingEvent event) {
+//		SurfaceBuilder<SurfaceBuilderConfig> builder = SurfaceBuilder.field_237189_ad_;
+//		event.getGeneration().withSurfaceBuilder(builder.func_242929_a(new SurfaceBuilderConfig(BlockHelper.getState("minecraft:sand"), BlockHelper.getState("minecraft:sandstone"), BlockHelper.getState("minecraft:diamond_block"))));
 	}
 }

@@ -1,7 +1,7 @@
 package com.bloodnbonesgaming.topography.common.world.gen;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -20,7 +20,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.Mutable;
@@ -31,20 +30,15 @@ import net.minecraft.world.Blockreader;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeRegistry;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.DebugChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
-import net.minecraft.world.gen.FlatChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.Heightmap.Type;
 import net.minecraft.world.gen.IExtendedNoiseRandom;
 import net.minecraft.world.gen.INoiseGenerator;
 import net.minecraft.world.gen.LazyAreaLayerContext;
-import net.minecraft.world.gen.NoiseChunkGenerator;
 import net.minecraft.world.gen.OctavesNoiseGenerator;
 import net.minecraft.world.gen.PerlinNoiseGenerator;
 import net.minecraft.world.gen.WorldGenRegion;
@@ -56,6 +50,7 @@ import net.minecraft.world.gen.layer.Layer;
 import net.minecraft.world.gen.layer.LayerUtil;
 import net.minecraft.world.gen.layer.ZoomLayer;
 import net.minecraft.world.gen.layer.traits.IAreaTransformer1;
+import net.minecraft.world.gen.surfacebuilders.ISurfaceBuilderConfig;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
 public class ChunkGeneratorBlobs extends ChunkGenerator {
@@ -146,10 +141,66 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	             int l1 = l + j1;
 	             int i2 = p_225551_2_.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, i1, j1) + 1;
 	             double d1 = this.surfaceDepthNoise.noiseAt((double)k1 * 0.0625D, (double)l1 * 0.0625D, 0.0625D, (double)i1 * 0.0625D) * 15.0D;
-	             p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1)).buildSurface(sharedseedrandom, p_225551_2_, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, this.getSeaLevel(), p_225551_1_.getSeed());
+	             //p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1)).buildSurface(sharedseedrandom, p_225551_2_, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, this.getSeaLevel(), p_225551_1_.getSeed());
+	             Biome biome = p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1));
+	             ISurfaceBuilderConfig config = biome.getGenerationSettings().getSurfaceBuilderConfig();
+	             buildSurface(sharedseedrandom, p_225551_2_, biome, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, config.getTop(), config.getUnder(), this.getSeaLevel());
 	          }
 	       }
 
+	}
+	
+	protected void buildSurface(Random random, IChunk chunkIn, Biome biomeIn, int x, int z, int startHeight, double noise, BlockState defaultBlock, BlockState defaultFluid, BlockState top, BlockState under, int sealevel) {
+		BlockState blockstate = top;
+		BlockState blockstate1 = under;
+		BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
+		int i = -1;
+		int j = (int) (noise / 3.0D + 3.0D + random.nextDouble() * 0.25D);
+		int k = x & 15;
+		int l = z & 15;
+
+		for (int i1 = startHeight; i1 >= 0; --i1) {
+			blockpos$mutable.setPos(k, i1, l);
+			BlockState blockstate2 = chunkIn.getBlockState(blockpos$mutable);
+			if (blockstate2.isAir()) {
+				i = -1;
+			} else if (blockstate2.isIn(defaultBlock.getBlock())) {
+				if (i == -1) {
+					if (j <= 0) {
+						blockstate = Blocks.AIR.getDefaultState();
+						blockstate1 = defaultBlock;
+					} else if (i1 >= sealevel - 4 && i1 <= sealevel + 1) {
+						blockstate = top;
+						blockstate1 = under;
+					}
+
+					if (i1 < sealevel && (blockstate == null || blockstate.isAir())) {
+						if (biomeIn.getTemperature(blockpos$mutable.setPos(x, i1, z)) < 0.15F) {
+							blockstate = Blocks.ICE.getDefaultState();
+						} else {
+							blockstate = defaultFluid;
+						}
+
+						blockpos$mutable.setPos(k, i1, l);
+					}
+
+					i = j;
+					if (i1 >= sealevel - 1) {
+						chunkIn.setBlockState(blockpos$mutable, blockstate, false);
+					} else {
+						chunkIn.setBlockState(blockpos$mutable, blockstate1, false);
+					}
+				} else if (i > 0) {
+					--i;
+					chunkIn.setBlockState(blockpos$mutable, blockstate1, false);
+					if (i == 0 && blockstate1.isIn(Blocks.SAND) && j > 1) {
+						i = random.nextInt(4);
+						blockstate1 = blockstate1.isIn(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.getDefaultState()
+								: Blocks.SANDSTONE.getDefaultState();
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -308,7 +359,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	   
 	   @Override
 	public int getSeaLevel() {
-		return 127;
+		return 0;
 	}
 
 	public static class BP extends BiomeProvider {

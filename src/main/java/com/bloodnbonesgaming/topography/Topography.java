@@ -7,13 +7,14 @@ import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorBlobs;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -113,8 +114,8 @@ public class Topography
         }
         
         @SubscribeEvent
-        public static void onRecipeRegister(final RegistryEvent.Register<IRecipeSerializer<?>> event) {
-        	
+        public static void onRecipeRegister(final RegistryEvent.Register<Feature<?>> event) {
+        	event.getRegistry().register(VerticalOre.INSTANCE);
         }
         
         static {

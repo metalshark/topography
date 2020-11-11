@@ -2,6 +2,8 @@ package com.bloodnbonesgaming.topography.common.util.features;
 
 import java.util.function.Supplier;
 
+import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -125,6 +127,21 @@ public class OreHelper {
 		}
 		feature = FeatureHelper.count(feature, clusterCount);
 		feature = FeatureHelper.chance(feature, chance);
+		return feature;
+	}
+	
+	public static ConfiguredFeature<?, ?> buildVerticalOre(BlockState blockState, RuleTest test, int clusterSize, int clusterCount, int minHeight, int maxHeight, boolean square, int chance) {
+		ConfiguredFeature<?, ?> feature = VerticalOre.INSTANCE.withConfiguration(new OreFeatureConfig(test, blockState, clusterSize));
+		feature = FeatureHelper.heightRange(feature, minHeight, maxHeight);
+		if (square) {
+			feature = FeatureHelper.square(feature);
+		}
+		if (clusterCount > 1) {
+			feature = FeatureHelper.count(feature, clusterCount);
+		}
+		if (chance > 0) {
+			feature = FeatureHelper.chance(feature, chance);
+		}
 		return feature;
 	}
 }

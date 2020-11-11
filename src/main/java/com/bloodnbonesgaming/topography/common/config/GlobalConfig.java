@@ -106,7 +106,7 @@ public class GlobalConfig {
 		}
 	}
 	
-	public void setGlobalGuiBackground(String location) {
+	public void setGuiBackground(String location) {
 		this.guiBackground = location;
 	}
 	

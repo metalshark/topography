@@ -58,8 +58,8 @@ public class FeatureHelper {
 		return feature.withPlacement(Placement.CHANCE.configure(new ChanceConfig(chance)));
 	}
 	
-	public static ConfiguredFeature count(ConfiguredFeature feature, int count) {		
-		return feature.withPlacement(Placement.COUNT.configure(new FeatureSpreadConfig(FeatureSpread.func_242252_a(count))));
+	public static ConfiguredFeature count(ConfiguredFeature feature, int min, int max) {		
+		return feature.withPlacement(Placement.COUNT.configure(new FeatureSpreadConfig(FeatureSpread.func_242253_a(min, max - min))));
 	}
 	
 	public static void removeStructure(BiomeLoadingEvent event, String id) {

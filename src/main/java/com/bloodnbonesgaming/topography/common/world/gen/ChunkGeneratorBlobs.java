@@ -59,8 +59,8 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		return p_236091_0_.group(DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
 			return p_236090_0_.settings;
 		}), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((overworldProvider) -> {
-	         return overworldProvider.biomeRegistry;
-	      }), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
+			return overworldProvider.biomeRegistry;
+		}), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
 			return p_236093_0_.seed;
 		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorBlobs::new));
 	});
@@ -78,7 +78,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	private ChunkGeneratorBlobs(Supplier<DimensionSettings> settings, Registry<Biome> biomeRegistry, long seed) {
 		this(Lists.newArrayList(biomeRegistry.getByValue(1)), biomeRegistry, settings, seed);
 	}
-	
+
 	public ChunkGeneratorBlobs(List<Biome> biomes, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed) {
 		this(new BP(biomes, seed, 4, biomeRegistry), biomeRegistry, settings, seed);
 	}
@@ -91,7 +91,9 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		this.biomeRegistry = biomeRegistry;
 		simplex = new OpenSimplexNoiseGeneratorOctaves(seed);
 		SharedSeedRandom randomSeed = new SharedSeedRandom(seed);
-	    this.surfaceDepthNoise = (INoiseGenerator)(settings.get().getNoise().func_236178_i_() ? new PerlinNoiseGenerator(randomSeed, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(randomSeed, IntStream.rangeClosed(-3, 0)));
+		this.surfaceDepthNoise = (INoiseGenerator) (settings.get().getNoise().func_236178_i_()
+				? new PerlinNoiseGenerator(randomSeed, IntStream.rangeClosed(-3, 0))
+				: new OctavesNoiseGenerator(randomSeed, IntStream.rangeClosed(-3, 0)));
 	}
 
 	@Override
@@ -101,38 +103,44 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 	@Override
 	public ChunkGenerator func_230349_a_(long seed) {
-		return new ChunkGeneratorBlobs(this.biomeProvider.getBiomeProvider(seed), this.biomeRegistry, this.settings, seed);
+		return new ChunkGeneratorBlobs(this.biomeProvider.getBiomeProvider(seed), this.biomeRegistry, this.settings,
+				seed);
 	}
 
 	@Override
 	public void generateSurface(WorldGenRegion p_225551_1_, IChunk p_225551_2_) {
 		// Biome block replacement
-	      ChunkPos chunkpos = p_225551_2_.getPos();
-	      int i = chunkpos.x;
-	      int j = chunkpos.z;
-	      SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-	      sharedseedrandom.setBaseChunkSeed(i, j);
-	      ChunkPos chunkpos1 = p_225551_2_.getPos();
-	      int k = chunkpos1.getXStart();
-	      int l = chunkpos1.getZStart();
-	      double d0 = 0.0625D;
-	      BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
+		ChunkPos chunkpos = p_225551_2_.getPos();
+		int i = chunkpos.x;
+		int j = chunkpos.z;
+		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+		sharedseedrandom.setBaseChunkSeed(i, j);
+		ChunkPos chunkpos1 = p_225551_2_.getPos();
+		int k = chunkpos1.getXStart();
+		int l = chunkpos1.getZStart();
+		double d0 = 0.0625D;
+		BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
-	      for(int i1 = 0; i1 < 16; ++i1) {
-	          for(int j1 = 0; j1 < 16; ++j1) {
-	             int k1 = k + i1;
-	             int l1 = l + j1;
-	             int i2 = p_225551_2_.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, i1, j1) + 1;
-	             double d1 = this.surfaceDepthNoise.noiseAt((double)k1 * 0.0625D, (double)l1 * 0.0625D, 0.0625D, (double)i1 * 0.0625D) * 15.0D;
-	             //p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1)).buildSurface(sharedseedrandom, p_225551_2_, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, this.getSeaLevel(), p_225551_1_.getSeed());
-	             Biome biome = p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1));
-	             ISurfaceBuilderConfig config = biome.getGenerationSettings().getSurfaceBuilderConfig();
-	             buildSurface(sharedseedrandom, p_225551_2_, biome, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, config.getTop(), config.getUnder(), this.getSeaLevel());
-	          }
-	       }
+		for (int i1 = 0; i1 < 16; ++i1) {
+			for (int j1 = 0; j1 < 16; ++j1) {
+				int k1 = k + i1;
+				int l1 = l + j1;
+				int i2 = p_225551_2_.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, i1, j1) + 1;
+				double d1 = this.surfaceDepthNoise
+						.noiseAt((double) k1 * 0.0625D, (double) l1 * 0.0625D, 0.0625D, (double) i1 * 0.0625D) * 15.0D;
+				// p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l +
+				// j1)).buildSurface(sharedseedrandom, p_225551_2_, k1, l1, i2, d1,
+				// this.baseTerrainBlock, this.baseFluidBlock, this.getSeaLevel(),
+				// p_225551_1_.getSeed());
+				Biome biome = p_225551_1_.getBiome(blockpos$mutable.setPos(k + i1, i2, l + j1));
+				ISurfaceBuilderConfig config = biome.getGenerationSettings().getSurfaceBuilderConfig();
+				buildSurface(sharedseedrandom, p_225551_2_, biome, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, config
+						.getTop(), config.getUnder(), this.getSeaLevel());
+			}
+		}
 
 	}
-	
+
 	protected void buildSurface(Random random, IChunk chunkIn, Biome biomeIn, int x, int z, int startHeight, double noise, BlockState defaultBlock, BlockState defaultFluid, BlockState top, BlockState under, int sealevel) {
 		BlockState blockstate = top;
 		BlockState blockstate1 = under;
@@ -193,30 +201,31 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		// like it can change whether liquid or solid is placed. Probably to make sure
 		// lakes don't generate under houses?
 
-	      ChunkPrimer chunkprimer = (ChunkPrimer)chunk;
-	      Heightmap heightmap = chunkprimer.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
-	      Heightmap heightmap1 = chunkprimer.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-		
+		ChunkPrimer chunkprimer = (ChunkPrimer) chunk;
+		Heightmap heightmap = chunkprimer.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
+		Heightmap heightmap1 = chunkprimer.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
+
 		Mutable mutable = new BlockPos.Mutable();
 		double minNoise = 0.5;
-		NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, chunk.getPos().getXStart(), chunk.getPos().getZStart(), 128, 32, 4, 0.5);
-		
+		NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, chunk.getPos().getXStart(), chunk
+				.getPos().getZStart(), 128, 32, 4, 0.5);
+
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				for (int y = 0; y < 256; y++) {
-					
+
 					double val = terrainNoiseArray[(x * 16 + z) * 256 + y];
-					
+
 					double heightReduction;
-					
-					//Reduce noise result as y gets further from 128
+
+					// Reduce noise result as y gets further from 128
 					if (y >= 128) {
 						heightReduction = (y - 128) / 128D;
 					} else {
 						heightReduction = (128 - y) / 128D;
 					}
 					heightReduction *= (1 - minNoise);
-					
+
 					if (val - heightReduction >= minNoise) {
 						chunk.setBlockState(mutable.setPos(x, y, z), baseTerrainBlock, false);
 						heightmap.update(x, y, z, baseTerrainBlock);
@@ -226,96 +235,96 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 			}
 		}
 	}
-	
+
 	public int getGroundHeight() {
-	      return 128;
-	   }
+		return 128;
+	}
 
-		@Override
-	   public int getHeight(int x, int z, Heightmap.Type heightmapType) {
-	      return this.getHeightOrFillBlockReader(x, z, (BlockState[])null, heightmapType.getHeightLimitPredicate());
-	   }
+	@Override
+	public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+		return this.getHeightOrFillBlockReader(x, z, (BlockState[]) null, heightmapType.getHeightLimitPredicate());
+	}
 
-	   public IBlockReader func_230348_a_(int x, int z) {
-		   BlockState[] ablockstate = new BlockState[256];
-		      this.getHeightOrFillBlockReader(x, z, ablockstate, (Predicate<BlockState>)null);
-		      return new Blockreader(ablockstate);
-	   }
-	   
-	   public int getHeightOrFillBlockReader(int x, int z, @Nullable BlockState[] blocks, @Nullable Predicate<BlockState> heightLimitPredicate) {
-			double minNoise = 0.5;
-			
-		   for (int y = 255; y >=0; y--) {
-			   double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
-			   double heightReduction;
-				
-				//Reduce noise result as y gets further from 128
-				if (y >= 128) {
-					heightReduction = (y - 128) / 128D;
-				} else {
-					heightReduction = (128 - y) / 128D;
-				}
-				heightReduction *= (1 - minNoise);
-				
-				BlockState state;
-				
-				if (val - heightReduction >= minNoise) {
-					state = this.baseTerrainBlock;
-				} else {
-					state = Blocks.AIR.getDefaultState();
-				}
-				if (blocks != null) {
-					blocks[y] = state;
-				}
-				if (heightLimitPredicate != null && heightLimitPredicate.test(state)) {
-					return y + 1;
-				}
-		   }
-		   
-		   return 0;
-	   }
+	public IBlockReader func_230348_a_(int x, int z) {
+		BlockState[] ablockstate = new BlockState[256];
+		this.getHeightOrFillBlockReader(x, z, ablockstate, (Predicate<BlockState>) null);
+		return new Blockreader(ablockstate);
+	}
 
-	   //Perform initial world gen animal spawning
-	   @Override
-	   public void func_230354_a_(WorldGenRegion region) {
-		   //This is probably a boolean for world gen spawning in the settings
-	      //if (!this.settings.get().func_236120_h_()) {
-	         int i = region.getMainChunkX();
-	         int j = region.getMainChunkZ();
-	         Biome biome = region.getBiome((new ChunkPos(i, j)).asBlockPos());
-	         SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-	         sharedseedrandom.setDecorationSeed(region.getSeed(), i << 4, j << 4);
-	         WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, sharedseedrandom);
-	      //}
-	   }
-	   
-	   @Override
+	public int getHeightOrFillBlockReader(int x, int z, @Nullable BlockState[] blocks, @Nullable Predicate<BlockState> heightLimitPredicate) {
+		double minNoise = 0.5;
+
+		for (int y = 255; y >= 0; y--) {
+			double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
+			double heightReduction;
+
+			// Reduce noise result as y gets further from 128
+			if (y >= 128) {
+				heightReduction = (y - 128) / 128D;
+			} else {
+				heightReduction = (128 - y) / 128D;
+			}
+			heightReduction *= (1 - minNoise);
+
+			BlockState state;
+
+			if (val - heightReduction >= minNoise) {
+				state = this.baseTerrainBlock;
+			} else {
+				state = Blocks.AIR.getDefaultState();
+			}
+			if (blocks != null) {
+				blocks[y] = state;
+			}
+			if (heightLimitPredicate != null && heightLimitPredicate.test(state)) {
+				return y + 1;
+			}
+		}
+
+		return 0;
+	}
+
+	// Perform initial world gen animal spawning
+	@Override
+	public void func_230354_a_(WorldGenRegion region) {
+		// This is probably a boolean for world gen spawning in the settings
+		// if (!this.settings.get().func_236120_h_()) {
+		int i = region.getMainChunkX();
+		int j = region.getMainChunkZ();
+		Biome biome = region.getBiome((new ChunkPos(i, j)).asBlockPos());
+		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+		sharedseedrandom.setDecorationSeed(region.getSeed(), i << 4, j << 4);
+		WorldEntitySpawner.performWorldGenSpawning(region, biome, i, j, sharedseedrandom);
+		// }
+	}
+
+	@Override
 	public int getSeaLevel() {
 		return this.seaLevel;
 	}
-	   
-	   //Script methods
-	   public ChunkGeneratorBlobs setSeaLevel(int level) {
-		   this.seaLevel = level;
-		   return this;
-	   }
+
+	// Script methods
+	public ChunkGeneratorBlobs setSeaLevel(int level) {
+		this.seaLevel = level;
+		return this;
+	}
 
 	public static class BP extends BiomeProvider {
 		public static final Codec<BP> CODEC = RecordCodecBuilder.create((instance) -> {
-		      return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter((provider) -> {
-			         return provider.seed;
-			      }), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((provider) -> {
-			          return provider.biomeRegistry;
-			      })).apply(instance, (arg0, arg1) -> {
-					try {
-						return new BP(arg0, arg1);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return null;
-				});
-		   });
+			return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter((provider) -> {
+				return provider.seed;
+			}), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((provider) -> {
+				return provider.biomeRegistry;
+			})).apply(instance, (arg0, arg1) -> {
+				try {
+					return new BP(arg0, arg1);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			});
+		});
 		private final long seed;
 		private final int biomeSize;
 		private final Registry<Biome> biomeRegistry;
@@ -338,7 +347,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 		@Override
 		public Biome getNoiseBiome(int x, int ignoredY, int z) {
-		      return this.layerGen.func_242936_a(this.biomeRegistry, x, z);
+			return this.layerGen.func_242936_a(this.biomeRegistry, x, z);
 		}
 
 		@Override
@@ -352,12 +361,12 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		}
 
 		public static Layer buildLayerGen(long seed, List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize) {
-		      IAreaFactory<LazyArea> iareafactory = buildLayers(biomes, biomeRegistry, biomeSize, seed, (p_227473_2_) -> {
-		         return new LazyAreaLayerContext(25, seed, p_227473_2_);
-		      });
-		      return new Layer(iareafactory);
-		   }
-		
+			IAreaFactory<LazyArea> iareafactory = buildLayers(biomes, biomeRegistry, biomeSize, seed, (p_227473_2_) -> {
+				return new LazyAreaLayerContext(25, seed, p_227473_2_);
+			});
+			return new Layer(iareafactory);
+		}
+
 		private static <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> buildLayers(List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize, long seed, LongFunction<C> seedHandler) {
 			IAreaFactory<T> iareafactory = new RandomBiomeBaseLayer(biomes, biomeRegistry).apply(seedHandler.apply(1L));
 			iareafactory = LayerUtil.repeat(2001L, ZoomLayer.NORMAL, iareafactory, biomeSize, seedHandler);
@@ -366,11 +375,11 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		}
 
 		static {
-			
+
 		}
-		
+
 		public static class VoidLayer implements IAreaTransformer1 {
-			
+
 			private final OpenSimplexNoiseGeneratorOctaves simplex;
 			private final long seed;
 			private final double[] terrainNoiseArray = new double[65536];
@@ -395,29 +404,29 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 				int parent = area.getValue(x, z);
 				x = x << 2;
 				z = z << 2;
-				
-				for (int y = 0; y < 256; y++) {//The noise would normally be only generated every 8 positions and interpolated
+
+				for (int y = 0; y < 256; y++) {// The noise would normally be only generated every 8 positions and
+												// interpolated
 					double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
 					double minNoise = 0.47;
 					double heightReduction;
-					
-					//Reduce noise result as y gets further from 128
+
+					// Reduce noise result as y gets further from 128
 					if (y >= 128) {
 						heightReduction = (y - 128) / 128D;
 					} else {
 						heightReduction = (128 - y) / 128D;
 					}
 					heightReduction *= (1 - minNoise);
-					
+
 					if (val - heightReduction >= minNoise) {
-						return parent;//Return parent if there's a block
+						return parent;// Return parent if there's a block
 					}
 				}
 				return 127;
 			}
-			
+
 		}
 	}
 
-	
 }

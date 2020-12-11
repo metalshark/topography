@@ -73,6 +73,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	private final BlockState baseTerrainBlock = Blocks.STONE.getDefaultState();
 	private final BlockState baseFluidBlock = Blocks.WATER.getDefaultState();
 	private final Registry<Biome> biomeRegistry;
+	private int seaLevel = 63;
 
 	private ChunkGeneratorBlobs(Supplier<DimensionSettings> settings, Registry<Biome> biomeRegistry, long seed) {
 		this(Lists.newArrayList(biomeRegistry.getByValue(1)), biomeRegistry, settings, seed);
@@ -97,13 +98,6 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	protected Codec<? extends ChunkGenerator> func_230347_a_() {
 		return codec;
 	}
-	
-//	@Override
-//	public void func_242706_a(Registry<Biome> p_242706_1_, IChunk p_242706_2_) {
-//		//
-//		ChunkPos chunkpos = p_242706_2_.getPos();
-//		((ChunkPrimer) p_242706_2_).setBiomes(new BiomeContainerPassthrough(p_242706_1_, chunkpos, this.field_235949_c_));
-//	}
 
 	@Override
 	public ChunkGenerator func_230349_a_(long seed) {
@@ -124,17 +118,6 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	      double d0 = 0.0625D;
 	      BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
 
-//	      for(int i1 = 0; i1 < 16; ++i1) {
-//	         for(int j1 = 0; j1 < 16; ++j1) {
-//	            int k1 = k + i1;
-//	            int l1 = l + j1;
-//	            int i2 = p_225551_2_.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, i1, j1) + 1;
-//	            double d1 = this.surfaceDepthNoise.noiseAt((double)k1 * 0.0625D, (double)l1 * 0.0625D, 0.0625D, (double)i1 * 0.0625D) * 15.0D;
-//	            Biome biome = this.biomeProvider.getNoiseBiome(k + i1, i2, l + j1);
-//	            //Topography.getLog().info("Topblock: " + i2 + " " + biome.getClass().getName());
-//	            biome.buildSurface(sharedseedrandom, p_225551_2_, k1, l1, i2, d1, this.baseTerrainBlock, this.baseFluidBlock, this.func_230356_f_(), p_225551_1_.getSeed());
-//	         }
-//	      }
 	      for(int i1 = 0; i1 < 16; ++i1) {
 	          for(int j1 = 0; j1 < 16; ++j1) {
 	             int k1 = k + i1;
@@ -219,27 +202,9 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, chunk.getPos().getXStart(), chunk.getPos().getZStart(), 128, 32, 4, 0.5);
 		
 		for (int x = 0; x < 16; x++) {
-//			int realX = chunk.getPos().getXStart() + x;
-			
 			for (int z = 0; z < 16; z++) {
-//				int realZ = chunk.getPos().getZStart() + z;
-				
-//				double val = simplex.eval(realX / 128D, realZ / 128d, 6, 0.5);
-				
-//				if (val >= minNoise) {
-//					chunk.setBlockState(mutable.setPos(x, 64, z), baseTerrain, false);
-//				}
-				
 				for (int y = 0; y < 256; y++) {
-//					double xNoise = val - minNoise;
-//					
-//					if (xNoise > 0) {
-//						if (y <= xNoise * 64 + 64) {
-//							chunk.setBlockState(mutable.setPos(x, y, z), baseTerrain, false);
-//						}
-//					}
 					
-//					double val = simplex.eval(realX / 128d, y / 32d, realZ / 128d, 4, 0.5);
 					double val = terrainNoiseArray[(x * 16 + z) * 256 + y];
 					
 					double heightReduction;
@@ -261,43 +226,10 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 			}
 		}
 	}
-
-//	@Override
-//	public int getHeight(int x, int z, Type heightmapType) {
-//		// no fucking idea
-//		return 128;
-//	}
-
-//	@Override
-//	public IBlockReader func_230348_a_(int p_230348_1_, int p_230348_2_) {
-//		// Some weird structure crap
-//		return new Blockreader(new BlockState[0]);
-//	}
 	
 	public int getGroundHeight() {
 	      return 128;
 	   }
-
-//	   public void func_230352_b_(IWorld p_230352_1_, StructureManager p_230352_2_, IChunk p_230352_3_) {
-//	      BlockState[] ablockstate = this.field_236070_e_.getStates();
-//	      BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
-//	      Heightmap heightmap = p_230352_3_.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
-//	      Heightmap heightmap1 = p_230352_3_.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-//
-//	      for(int i = 0; i < ablockstate.length; ++i) {
-//	         BlockState blockstate = ablockstate[i];
-//	         if (blockstate != null) {
-//	            for(int j = 0; j < 16; ++j) {
-//	               for(int k = 0; k < 16; ++k) {
-//	                  p_230352_3_.setBlockState(blockpos$mutable.setPos(j, i, k), blockstate, false);
-//	                  heightmap.update(j, i, k, blockstate);
-//	                  heightmap1.update(j, i, k, blockstate);
-//	               }
-//	            }
-//	         }
-//	      }
-//
-//	   }
 
 		@Override
 	   public int getHeight(int x, int z, Heightmap.Type heightmapType) {
@@ -359,8 +291,14 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	   
 	   @Override
 	public int getSeaLevel() {
-		return 0;
+		return this.seaLevel;
 	}
+	   
+	   //Script methods
+	   public ChunkGeneratorBlobs setSeaLevel(int level) {
+		   this.seaLevel = level;
+		   return this;
+	   }
 
 	public static class BP extends BiomeProvider {
 		public static final Codec<BP> CODEC = RecordCodecBuilder.create((instance) -> {
@@ -400,32 +338,6 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 		@Override
 		public Biome getNoiseBiome(int x, int ignoredY, int z) {
-//			x = x << 2;
-//			z = z << 2;
-//			double minNoise = 0.5;
-//			NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, ((x >> 4) << 4), ((z >> 4) << 4), 128, 32, 4, 0.5);
-//			for (int y = 0; y < 256; y++) {// The noise would normally be only generated every 8 positions and
-//											// interpolated
-//				//double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
-//				double val = terrainNoiseArray[((x - ((x >> 4) << 4)) * 16 + (z - ((z >> 4) << 4))) * 256 + y];
-//				double heightReduction;
-//
-//				// Reduce noise result as y gets further from 128
-//				if (y >= 128) {
-//					heightReduction = (y - 128) / 128D;
-//				} else {
-//					heightReduction = (128 - y) / 128D;
-//				}
-//				heightReduction *= (1 - minNoise);
-//
-//				if (val - heightReduction >= minNoise) {
-//					RegistryKey<Biome> registrykey = BiomeRegistry.getKeyFromID(1);
-//					return this.biomeRegistry.getValueForKey(registrykey);
-////					return this.layerGen.func_242936_a(this.biomeRegistry, x, z);// Return parent if there's a block
-//				}
-//			}
-//			RegistryKey<Biome> registrykey = BiomeRegistry.getKeyFromID(127);
-//			return this.biomeRegistry.getValueForKey(registrykey);
 		      return this.layerGen.func_242936_a(this.biomeRegistry, x, z);
 		}
 
@@ -501,34 +413,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 						return parent;//Return parent if there's a block
 					}
 				}
-				return 127;//Return void if no blocks are found
-//				
-////				Mutable mutable = new BlockPos.Mutable();
-//				double minNoise = 0.5;
-//				NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, x, z, 128, 32, 4, 0.5);
-//				
-////				for (int x = 0; x < 16; x++) {
-////					for (int z = 0; z < 16; z++) {
-//						for (int y = 0; y < 256; y++) {
-//							double val = terrainNoiseArray[(Math.abs(x % 16) * 16 + Math.abs(z % 16)) * 256 + y];
-//							
-//							double heightReduction;
-//							
-//							//Reduce noise result as y gets further from 128
-//							if (y >= 128) {
-//								heightReduction = (y - 128) / 128D;
-//							} else {
-//								heightReduction = (128 - y) / 128D;
-//							}
-//							heightReduction *= (1 - minNoise);
-//							
-//							if (val - heightReduction >= minNoise) {
-//								return parent;//Return parent if there's a block
-//							}
-//						}
-////					}
-////				}
-//						return 127;//Return void if no blocks are found
+				return 127;
 			}
 			
 		}

@@ -74,17 +74,21 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	private final BlockState baseFluidBlock = Blocks.WATER.getDefaultState();
 	private final Registry<Biome> biomeRegistry;
 	private int seaLevel = 63;
+	private double horizontalScale = 128;
+	private double verticalScale = 32;
 
 	private ChunkGeneratorBlobs(Supplier<DimensionSettings> settings, Registry<Biome> biomeRegistry, long seed) {
-		this(Lists.newArrayList(biomeRegistry.getByValue(1)), biomeRegistry, settings, seed);
+		this(Lists.newArrayList(biomeRegistry.getByValue(1)), biomeRegistry, settings, seed, 128, 32);
 	}
 
-	public ChunkGeneratorBlobs(List<Biome> biomes, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed) {
-		this(new BP(biomes, seed, 4, biomeRegistry), biomeRegistry, settings, seed);
+	public ChunkGeneratorBlobs(List<Biome> biomes, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
+		this(new BP(biomes, seed, 4, biomeRegistry, horizontalScale, verticalScale), biomeRegistry, settings, seed, horizontalScale, verticalScale);
 	}
 
-	private ChunkGeneratorBlobs(BiomeProvider biomeProvider, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed) {
+	private ChunkGeneratorBlobs(BiomeProvider biomeProvider, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
 		super(biomeProvider, biomeProvider, settings.get().getStructures(), seed);
+		this.horizontalScale = horizontalScale;
+		this.verticalScale = verticalScale;
 		Topography.getLog().info("CG " + seed);
 		this.seed = seed;
 		this.settings = settings;
@@ -104,7 +108,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	@Override
 	public ChunkGenerator func_230349_a_(long seed) {
 		return new ChunkGeneratorBlobs(this.biomeProvider.getBiomeProvider(seed), this.biomeRegistry, this.settings,
-				seed);
+				seed, this.horizontalScale, this.verticalScale);
 	}
 
 	@Override
@@ -208,7 +212,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		Mutable mutable = new BlockPos.Mutable();
 		double minNoise = 0.5;
 		NoiseUtil.Simplex.Five_ThirtyThree.generateChunk(terrainNoiseArray, seed, chunk.getPos().getXStart(), chunk
-				.getPos().getZStart(), 128, 32, 4, 0.5);
+				.getPos().getZStart(), horizontalScale, verticalScale, 4, 0.5);
 
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
@@ -255,7 +259,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		double minNoise = 0.5;
 
 		for (int y = 255; y >= 0; y--) {
-			double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
+			double val = simplex.eval(x / horizontalScale, y / verticalScale, z / horizontalScale, 4, 0.5);
 			double heightReduction;
 
 			// Reduce noise result as y gets further from 128
@@ -331,18 +335,22 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 		private final Layer layerGen;
 		private final OpenSimplexNoiseGeneratorOctaves simplex;
 		private final double[] terrainNoiseArray = new double[65536];
+		private final double horizontalScale;
+		private final double verticalScale;
 
 		public BP(long seed, Registry<Biome> biomeRegistry) throws Exception {
-			this(BiomeHelper.forBiomes("plains"), seed, 4, biomeRegistry);
+			this(BiomeHelper.forBiomes("plains"), seed, 4, biomeRegistry, 128, 32);
 		}
 
-		public BP(List<Biome> biomes, long seed, int biomeSize, Registry<Biome> biomeRegistry) {
+		public BP(List<Biome> biomes, long seed, int biomeSize, Registry<Biome> biomeRegistry, double horizontalScale, double verticalScale) {
 			super(biomes);
 			this.seed = seed;
 			this.biomeSize = biomeSize;
 			this.biomeRegistry = biomeRegistry;
 			simplex = new OpenSimplexNoiseGeneratorOctaves(seed);
-			this.layerGen = buildLayerGen(seed, biomes, biomeRegistry, biomeSize);
+			this.layerGen = buildLayerGen(seed, biomes, biomeRegistry, biomeSize, horizontalScale, verticalScale);
+			this.horizontalScale = horizontalScale;
+			this.verticalScale = verticalScale;
 		}
 
 		@Override
@@ -357,20 +365,20 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 		@Override
 		public BiomeProvider getBiomeProvider(long seed) {
-			return new BP(biomes, seed, biomeSize, biomeRegistry);
+			return new BP(biomes, seed, biomeSize, biomeRegistry, horizontalScale, verticalScale);
 		}
 
-		public static Layer buildLayerGen(long seed, List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize) {
+		public static Layer buildLayerGen(long seed, List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize, double horizontalScale,  double verticalScale) {
 			IAreaFactory<LazyArea> iareafactory = buildLayers(biomes, biomeRegistry, biomeSize, seed, (p_227473_2_) -> {
 				return new LazyAreaLayerContext(25, seed, p_227473_2_);
-			});
+			}, horizontalScale, verticalScale);
 			return new Layer(iareafactory);
 		}
 
-		private static <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> buildLayers(List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize, long seed, LongFunction<C> seedHandler) {
+		private static <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> buildLayers(List<Biome> biomes, Registry<Biome> biomeRegistry, int biomeSize, long seed, LongFunction<C> seedHandler, double horizontalScale, double verticalScale) {
 			IAreaFactory<T> iareafactory = new RandomBiomeBaseLayer(biomes, biomeRegistry).apply(seedHandler.apply(1L));
 			iareafactory = LayerUtil.repeat(2001L, ZoomLayer.NORMAL, iareafactory, biomeSize, seedHandler);
-			iareafactory = new VoidLayer(seed).apply(seedHandler.apply(1L), iareafactory);
+			iareafactory = new VoidLayer(seed, horizontalScale, verticalScale).apply(seedHandler.apply(1L), iareafactory);
 			return iareafactory;
 		}
 
@@ -383,10 +391,14 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 			private final OpenSimplexNoiseGeneratorOctaves simplex;
 			private final long seed;
 			private final double[] terrainNoiseArray = new double[65536];
+			private final double horizontalScale;
+			private final double verticalScale;
 
-			public VoidLayer(long seed) {
+			public VoidLayer(long seed, double horizontalScale, double verticalScale) {
 				simplex = new OpenSimplexNoiseGeneratorOctaves(seed);
 				this.seed = seed;
+				this.horizontalScale = horizontalScale;
+				this.verticalScale = verticalScale;
 			}
 
 			@Override
@@ -407,7 +419,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 				for (int y = 0; y < 256; y++) {// The noise would normally be only generated every 8 positions and
 												// interpolated
-					double val = simplex.eval(x / 128d, y / 32d, z / 128d, 4, 0.5);
+					double val = simplex.eval(x / horizontalScale, y / verticalScale, z / horizontalScale, 4, 0.5);
 					double minNoise = 0.47;
 					double heightReduction;
 

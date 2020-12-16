@@ -243,8 +243,8 @@ function initializeCoreMod() {
             	toInject.add(new VarInsnNode(Opcodes.ALOAD, 0));
             	toInject.add(ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/client/core/ClientHooks", "onAbstractListBackgroundDrawn", "(Lnet/minecraft/client/gui/widget/list/AbstractList;)V", ASMAPI.MethodType.STATIC));
             	toInject.add(label);*/
-            	
-            	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/gui/widget/list/AbstractList", "renderBackground", "(Lcom/mojang/blaze3d/matrix/MatrixStack;)V");
+            	//renderBackground
+            	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/gui/widget/list/AbstractList", "func_230433_a_", "(Lcom/mojang/blaze3d/matrix/MatrixStack;)V");
         		
         		if (target == null)
         		{
@@ -278,8 +278,8 @@ function initializeCoreMod() {
             	var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode');
             	var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
             	var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
-            	
-            	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/renderer/Tessellator", "draw", "()V");
+            	//draw
+            	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/renderer/Tessellator", "func_78381_a", "()V");
         		
         		if (target == null)
         		{

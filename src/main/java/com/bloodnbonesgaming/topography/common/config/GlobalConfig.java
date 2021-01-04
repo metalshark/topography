@@ -75,6 +75,7 @@ public class GlobalConfig {
 			engine.eval("var EntityHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.EntityHelper\")");
 			engine.eval("var ItemHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.ItemHelper\")");
 			engine.eval("var Consumer = Java.type(\"java.util.function.Consumer\")");
+			engine.eval("var BiomeDictionary = Java.type(\"net.minecraftforge.common.BiomeDictionary\")");
 			engine.eval(reader);
 			
 			Invocable invocable = (Invocable)engine;

@@ -15,7 +15,7 @@ public class EntityHelper {
 		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityID));
 		
 		if (event.getEntity().getType() == type) {
-			event.getDrops().add(ItemHelper.buildItemEntity(event.getEntity().world, event.getEntity().getPosition(), ItemHelper.buildItemStack(itemID, count)));
+			event.getDrops().add(ItemHelper.buildEntity(event.getEntity().world, event.getEntity().getPosition(), ItemHelper.buildStack(itemID, count)));
 		}
 	}
 	
@@ -23,7 +23,7 @@ public class EntityHelper {
 		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityID));
 		
 		if (event.getEntity().getType() == type) {
-			event.getDrops().add(ItemHelper.buildItemEntity(event.getEntity().world, event.getEntity().getPosition(), ItemHelper.buildItemStack(itemID, count, nbt)));
+			event.getDrops().add(ItemHelper.buildEntity(event.getEntity().world, event.getEntity().getPosition(), ItemHelper.buildStack(itemID, count, nbt)));
 		}
 	}
 	
@@ -39,7 +39,7 @@ public class EntityHelper {
 		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityID));
 		
 		if (event.getEntity().getType() == type) {
-			event.getDrops().add(ItemHelper.buildItemEntity(event.getEntity().world, event.getEntity().getPosition(), stack));
+			event.getDrops().add(ItemHelper.buildEntity(event.getEntity().world, event.getEntity().getPosition(), stack));
 		}
 	}
 }

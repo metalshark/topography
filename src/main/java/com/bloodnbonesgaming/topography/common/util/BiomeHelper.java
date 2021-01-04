@@ -178,4 +178,17 @@ public class BiomeHelper {
 //		SurfaceBuilder<SurfaceBuilderConfig> builder = SurfaceBuilder.field_237189_ad_;
 //		event.getGeneration().withSurfaceBuilder(builder.func_242929_a(new SurfaceBuilderConfig(BlockHelper.getState("minecraft:sand"), BlockHelper.getState("minecraft:sandstone"), BlockHelper.getState("minecraft:diamond_block"))));
 	}
+	
+	public static boolean test(ResourceLocation location, BiomeDictionary.Type... types) {
+		if (location != null) {
+			RegistryKey<Biome> key = RegistryKey.getOrCreateKey(Registry.BIOME_KEY, location);
+			
+			for (BiomeDictionary.Type type : types) {
+				if (BiomeDictionary.hasType(key, type)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

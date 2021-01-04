@@ -248,6 +248,11 @@ function initializeCoreMod() {
         		
         		if (target == null)
         		{
+        			target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/gui/widget/list/AbstractList", "renderBackground", "(Lcom/mojang/blaze3d/matrix/MatrixStack;)V");
+        		}
+        		
+        		if (target == null)
+        		{
         			throw "Something went wrong in Topography";
         		}
             	
@@ -280,6 +285,11 @@ function initializeCoreMod() {
             	var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
             	//draw
             	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/renderer/Tessellator", "func_78381_a", "()V");
+        		
+        		if (target == null)
+        		{
+        			target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.VIRTUAL, "net/minecraft/client/renderer/Tessellator", "draw", "()V");
+        		}
         		
         		if (target == null)
         		{

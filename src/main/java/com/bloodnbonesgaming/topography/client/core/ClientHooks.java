@@ -68,7 +68,8 @@ public class ClientHooks {
 					minecraft.getTextureManager().loadTexture(backgroundLoc, new DynamicTexture(image));
 					ClientHooks.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, backgroundLoc, image.getWidth(), image.getHeight());
 					//ClientHooks.texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, new ResourceLocation("textures/gui/options_background.png"), image.getWidth(), image.getHeight());
-					ClientHooks.texture.setRelRender(1, 1);
+					ClientHooks.texture.setAbsRender(list.width, list.height);;
+					ClientHooks.texture.setAbsXOffset(list.getLeft());
 				}
 			}
 		}

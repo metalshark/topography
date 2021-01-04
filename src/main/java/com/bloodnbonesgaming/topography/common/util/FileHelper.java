@@ -5,9 +5,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.SystemUtils;
 
 import com.bloodnbonesgaming.topography.Topography;
 
@@ -48,5 +62,62 @@ public class FileHelper {
 	
 	public static BufferedInputStream openStreamReader(final File file) throws FileNotFoundException {
 		return new BufferedInputStream(new FileInputStream(file));
+	}
+	
+	public static void copyDirectoryFromJar(final Class<?> classInJar, final String jarDirectory, final String destinationFolder) {
+		String path = classInJar.getProtectionDomain().getCodeSource().getLocation().getPath();
+		try {
+			String decodedPath = URLDecoder.decode(path, "UTF-8");
+			String[] split = decodedPath.split("!");
+			try (FileSystem fileSystem = FileSystems.newFileSystem(Paths
+					.get(split[0].substring(SystemUtils.IS_OS_WINDOWS ? 6 : 5)), classInJar.getClassLoader())) {
+				final Path jarPath = fileSystem.getPath(jarDirectory);
+
+				FileHelper.iteratePath(classInJar, jarPath, jarDirectory, destinationFolder);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private static void iteratePath(final Class<?> classInJar, final Path jarPath, final String jarDirectory, final String destinationFolder) {
+		try (Stream<Path> walk = Files.walk(jarPath, Integer.MAX_VALUE)) {
+
+			for (Iterator<Path> it = walk.iterator(); it.hasNext();) {
+				final Path path = it.next();
+
+				if (!Files.isDirectory(path)) {
+					FileHelper.readWrite(classInJar, path.toString(), jarDirectory, destinationFolder);
+				}
+			}
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	private static void readWrite(final Class<?> classInJar, final String jarPosition, final String jarDirectory, final String destinationFolder) {
+		final File end = new File(destinationFolder.concat(jarPosition.substring(jarDirectory.length())));
+
+		try {
+			end.getParentFile().mkdirs();
+			end.createNewFile();
+
+			int readBytes;
+			final byte[] buffer = new byte[4096];
+			// @Cleanup
+			try (final InputStream stream = classInJar.getResourceAsStream(jarPosition)) {
+				try (final OutputStream outStream = new FileOutputStream(end);) {
+					while ((readBytes = stream.read(buffer)) > 0)
+						outStream.write(buffer, 0, readBytes);
+				}
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 }

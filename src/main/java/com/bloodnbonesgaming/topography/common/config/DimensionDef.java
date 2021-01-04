@@ -31,6 +31,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
@@ -57,14 +58,14 @@ public class DimensionDef {
 		this.js = js;
 	}
 
-	public ChunkGenerator getChunkGenerator(long seed, Registry<Biome> biomeRegistry) {
+	public ChunkGenerator getChunkGenerator(long seed, Registry<Biome> biomeRegistry, Registry<DimensionSettings> dimensionSettingsRegistry) {
 		try {
-			return (ChunkGenerator) this.js.invokeFunction("buildChunkGenerator", seed, biomeRegistry);
+			return (ChunkGenerator) this.js.invokeFunction("buildChunkGenerator", seed, biomeRegistry, dimensionSettingsRegistry);
 		} catch (NoSuchMethodException e) {
 			//Ignore
 		}
 		catch (Exception e) {
-			Topography.getLog().error("Exception building ChunkGenerator: " + e.getMessage());
+			Topography.getLog().error("Exception building ChunkGenerator: ", e);
 		}
 		return null;//Null should use default
 	}

@@ -88,7 +88,11 @@ public abstract class GuiElementTexture extends GuiElementBase
 //        GlStateManager.disableLighting();
 //        GlStateManager.disableFog();
         minecraft.getTextureManager().bindTexture(this.texture);
-        this.drawTexture(this.location.getX(guiWidth, (int)(this.relRenderWidth * guiWidth)), this.location.getY(guiHeight, (int)(this.relRenderHeight * guiHeight)), this.imageWidth, this.imageHeight, (int)(this.relRenderWidth * guiWidth), (int)(this.relRenderHeight * guiHeight), 0.0F, 0.0F, (float)this.imageWidth, (float)this.imageHeight);
+        int renderWidth = this.relRenderWidth != 0 ? (int)(this.relRenderWidth * guiWidth) : this.absRenderWidth;
+        int renderHeight = this.relRenderHeight != 0 ? (int)(this.relRenderHeight * guiHeight) : this.absRenderHeight;
+        int locX = this.location.getX(guiWidth, renderWidth) + this.absXOffset + (int)(guiWidth * this.relXOffset);
+        int locY = this.location.getY(guiHeight, renderHeight) + this.absYOffset + (int)(guiHeight * this.relYOffset);
+        this.drawTexture(locX, locY, this.imageWidth, this.imageHeight, renderWidth, renderHeight, 0.0F, 0.0F, (float)this.imageWidth, (float)this.imageHeight);
     }
     
     /*

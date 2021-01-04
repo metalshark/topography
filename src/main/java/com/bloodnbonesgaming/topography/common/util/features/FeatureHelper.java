@@ -18,6 +18,8 @@ import net.minecraft.world.gen.feature.structure.MineshaftConfig;
 import net.minecraft.world.gen.feature.structure.MineshaftStructure;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.placement.ChanceConfig;
+import net.minecraft.world.gen.placement.ConfiguredPlacement;
+import net.minecraft.world.gen.placement.IPlacementConfig;
 import net.minecraft.world.gen.placement.NoPlacementConfig;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
@@ -60,6 +62,10 @@ public class FeatureHelper {
 	
 	public static ConfiguredFeature count(ConfiguredFeature feature, int min, int max) {		
 		return feature.withPlacement(Placement.COUNT.configure(new FeatureSpreadConfig(FeatureSpread.func_242253_a(min, max - min))));
+	}
+	
+	public static ConfiguredFeature placement(ConfiguredFeature feature, String placement, IPlacementConfig config) {
+		return feature.withPlacement(new ConfiguredPlacement(ForgeRegistries.DECORATORS.getValue(new ResourceLocation(placement)), config));
 	}
 	
 	public static void removeStructure(BiomeLoadingEvent event, String id) {

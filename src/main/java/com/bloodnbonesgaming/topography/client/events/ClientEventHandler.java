@@ -178,7 +178,7 @@ public class ClientEventHandler {
 					ResourceLocation location = entry.getKey();
 					RegistryKey<Dimension> key = RegistryKey.getOrCreateKey(Registry.DIMENSION_KEY, location);
 					Dimension oldDim = registry.getValueForKey(key);
-					ChunkGenerator chunkGen = entry.getValue().getChunkGenerator(seed, impl.getRegistry(Registry.BIOME_KEY));
+					ChunkGenerator chunkGen = entry.getValue().getChunkGenerator(seed, impl.getRegistry(Registry.BIOME_KEY), impl.getRegistry(Registry.NOISE_SETTINGS_KEY));
 					
 					if (chunkGen == null) {
 //						continue;

@@ -142,7 +142,6 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 						.getTop(), config.getUnder(), this.getSeaLevel());
 			}
 		}
-
 	}
 
 	protected void buildSurface(Random random, IChunk chunkIn, Biome biomeIn, int x, int z, int startHeight, double noise, BlockState defaultBlock, BlockState defaultFluid, BlockState top, BlockState under, int sealevel) {

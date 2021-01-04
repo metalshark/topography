@@ -14,6 +14,7 @@ import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -114,7 +115,7 @@ public class Topography
         }
         
         @SubscribeEvent
-        public static void onRecipeRegister(final RegistryEvent.Register<Feature<?>> event) {
+        public static void onFeatureRegister(final RegistryEvent.Register<Feature<?>> event) {
         	event.getRegistry().register(VerticalOre.INSTANCE);
         }
         

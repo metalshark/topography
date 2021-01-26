@@ -467,6 +467,9 @@ public class GuiCreateWorld extends Screen {
 			// this.func_230446_a_(p_230430_1_);
 		   if (texture != null) {
 				this.texture.render(getMinecraft(), width, height);
+		   } else {
+			   //Draw vanilla background
+			   this.renderBackground(matrixStack);
 		   }
 			this.presetList.render(matrixStack, mouseX, mouseY, partialTicks);
 

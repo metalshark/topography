@@ -238,10 +238,11 @@ public class DimensionDef {
 
 		try (BufferedReader reader = FileHelper.openReader(scriptFile)) {
 			engine.eval("var Topography = Java.type(\"com.bloodnbonesgaming.topography.Topography\")");
+			engine.eval("var RegistryHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.RegistryHelper\")");
 			engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
 			engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
 			engine.eval("var ChunkGeneratorVoid = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid\");");
-			engine.eval("var ChunkGeneratorBlobs = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorBlobs\");");
+			engine.eval("var ChunkGeneratorSimplexSkylands = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands\");");
 			engine.eval("var SingleBiomeProvider = Java.type(\"net.minecraft.world.biome.provider.SingleBiomeProvider\");");
 			engine.eval("var MultiBiomeProvider = Java.type(\"com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider\");");
 			engine.eval("var DimensionSettings = Java.type(\"net.minecraft.world.gen.DimensionSettings\");");

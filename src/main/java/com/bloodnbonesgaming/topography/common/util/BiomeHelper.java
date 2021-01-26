@@ -95,6 +95,26 @@ public class BiomeHelper {
 		return biomeList;
 	}
 	
+	public static List<Biome> forNether() throws Exception {
+		List<Biome> biomeList = new ArrayList<Biome>();
+		Set<RegistryKey<Biome>> biomeSet = BiomeDictionary.getBiomes(Type.NETHER);
+		
+		for (RegistryKey<Biome> key : biomeSet) {
+			biomeList.add(BiomeHelper.getBiome(key));
+		}
+		return biomeList;
+	}
+	
+	public static List<Biome> forEnd() throws Exception {
+		List<Biome> biomeList = new ArrayList<Biome>();
+		Set<RegistryKey<Biome>> biomeSet = BiomeDictionary.getBiomes(Type.END);
+		
+		for (RegistryKey<Biome> key : biomeSet) {
+			biomeList.add(BiomeHelper.getBiome(key));
+		}
+		return biomeList;
+	}
+	
 	public static List<Biome> withoutRivers(List<Biome> biomes) {
 		List<Biome> biomeList = new ArrayList<Biome>();
 		

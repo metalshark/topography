@@ -40,7 +40,9 @@ public class PresetListWidget extends ExtendedList<PresetListWidget.PresetEntry>
         this.fontRenderer = fontRenderer;
         this.refreshList();
         this.changeFocus(true);
-        this.parent.selected(this.getSelected().preset);
+        if (this.getSelected() != null) {
+            this.parent.selected(this.getSelected().preset);
+        }
     }
 
     @Override
@@ -83,14 +85,16 @@ public class PresetListWidget extends ExtendedList<PresetListWidget.PresetEntry>
        //this.minecraft.getTextureManager().bindTexture(AbstractGui.BACKGROUND_LOCATION);
        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
        float f = 32.0F;
-       RenderSystem.enableBlend();
-       bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-       bufferbuilder.pos((double)this.x0, (double)this.y1, 0.0D).color(32, 32, 32, 125).endVertex();
-       bufferbuilder.pos((double)this.x1, (double)this.y1, 0.0D).color(32, 32, 32, 125).endVertex();
-       bufferbuilder.pos((double)this.x1, (double)this.y0, 0.0D).color(32, 32, 32, 125).endVertex();
-       bufferbuilder.pos((double)this.x0, (double)this.y0, 0.0D).color(32, 32, 32, 125).endVertex();
-       tessellator.draw();
-       RenderSystem.disableBlend();
+       if (this.selected != null) {
+           RenderSystem.enableBlend();
+           bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+           bufferbuilder.pos((double)this.x0, (double)this.y1, 0.0D).color(32, 32, 32, 125).endVertex();
+           bufferbuilder.pos((double)this.x1, (double)this.y1, 0.0D).color(32, 32, 32, 125).endVertex();
+           bufferbuilder.pos((double)this.x1, (double)this.y0, 0.0D).color(32, 32, 32, 125).endVertex();
+           bufferbuilder.pos((double)this.x0, (double)this.y0, 0.0D).color(32, 32, 32, 125).endVertex();
+           tessellator.draw();
+           RenderSystem.disableBlend();
+       }
        int k = this.getRowLeft();
        int l = this.y0 + 4 - (int)this.getScrollAmount();
 //       if (this.field_230680_q_) {

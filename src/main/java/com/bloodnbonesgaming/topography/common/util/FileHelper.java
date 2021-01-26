@@ -65,7 +65,22 @@ public class FileHelper {
 	}
 	
 	public static void copyDirectoryFromJar(final Class<?> classInJar, final String jarDirectory, final String destinationFolder) {
-		String path = classInJar.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String path;
+		
+		try {
+			//Easy way
+			path = classInJar.getProtectionDomain().getCodeSource().getLocation().getPath();
+		} catch (Exception e) {
+			//Hard way
+			String url = classInJar.getResource(classInJar.getSimpleName() + ".class").toString();
+			String suffix = classInJar.getCanonicalName().replace('.', '/') + ".class";
+			String stripped = url.substring(0, url.length() - suffix.length());
+			if (stripped.startsWith("jar:")) {
+				stripped = stripped.substring(4, stripped.length() - 2);
+			}
+			path = stripped;
+			Topography.getLog().info(stripped);
+		}
 		try {
 			String decodedPath = URLDecoder.decode(path, "UTF-8");
 			String[] split = decodedPath.split("!");

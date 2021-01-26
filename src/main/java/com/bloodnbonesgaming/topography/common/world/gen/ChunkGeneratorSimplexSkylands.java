@@ -53,16 +53,16 @@ import net.minecraft.world.gen.layer.traits.IAreaTransformer1;
 import net.minecraft.world.gen.surfacebuilders.ISurfaceBuilderConfig;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
-public class ChunkGeneratorBlobs extends ChunkGenerator {
+public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 
-	public static final Codec<ChunkGeneratorBlobs> codec = RecordCodecBuilder.create((p_236091_0_) -> {
+	public static final Codec<ChunkGeneratorSimplexSkylands> codec = RecordCodecBuilder.create((p_236091_0_) -> {
 		return p_236091_0_.group(DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
 			return p_236090_0_.settings;
 		}), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((overworldProvider) -> {
 			return overworldProvider.biomeRegistry;
 		}), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
 			return p_236093_0_.seed;
-		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorBlobs::new));
+		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorSimplexSkylands::new));
 	});
 
 	private final long seed;
@@ -77,15 +77,15 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	private double horizontalScale = 128;
 	private double verticalScale = 32;
 
-	private ChunkGeneratorBlobs(Supplier<DimensionSettings> settings, Registry<Biome> biomeRegistry, long seed) {
+	private ChunkGeneratorSimplexSkylands(Supplier<DimensionSettings> settings, Registry<Biome> biomeRegistry, long seed) {
 		this(Lists.newArrayList(biomeRegistry.getByValue(1)), biomeRegistry, settings, seed, 128, 32);
 	}
 
-	public ChunkGeneratorBlobs(List<Biome> biomes, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
+	public ChunkGeneratorSimplexSkylands(List<Biome> biomes, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
 		this(new BP(biomes, seed, 4, biomeRegistry, horizontalScale, verticalScale), biomeRegistry, settings, seed, horizontalScale, verticalScale);
 	}
 
-	private ChunkGeneratorBlobs(BiomeProvider biomeProvider, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
+	private ChunkGeneratorSimplexSkylands(BiomeProvider biomeProvider, Registry<Biome> biomeRegistry, Supplier<DimensionSettings> settings, long seed, double horizontalScale, double verticalScale) {
 		super(biomeProvider, biomeProvider, settings.get().getStructures(), seed);
 		this.horizontalScale = horizontalScale;
 		this.verticalScale = verticalScale;
@@ -107,7 +107,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 
 	@Override
 	public ChunkGenerator func_230349_a_(long seed) {
-		return new ChunkGeneratorBlobs(this.biomeProvider.getBiomeProvider(seed), this.biomeRegistry, this.settings,
+		return new ChunkGeneratorSimplexSkylands(this.biomeProvider.getBiomeProvider(seed), this.biomeRegistry, this.settings,
 				seed, this.horizontalScale, this.verticalScale);
 	}
 
@@ -307,7 +307,7 @@ public class ChunkGeneratorBlobs extends ChunkGenerator {
 	}
 
 	// Script methods
-	public ChunkGeneratorBlobs setSeaLevel(int level) {
+	public ChunkGeneratorSimplexSkylands setSeaLevel(int level) {
 		this.seaLevel = level;
 		return this;
 	}

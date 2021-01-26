@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorBlobs;
+import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
@@ -120,8 +120,8 @@ public class Topography
         }
         
         static {
-        	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_blobs", ChunkGeneratorBlobs.BP.CODEC);
-    		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_blobs", ChunkGeneratorBlobs.codec);
+        	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.BP.CODEC);
+    		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.codec);
     	}
     }
     

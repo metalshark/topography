@@ -1,4 +1,6 @@
 
-//Loads and executes the example Topography.js file
-load("/examples/Topography.js");
+//Disables the example scripts
+disableExamples(false);
 
+//Sets the global gui background replacement
+setGuiBackground("examples/images/Basic_tree");

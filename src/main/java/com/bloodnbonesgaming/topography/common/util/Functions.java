@@ -21,4 +21,14 @@ public final class Functions {
 	public interface TriFunction<T, U, V, R> {
 		R apply(T var, U var2, V var3);
 	}
+	
+	@FunctionalInterface
+	public interface QuadFunction<T, U, V, W, R> {
+		R apply(T var, U var2, V var3, W var4);
+	}
+	
+	@FunctionalInterface
+	public interface QuadConsumer<T, U, V, W> {
+		void apply(T var, U var2, V var3, W var4);
+	}
 }

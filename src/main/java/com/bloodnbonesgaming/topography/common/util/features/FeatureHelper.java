@@ -44,6 +44,16 @@ public class FeatureHelper {
 		event.getGeneration().getFeatures(stage).clear();
 	}
 	
+	public static void clearFeatures(BiomeLoadingEvent event) {
+		for(GenerationStage.Decoration stage : GenerationStage.Decoration.values()) {
+			event.getGeneration().getFeatures(stage).clear();
+		}
+	}
+	
+	public static void clearStructures(BiomeLoadingEvent event) {
+		event.getGeneration().getStructures().clear();
+	}
+	
 	public static ConfiguredFeature buildConfiguredFeature(String location, IFeatureConfig config) {
 		return new ConfiguredFeature(ForgeRegistries.FEATURES.getValue(new ResourceLocation(location)), config);
 	}

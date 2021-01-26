@@ -1,6 +1,8 @@
 package com.bloodnbonesgaming.topography.common.config;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -8,6 +10,8 @@ import java.util.concurrent.ThreadFactory;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 public class ConfigurationManager {
 	
@@ -39,6 +43,8 @@ public class ConfigurationManager {
 	
 	public static void init() {
 		clean();
+		CopyDefaultConfigs();
+		CopyExampleConfigs();
 		ConfigurationManager.global = new GlobalConfig();
 		ConfigurationManager.global.init();
 	}
@@ -62,6 +68,16 @@ public class ConfigurationManager {
 		//TODO test if version in the jar is different
 		if (!versionFile.exists()) {
 			FileHelper.copyDirectoryFromJar(ConfigurationManager.class, "/exampleconfigs/", ModInfo.CONFIG_FOLDER + "examples/");
+		} else {
+			String jarConfigVersion = "1.14.0";
+			
+			try {
+				if (!Files.readFirstLine(versionFile, Charsets.UTF_8).equals(jarConfigVersion)) {
+					FileHelper.copyDirectoryFromJar(ConfigurationManager.class, "/exampleconfigs/", ModInfo.CONFIG_FOLDER + "examples/");
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

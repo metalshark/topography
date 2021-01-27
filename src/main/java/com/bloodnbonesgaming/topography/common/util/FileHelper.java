@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -24,6 +23,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.bloodnbonesgaming.topography.Topography;
+
+import net.minecraftforge.fml.ModList;
 
 public class FileHelper {
 	public static BufferedReader openReader(final File file) throws FileNotFoundException{
@@ -70,18 +71,7 @@ public class FileHelper {
 		try {
 			//Easy way
 			path = classInJar.getProtectionDomain().getCodeSource().getLocation().getPath();
-		} catch (Exception e) {
-			//Hard way
-			String url = classInJar.getResource(classInJar.getSimpleName() + ".class").toString();
-			String suffix = classInJar.getCanonicalName().replace('.', '/') + ".class";
-			String stripped = url.substring(0, url.length() - suffix.length());
-			if (stripped.startsWith("jar:")) {
-				stripped = stripped.substring(4, stripped.length() - 2);
-			}
-			path = stripped;
-			Topography.getLog().info(stripped);
-		}
-		try {
+			
 			String decodedPath = URLDecoder.decode(path, "UTF-8");
 			String[] split = decodedPath.split("!");
 			try (FileSystem fileSystem = FileSystems.newFileSystem(Paths
@@ -90,11 +80,26 @@ public class FileHelper {
 
 				FileHelper.iteratePath(classInJar, jarPath, jarDirectory, destinationFolder);
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			try {
+				//Manual way
+				path = "file:/" + "./mods/topography-" + ModList.get().getModContainerById("topography").get().getModInfo().getVersion().toString() + ".jar";
+				
+				try (FileSystem fileSystem = FileSystems.newFileSystem(Paths
+						.get(path.substring(SystemUtils.IS_OS_WINDOWS ? 6 : 5)), classInJar.getClassLoader())) {
+					final Path jarPath = fileSystem.getPath(jarDirectory);
+
+					FileHelper.iteratePath(classInJar, jarPath, jarDirectory, destinationFolder);
+
+				} catch (Exception ioe) {
+					ioe.printStackTrace();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 	}
 

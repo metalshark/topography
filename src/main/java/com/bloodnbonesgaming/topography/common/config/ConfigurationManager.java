@@ -69,7 +69,7 @@ public class ConfigurationManager {
 		if (!versionFile.exists()) {
 			FileHelper.copyDirectoryFromJar(ConfigurationManager.class, "/exampleconfigs/", ModInfo.CONFIG_FOLDER + "examples/");
 		} else {
-			String jarConfigVersion = "1.14.0";
+			String jarConfigVersion = "1.14.1";
 			
 			try {
 				if (!Files.readFirstLine(versionFile, Charsets.UTF_8).equals(jarConfigVersion)) {

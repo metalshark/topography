@@ -187,21 +187,23 @@ function initializeCoreMod() {
             	var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode');
             	var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
             	
-            	var target = ASMAPI.findFirstInstruction(method, Opcodes.ALOAD);
+            	//mv.visitMethodInsn(INVOKESTATIC, "net/minecraft/util/registry/DynamicRegistries", "func_239770_b_", "()Lnet/minecraft/util/registry/DynamicRegistries$Impl;", false);
+            	var target = ASMAPI.findFirstMethodCall(method, ASMAPI.MethodType.STATIC, "net/minecraft/util/registry/DynamicRegistries", "func_239770_b_", "()Lnet/minecraft/util/registry/DynamicRegistries$Impl;");
         		
         		if (target == null)
         		{
         			throw "Something went wrong in Topography";
         		}
             	
-            	var toInject = new InsnList();
+            	var before = new InsnList();
 
-            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 0));
-            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 1));
-            	toInject.add(ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/common/core/Hooks", "onMinecraftLoadWorld", "(Lnet/minecraft/client/Minecraft;Ljava/lang/String;)V", ASMAPI.MethodType.STATIC));
-        		toInject.add(new InsnNode(Opcodes.RETURN));
+            	before.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            	before.add(new VarInsnNode(Opcodes.ALOAD, 1));
+            	//"getRegistryForLoadWorld", "(Lnet/minecraft/client/Minecraft;Ljava/lang/String;)Lnet/minecraft/util/registry/DynamicRegistries$Impl;"
+            	var replace = ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/common/core/Hooks", "getRegistryForLoadWorld", "(Lnet/minecraft/client/Minecraft;Ljava/lang/String;)Lnet/minecraft/util/registry/DynamicRegistries$Impl;", ASMAPI.MethodType.STATIC);
 
-        		method.instructions.insertBefore(target, toInject);
+        		method.instructions.insertBefore(target, before);
+        		method.instructions.set(target, replace);
         		
                 return method;
             }

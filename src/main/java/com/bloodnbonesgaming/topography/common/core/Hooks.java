@@ -69,37 +69,26 @@ public class Hooks {
 		}
 		return false;
 	}
-
-//	public static void onChunkStatusSurface() {
-//		Topography.getLog().info("onChunkStatusSurface");
-//	}
-//	
-//	public static void test(ServerWorld p_222589_0_, ChunkGenerator p_222589_1_, List<IChunk> p_222589_2_, IChunk p_222589_3_) {
-//		if (onChunkStatusSurface(p_222589_0_, p_222589_1_, p_222589_2_, p_222589_3_)) {
-//			return;
-//		}
-//		p_222589_1_.generateSurface(new WorldGenRegion(p_222589_0_, p_222589_2_), p_222589_3_);
-//	}
 	
-	public static void onMinecraftLoadWorld(Minecraft minecraft, String worldName) {
+	public static DynamicRegistries.Impl getRegistryForLoadWorld(Minecraft minecraft, String worldName) {
 		try (LevelSave save = minecraft.getSaveLoader().getLevelSave(worldName)) {
-			String line = FileHelper.readLineFromFile(save.getWorldDir().toString() + "/topography.txt");//TODO Check file existence first
+			String line = FileHelper.readLineFromFile(save.getWorldDir().toString() + "/topography.txt");// TODO Check file existence first
 			ConfigurationManager.init();
 			ConfigurationManager.getGlobalConfig().setPreset(line);
 		} catch (Exception e) {
-			
+
 		}
 		DynamicRegistries.Impl registry = DynamicRegistries.func_239770_b_();
 		RegistryHelper.UpdateRegistries(registry);
 		try {
 			Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
-			
+
 			if (preset != null) {
 				preset.readDimensionDefs();
 			}
 		} catch (Exception e) {
-			
+
 		}
-		minecraft.loadWorld(worldName, registry, Minecraft::loadDataPackCodec, Minecraft::loadWorld, false, Minecraft.WorldSelectionType.BACKUP);
+		return registry;
 	}
 }

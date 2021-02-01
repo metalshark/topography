@@ -242,7 +242,7 @@ public class GuiWorldOptions extends WorldOptionsScreen {
 
 	   }
 
-	   protected void func_239043_a_(DimensionGeneratorSettings p_239043_1_) {
+	   public void func_239043_a_(DimensionGeneratorSettings p_239043_1_) {
 	      this.field_239039_m_ = p_239043_1_;
 	   }
 

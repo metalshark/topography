@@ -86,10 +86,10 @@ public class FileHelper {
 		} catch (Exception e) {
 			try {
 				//Manual way
-				path = "file:/" + "./mods/topography-" + ModList.get().getModContainerById("topography").get().getModInfo().getVersion().toString() + ".jar";
+				path = "./mods/topography-" + ModList.get().getModContainerById("topography").get().getModInfo().getVersion().toString() + ".jar";
 				
 				try (FileSystem fileSystem = FileSystems.newFileSystem(Paths
-						.get(path.substring(SystemUtils.IS_OS_WINDOWS ? 6 : 5)), classInJar.getClassLoader())) {
+						.get(path), classInJar.getClassLoader())) {
 					final Path jarPath = fileSystem.getPath(jarDirectory);
 
 					FileHelper.iteratePath(classInJar, jarPath, jarDirectory, destinationFolder);

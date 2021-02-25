@@ -20,6 +20,7 @@ import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
+import com.bloodnbonesgaming.topography.common.util.scripts.ScriptUtil;
 
 public class GlobalConfig {
 	

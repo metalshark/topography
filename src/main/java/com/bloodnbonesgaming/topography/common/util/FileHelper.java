@@ -81,7 +81,7 @@ public class FileHelper {
 				FileHelper.iteratePath(classInJar, jarPath, jarDirectory, destinationFolder);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw e;
 			}
 		} catch (Exception e) {
 			try {

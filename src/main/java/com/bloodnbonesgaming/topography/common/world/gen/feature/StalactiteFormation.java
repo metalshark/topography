@@ -65,14 +65,6 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 									sizeReduction ++;
 								}
 								
-//								int distanceFromTop = maxHeight - y;
-//								int sizeReduction = distanceFromTop / 4;
-								
-//								//Randomly remove outside blocks. Increase the closer to the center
-//								if (this.regionPositionRand.nextInt(distanceFromMid / 5 + 2) == 0) {
-//									sizeReduction++;
-//								}
-								
 								//Squarify the column
 								int xZDiff = config.radius - (config.radius - (int) Math.abs(Math.abs(position.getX() - realX) - Math.abs(position.getZ() - realZ)));
 								sizeReduction += xZDiff / 4;
@@ -81,6 +73,8 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 									mutable.setPos(x + pos.getX(), y, z + pos.getZ());
 									reader.setBlockState(mutable, Blocks.COBBLESTONE.getDefaultState(), 0);
 									changes = true;
+								} else {
+									break;
 								}
 							}
                         }

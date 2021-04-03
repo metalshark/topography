@@ -1,42 +1,57 @@
 package com.bloodnbonesgaming.topography.dedicated;
 
-import java.util.OptionalLong;
 import java.util.Map.Entry;
+import java.util.Map;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
 import com.bloodnbonesgaming.topography.common.config.Preset;
-import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
+import com.bloodnbonesgaming.topography.common.util.StructureHelper;
+import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
 import com.bloodnbonesgaming.topography.common.world.DimensionTypeTopography;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Lifecycle;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.command.CommandSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.DynamicRegistries.Impl;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.util.registry.DynamicRegistries.Impl;
 import net.minecraft.world.Dimension;
 import net.minecraft.world.DimensionType;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.ColumnFuzzedBiomeMagnifier;
 import net.minecraft.world.biome.provider.SingleBiomeProvider;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.NoiseSettings;
 import net.minecraft.world.gen.settings.ScalingSettings;
 import net.minecraft.world.gen.settings.SlideSettings;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.ServerWorldInfo;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ServerEventHandler {
 
@@ -87,6 +102,16 @@ public class ServerEventHandler {
 							//chunkGen = new ChunkGeneratorVoid(new SingleBiomeProvider(impl.getRegistry(Registry.BIOME_KEY).getOrThrow(Biomes.PLAINS)), () -> { return new DimensionSettings(new DimensionStructuresSettings(false), new NoiseSettings(256, new ScalingSettings(0.9999999814507745D, 0.9999999814507745D, 80.0D, 160.0D), new SlideSettings(-10, 3, 0), new SlideSettings(-30, 0, 0), 1, 2, 1.0D, -0.46875D, true, true, false, false), Blocks.AIR.getDefaultState(), Blocks.AIR.getDefaultState(), -10, 0, 63, false);}, seed) ;
 						}
 					}
+					//Add modifications to the structure separation settings in the chunk generator
+					Map<Structure<?>, StructureSeparationSettings> structureSpacingMap = chunkGen.func_235957_b_().func_236195_a_();
+					
+					for (Entry<String, StructureSeparationSettings> settings : entry.getValue().structureSpacingMap.entrySet()) {
+						try {
+							structureSpacingMap.put(ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(settings.getKey())), settings.getValue());
+						} catch(Exception e) {
+							Topography.getLog().error(e);
+						}
+					}
 
 					Supplier<DimensionType> typeSupplier;
 					
@@ -128,5 +153,66 @@ public class ServerEventHandler {
 //
 //		Topography.getLog().info("Settings Replaced");
 		
+	}
+	
+	@SubscribeEvent
+	public void OnWorldTick(WorldTickEvent event) {
+		if (event.phase == TickEvent.Phase.START) {
+			if (!event.world.isRemote) {
+				if (event.world.getDimensionKey().getLocation().equals(new ResourceLocation("overworld"))) {//Make sure it's the overworld
+					if (!TopographyWorldData.exists((ServerWorld) event.world)) {
+						Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+						
+						if (preset != null) {
+							for (Entry<ResourceLocation, DimensionDef> entry : preset.defs.entrySet()) {
+								DimensionDef def = entry.getValue();
+								
+								if (def.spawnStructure != null) {
+									RegistryKey<World> worldKey = RegistryKey.getOrCreateKey(Registry.WORLD_KEY, entry.getKey());
+									final ServerWorld dimWorld = event.world.getServer().getWorld(worldKey);
+                                    
+									if (dimWorld != null) {
+										int preloadArea = def.spawnStructure.getSize().getX();
+                                        preloadArea = def.spawnStructure.getSize().getZ() > preloadArea ? def.spawnStructure.getSize().getZ() : preloadArea;
+                                        preloadArea = preloadArea / 16;
+                                        preloadArea += 4;
+                                        Topography.getLog().info("Preloading " + ((preloadArea * 2 + 1) * (preloadArea * 2 + 1)) + " chunks for spawn structure in dimension " + entry.getKey());
+                    	            	
+                    	            	for (int x = -preloadArea; x < preloadArea; x++)
+                                        {
+                                            for (int z = -preloadArea; z < preloadArea; z++)
+                                            {
+                                               dimWorld.getChunkProvider().getChunk(x, z, true);
+                                            }
+                                        }
+                    	            	Topography.getLog().info("Spawning structure for dimension " + entry.getKey());
+                    	            	BlockPos pos = new BlockPos(0, def.spawnStructureHeight, 0);
+                    	            	def.spawnStructure.func_237146_a_(dimWorld, pos, pos, new PlacementSettings(), dimWorld.rand, 2);
+                                        final BlockPos spawn = StructureHelper.getSpawn(def.spawnStructure);
+                                        
+                                        if (spawn != null) {
+                        	            	dimWorld.setBlockState(spawn.add(0, def.spawnStructureHeight, 0), Blocks.AIR.getDefaultState(), 2);
+                                        }
+                                        
+                                        if (entry.getKey().equals(new ResourceLocation("overworld")))
+                                        {
+                                            
+                                            if (spawn != null)
+                                            {
+                                            	dimWorld.getServer().getCommandManager().handleCommand(dimWorld.getServer().getCommandSource(), "gamerule spawnRadius 0");
+                                            	//CommandContext<CommandSource> context = new CommandContext<CommandSource>(dimWorld.getServer().getCommandSource(), null, null, null, null, null, null, null, null, false);
+                                                //dimWorld.getGameRules().get(GameRules.SPAWN_RADIUS).changeValue(new GameRules.IntegerValue(null, 0), null);
+                                                //They added a spawn angle arg for some reason?
+                                                ((ISpawnWorldInfo)dimWorld.getWorldInfo()).setSpawn(spawn.add(0, def.spawnStructureHeight, 0), 0);
+                                            }
+                                        }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

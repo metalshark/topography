@@ -6,16 +6,24 @@ import org.apache.logging.log4j.Logger;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
+import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.ColumnFormation;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.StalactiteFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
+import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
+import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -51,10 +59,18 @@ public class Topography
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        
+        WorldRegistry.init();
     }
 
     private void setup(final FMLCommonSetupEvent event)
     {
+    	//Add custom structures to settings map
+    	DimensionStructuresSettings.field_236191_b_ = ImmutableMap.<Structure<?>, StructureSeparationSettings>builder().putAll(DimensionStructuresSettings.field_236191_b_)
+    			.put(WorldRegistry.FORTRESS.get(), new StructureSeparationSettings(27, 4, 30084232)).build();
+    	
+    	WorldGenRegistries.NOISE_SETTINGS.getValueForKey(DimensionSettings.field_242734_c).getStructures().func_236195_a_().put(WorldRegistry.FORTRESS.get(), new StructureSeparationSettings(27, 4, 30084232));
+    	//^Should add to ALL registered noises
     	proxy.setup();
     	proxy.registerEventHandlers();
     	ConfigurationManager.init();
@@ -117,7 +133,14 @@ public class Topography
         @SubscribeEvent
         public static void onFeatureRegister(final RegistryEvent.Register<Feature<?>> event) {
         	event.getRegistry().register(VerticalOre.INSTANCE);
+        	event.getRegistry().register(ColumnFormation.INSTANCE);
+        	event.getRegistry().register(StalactiteFormation.INSTANCE);
         }
+        
+//        @SubscribeEvent
+//        public static void onStructureRegister(final RegistryEvent.Register<Structure<?>> event) {
+//        	event.getRegistry().register(FortressStructureTopo.INSTANCE);
+//        }
         
         static {
         	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.BP.CODEC);

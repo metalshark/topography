@@ -18,7 +18,7 @@ import javax.script.ScriptEngineManager;
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.util.ForgeEvents;
+import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
 import com.bloodnbonesgaming.topography.common.util.Functions.TriFunction;
 import com.bloodnbonesgaming.topography.common.util.Functions.VarArgTriFunction;
 import com.bloodnbonesgaming.topography.common.util.IOHelper;
@@ -38,6 +38,7 @@ import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -53,6 +54,7 @@ public class DimensionDef {
 	//Script event subscribers
 	private final Map<String, List<Consumer<Event>>> scriptEventSubscribers = new HashMap<String, List<Consumer<Event>>>();
 	private String guiBackground = null;
+	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -230,6 +232,11 @@ public class DimensionDef {
 	public String getGuiBackground() {
 		return this.guiBackground;
 	}
+	
+	public DimensionDef setStructureSpacing(String location, int spacing, int separation, int salt) {
+		this.structureSpacingMap.put(location, new StructureSeparationSettings(spacing, separation, salt));
+		return this;
+	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {
 		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + path + ".js");
@@ -243,6 +250,7 @@ public class DimensionDef {
 			engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
 			engine.eval("var ChunkGeneratorVoid = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid\");");
 			engine.eval("var ChunkGeneratorSimplexSkylands = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands\");");
+			engine.eval("var ChunkGeneratorLayersFlat = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorLayersFlat\");");
 			engine.eval("var SingleBiomeProvider = Java.type(\"net.minecraft.world.biome.provider.SingleBiomeProvider\");");
 			engine.eval("var MultiBiomeProvider = Java.type(\"com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider\");");
 			engine.eval("var DimensionSettings = Java.type(\"net.minecraft.world.gen.DimensionSettings\");");
@@ -273,6 +281,7 @@ public class DimensionDef {
 			engine.put("addDefault", (BiFunction<EnumGenerationPhase, Collection<Biome>, DimensionDef>)def::addDefault);
 			engine.put("addOre", (BiFunction<ConfiguredFeature<?, ?>, GenerationStage.Decoration, DimensionDef>)def::addOre);
 			engine.put("registerEventHandler", (BiFunction<String, Consumer<Event>, DimensionDef>)def::registerEventHandler);
+			engine.put("setStructureSpacing", (QuadFunction<String, Integer, Integer, Integer, DimensionDef>)def::setStructureSpacing);
 			engine.eval(reader);
 
 			return def;

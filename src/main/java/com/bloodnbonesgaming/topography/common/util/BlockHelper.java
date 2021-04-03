@@ -14,4 +14,8 @@ public class BlockHelper {
 	public static BlockState getState(String location) {
 		return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(location)).getDefaultState();
 	}
+	
+//	public static BlockState getState(String location) {
+//		return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(location)).getDefaultState().with(property, value);
+//	}
 }

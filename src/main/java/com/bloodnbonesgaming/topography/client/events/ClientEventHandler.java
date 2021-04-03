@@ -1,5 +1,6 @@
 package com.bloodnbonesgaming.topography.client.events;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalLong;
 import java.util.function.Supplier;
@@ -47,12 +48,14 @@ import net.minecraft.world.biome.ColumnFuzzedBiomeMagnifier;
 import net.minecraft.world.biome.provider.SingleBiomeProvider;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
+import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.NoiseSettings;
 import net.minecraft.world.gen.settings.ScalingSettings;
 import net.minecraft.world.gen.settings.SlideSettings;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.ServerWorldInfo;
@@ -63,6 +66,7 @@ import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ClientEventHandler {
 
@@ -77,21 +81,13 @@ public class ClientEventHandler {
 	
 	@SubscribeEvent
 	public void OnWorldTick(WorldTickEvent event) {
-//		Topography.getLog().info("tick");
 		if (event.phase == TickEvent.Phase.START) {
-//			Topography.getLog().info("start");
 			if (!event.world.isRemote) {
-//				Topography.getLog().info("not remote");
-				//.func_234923_W_().func_240901_a_()
-				//RegistryKey<World> ResourceLocation
 				if (event.world.getDimensionKey().getLocation().equals(new ResourceLocation("overworld"))) {//Make sure it's the overworld
-//					Topography.getLog().info("overworld");
 					if (!TopographyWorldData.exists((ServerWorld) event.world)) {
-//						Topography.getLog().info("data doesn't exist");
 						Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
 						
 						if (preset != null) {
-//							Topography.getLog().info("preset " + preset.displayName);
 							for (Entry<ResourceLocation, DimensionDef> entry : preset.defs.entrySet()) {
 								DimensionDef def = entry.getValue();
 								
@@ -122,7 +118,6 @@ public class ClientEventHandler {
                         	            	dimWorld.setBlockState(spawn.add(0, def.spawnStructureHeight, 0), Blocks.AIR.getDefaultState(), 2);
                                         }
                                         
-                                        //if (dimWorld.func_230315_m_() == DimensionType.field_235999_c_)
                                         if (entry.getKey().equals(new ResourceLocation("overworld")))
                                         {
                                             
@@ -188,6 +183,16 @@ public class ClientEventHandler {
 							//TODO Add default chunk generator
 							chunkGen = new ChunkGeneratorVoid(new SingleBiomeProvider(impl.getRegistry(Registry.BIOME_KEY).getOrThrow(Biomes.PLAINS)), () -> { return new DimensionSettings(new DimensionStructuresSettings(false), new NoiseSettings(256, new ScalingSettings(0.9999999814507745, 0.9999999814507745, 80.0, 160.0), new SlideSettings(-10, 3, 0), new SlideSettings(-30, 0, 0), 1, 2, 1.0, -0.46875, true, true, false, false), Blocks.AIR.getDefaultState(), Blocks.AIR.getDefaultState(), -10, 0, 63, false);}, seed);
 							//chunkGen = new ChunkGeneratorVoid(new SingleBiomeProvider(impl.getRegistry(Registry.BIOME_KEY).getOrThrow(Biomes.PLAINS)), () -> { return new DimensionSettings(new DimensionStructuresSettings(false), new NoiseSettings(256, new ScalingSettings(0.9999999814507745D, 0.9999999814507745D, 80.0D, 160.0D), new SlideSettings(-10, 3, 0), new SlideSettings(-30, 0, 0), 1, 2, 1.0D, -0.46875D, true, true, false, false), Blocks.AIR.getDefaultState(), Blocks.AIR.getDefaultState(), -10, 0, 63, false);}, seed) ;
+						}
+					}
+					//Add modifications to the structure separation settings in the chunk generator
+					Map<Structure<?>, StructureSeparationSettings> structureSpacingMap = chunkGen.func_235957_b_().func_236195_a_();
+					
+					for (Entry<String, StructureSeparationSettings> settings : entry.getValue().structureSpacingMap.entrySet()) {
+						try {
+							structureSpacingMap.put(ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(settings.getKey())), settings.getValue());
+						} catch(Exception e) {
+							Topography.getLog().error(e);
 						}
 					}
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.script.Invocable;
@@ -28,6 +29,7 @@ import com.bloodnbonesgaming.topography.common.world.gen.IGenerator;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
@@ -55,6 +57,7 @@ public class DimensionDef {
 	private final Map<String, List<Consumer<Event>>> scriptEventSubscribers = new HashMap<String, List<Consumer<Event>>>();
 	private String guiBackground = null;
 	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
+	private DimensionType  dimensionType = null;
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -237,6 +240,18 @@ public class DimensionDef {
 		this.structureSpacingMap.put(location, new StructureSeparationSettings(spacing, separation, salt));
 		return this;
 	}
+	
+	public Supplier<DimensionType> getDimensionType() {
+		if (this.dimensionType == null) return null; 
+		return () -> {
+			return this.dimensionType;
+		};
+	}
+	
+	public DimensionDef setDimensionType(DimensionType supplier) {
+		this.dimensionType = supplier;
+		return this;
+	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {
 		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + path + ".js");
@@ -248,6 +263,7 @@ public class DimensionDef {
 			engine.eval("var RegistryHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.RegistryHelper\")");
 			engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
 			engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
+			engine.eval("var DimensionHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.DimensionHelper\")");
 			engine.eval("var ChunkGeneratorVoid = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid\");");
 			engine.eval("var ChunkGeneratorSimplexSkylands = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands\");");
 			engine.eval("var ChunkGeneratorLayersFlat = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorLayersFlat\");");
@@ -282,6 +298,7 @@ public class DimensionDef {
 			engine.put("addOre", (BiFunction<ConfiguredFeature<?, ?>, GenerationStage.Decoration, DimensionDef>)def::addOre);
 			engine.put("registerEventHandler", (BiFunction<String, Consumer<Event>, DimensionDef>)def::registerEventHandler);
 			engine.put("setStructureSpacing", (QuadFunction<String, Integer, Integer, Integer, DimensionDef>)def::setStructureSpacing);
+			engine.put("setDimensionType", (Function<DimensionType, DimensionDef>)def::setDimensionType);
 			engine.eval(reader);
 
 			return def;

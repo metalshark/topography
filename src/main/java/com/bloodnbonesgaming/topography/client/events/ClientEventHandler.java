@@ -208,6 +208,10 @@ public class ClientEventHandler {
 							return dimType;
 						};
 					}
+					if (entry.getValue().getDimensionType() != null) {
+						typeSupplier = entry.getValue().getDimensionType();
+					}
+					
 					Topography.getLog().info("Registering dimension: " + key.getLocation());
 					registry.register(key, new Dimension(typeSupplier, chunkGen), Lifecycle.stable());
 				}

@@ -199,29 +199,6 @@ public class CommonEventHandler {
 		catch(Exception e) {
 			Topography.getLog().error("Script error: ", e);
 		}
-		
-		if (event instanceof CheckSpawn) {
-			Topography.getLog().info(event.getClass().getSimpleName());
-//			CheckSpawn spawn = (CheckSpawn) event;
-//			if (WorldHelper.test(spawn.getWorld(), "minecraft:overworld")) {
-//				if (EntityHelper.test(spawn.getEntityLiving(), "minecraft:dolphin")) {
-//					if (WorldHelper.getState(spawn.getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()) == BlockHelper.getState("minecraft:water")) {
-//						spawn.setResult(Result.DENY);
-//					}
-//				}
-//			}
-//			if (EntityHelper.getStringID(spawn.getEntityLiving()).equals("minecraft:dolphin")) {
-//				if (WorldHelper.getState(spawn.getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()) == BlockHelper.getState("minecraft:water")) {
-//					spawn.setResult(Result.DENY);
-//				}
-//			}
-//			
-//			if (ForgeRegistries.ENTITIES.getKey(spawn.getEntityLiving().getType()).equals(new ResourceLocation("minecraft:dolphin"))) {
-//				if (spawn.getWorld().getBlockState(new BlockPos(spawn.getX(), spawn.getY(), spawn.getZ())) == BlockHelper.getState("minecraft:water")) {
-//					
-//				}
-//			}
-		}
 	}
 	
 	

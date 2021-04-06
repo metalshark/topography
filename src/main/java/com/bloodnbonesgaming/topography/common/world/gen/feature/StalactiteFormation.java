@@ -60,9 +60,11 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 	                    
 	                    if (distanceFromCenter <= config.radius) {
 							for (int y = maxHeight; y >= minHeight; y--) {
-								//Reduce by 0-1 per layer
-								if (this.regionPositionRand.nextInt(config.sizeReductionChance) == 0) {
-									sizeReduction ++;
+								for (int i = 0; i < config.sizeReductionAttemptCount; i++) {
+									//Reduce by 0-1 per layer
+									if (config.sizeReductionChance > 0 && this.regionPositionRand.nextInt(config.sizeReductionChance) == 0) {
+										sizeReduction ++;
+									}
 								}
 								
 								//Squarify the column
@@ -71,7 +73,7 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 								
 								if (distanceFromCenter <= config.radius - sizeReduction) {
 									mutable.setPos(x + pos.getX(), y, z + pos.getZ());
-									reader.setBlockState(mutable, Blocks.COBBLESTONE.getDefaultState(), 0);
+									reader.setBlockState(mutable, config.state, 0);
 									changes = true;
 								} else {
 									break;

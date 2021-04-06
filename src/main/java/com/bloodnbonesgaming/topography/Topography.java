@@ -3,6 +3,7 @@ package com.bloodnbonesgaming.topography;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.bloodnbonesgaming.topography.client.SkyRenderer;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
@@ -10,15 +11,19 @@ import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.ColumnFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalactiteFormation;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.StalagmiteFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.block.Block;
+import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeMaker;
 import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.Structure;
@@ -61,6 +66,7 @@ public class Topography
         MinecraftForge.EVENT_BUS.register(this);
         
         WorldRegistry.init();
+    	ConfigurationManager.init();
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -73,7 +79,9 @@ public class Topography
     	//^Should add to ALL registered noises
     	proxy.setup();
     	proxy.registerEventHandlers();
-    	ConfigurationManager.init();
+    	DimensionRenderInfo renderInfo = new DimensionRenderInfo.Nether();
+    	renderInfo.setSkyRenderHandler(new SkyRenderer());
+    	DimensionRenderInfo.field_239208_a_.put(new ResourceLocation(ModInfo.MODID, "black"), renderInfo);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -126,8 +134,8 @@ public class Topography
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
         @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-            // register a new block here
+        public static void onBiomeRegistry(final RegistryEvent.Register<Biome> event) {
+            event.getRegistry().register(BiomeMaker.makeFrozenOceanBiome(false).setRegistryName(ModInfo.MODID, "ocean"));
         }
         
         @SubscribeEvent
@@ -135,6 +143,7 @@ public class Topography
         	event.getRegistry().register(VerticalOre.INSTANCE);
         	event.getRegistry().register(ColumnFormation.INSTANCE);
         	event.getRegistry().register(StalactiteFormation.INSTANCE);
+        	event.getRegistry().register(StalagmiteFormation.INSTANCE);
         }
         
 //        @SubscribeEvent

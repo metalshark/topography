@@ -3,17 +3,18 @@ package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 
 public class RegionFeatureConfig implements IFeatureConfig {
 
 	public static final Codec<RegionFeatureConfig> codec = RecordCodecBuilder.create((builder) -> {
 		return builder.group(Codec.INT.fieldOf("region_size").forGetter((config) -> {
-				return config.regionSize;
+	    	return config.regionSize;
 		}), Codec.INT.fieldOf("min_spacing").forGetter((config) -> {
 			return config.minSpacing;
 		}), Codec.INT.fieldOf("position_attempt_count").forGetter((config) -> {
-				return config.positionAttemptCount;
+			return config.positionAttemptCount;
 		}), Codec.INT.fieldOf("seed_offset").forGetter((config) -> {
 			return config.featureCountSeedOffset;
 		}), Codec.INT.fieldOf("radius").forGetter((config) -> {

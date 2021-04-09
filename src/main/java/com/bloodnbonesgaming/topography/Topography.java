@@ -12,7 +12,9 @@ import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSk
 import com.bloodnbonesgaming.topography.common.world.gen.feature.ColumnFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalactiteFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalagmiteFormation;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.StructureFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.VoidHoleGenerator;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
@@ -135,7 +137,7 @@ public class Topography
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onBiomeRegistry(final RegistryEvent.Register<Biome> event) {
-            event.getRegistry().register(BiomeMaker.makeFrozenOceanBiome(false).setRegistryName(ModInfo.MODID, "ocean"));
+            event.getRegistry().register(BiomeMaker.makePlainsBiome(false).setRegistryName(ModInfo.MODID, "dark_deep"));
         }
         
         @SubscribeEvent
@@ -144,6 +146,8 @@ public class Topography
         	event.getRegistry().register(ColumnFormation.INSTANCE);
         	event.getRegistry().register(StalactiteFormation.INSTANCE);
         	event.getRegistry().register(StalagmiteFormation.INSTANCE);
+        	event.getRegistry().register(VoidHoleGenerator.INSTANCE);
+        	event.getRegistry().register(StructureFeature.INSTANCE);
         }
         
 //        @SubscribeEvent

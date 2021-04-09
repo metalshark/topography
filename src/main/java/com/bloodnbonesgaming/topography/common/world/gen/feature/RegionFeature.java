@@ -12,8 +12,6 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 
 public abstract class RegionFeature<U extends RegionFeatureConfig> extends Feature<U>{
-	
-	protected final Random regionPositionRand = new Random();
 
 	public RegionFeature(Codec<U> codec) {
 		super(codec);
@@ -35,8 +33,8 @@ public abstract class RegionFeature<U extends RegionFeatureConfig> extends Featu
 
             final int randomSpace = (int) (config.regionSize - maxHorizontalFeatureRadius * 2);
 
-            final int featureCenterX = this.regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
-            final int featureCenterZ = this.regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
+            final int featureCenterX = config.regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
+            final int featureCenterZ = config.regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
 
             final BlockPos pos = new BlockPos(featureCenterX, 0, featureCenterZ);
             
@@ -47,7 +45,7 @@ public abstract class RegionFeature<U extends RegionFeatureConfig> extends Featu
 		return positions;
 	}
     
-    private boolean isPostionAcceptable(List<BlockPos> positions, BlockPos pos, double maxHorizontalFeatureRadius, int extraSpacing) {
+	protected boolean isPostionAcceptable(List<BlockPos> positions, BlockPos pos, double maxHorizontalFeatureRadius, int extraSpacing) {
 		double minDistance = maxHorizontalFeatureRadius * 2 + extraSpacing;
 		
     	for (BlockPos position : positions) {

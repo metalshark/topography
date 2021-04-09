@@ -1,5 +1,7 @@
 package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 
+import java.util.Random;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -8,7 +10,7 @@ import net.minecraft.world.gen.feature.IFeatureConfig;
 
 public class RegionFeatureConfig implements IFeatureConfig {
 
-	public static final Codec<RegionFeatureConfig> codec = RecordCodecBuilder.create((builder) -> {
+	public static final Codec<RegionFeatureConfig> CODEC = RecordCodecBuilder.create((builder) -> {
 		return builder.group(Codec.INT.fieldOf("region_size").forGetter((config) -> {
 	    	return config.regionSize;
 		}), Codec.INT.fieldOf("min_spacing").forGetter((config) -> {
@@ -27,6 +29,8 @@ public class RegionFeatureConfig implements IFeatureConfig {
 	public final int positionAttemptCount;
 	public final int featureCountSeedOffset;
 	public final int radius;
+	
+	public final Random regionPositionRand = new Random();
 	
 	
 	

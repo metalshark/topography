@@ -1,8 +1,12 @@
 package com.bloodnbonesgaming.topography.common.util;
 
+import com.bloodnbonesgaming.topography.common.util.Functions.TriFunction;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.Mutable;
+import net.minecraft.world.ISeedReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
@@ -40,5 +44,18 @@ public class WorldHelper {
 			return ((World)world).getDimensionKey().getLocation().equals(id);
 		}
 		return false;
+	}
+	
+	public static boolean loopChunkX(ISeedReader reader, BlockPos pos, TriFunction<ISeedReader, BlockPos, BlockPos, Boolean> func) {
+		boolean ret = false;
+		Mutable localPos = new Mutable();
+		Mutable worldPos = new Mutable();
+		
+		for (int x = 0; x < 16; x++) {
+			if (func.apply(reader, localPos.setPos(x, 0, 0), worldPos.setPos(pos.getX() + x, pos.getY(), pos.getZ()))) {
+				ret = true;
+			}
+		}
+		return ret;
 	}
 }

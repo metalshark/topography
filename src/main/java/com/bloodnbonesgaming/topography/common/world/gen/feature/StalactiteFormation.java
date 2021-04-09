@@ -32,7 +32,7 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 		int chunkZ = pos.getZ() / 16 * 16;
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));
 		int regionZ = ((int) Math.floor(Math.floor(chunkZ / 16.0D) * 16D / config.regionSize));
-		this.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()));
+		config.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()));
 		int minHeight = 81;
 		int maxHeight = 174;
 		List<BlockPos> positions = generatePositions(config, regionX, regionZ, config.radius);
@@ -45,7 +45,7 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 			
 			if (canBeInChunk(position, config.radius, chunkX, chunkZ)) {
 				//Increment seed for unique rand per feature
-				this.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()) + posIndex);
+				config.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()) + posIndex);
 				
 				for (int x = 0; x < 16; x++) {
                     final double realX = x + chunkX;
@@ -62,7 +62,7 @@ public class StalactiteFormation extends RegionFeature<StalactiteFormationConfig
 							for (int y = maxHeight; y >= minHeight; y--) {
 								for (int i = 0; i < config.sizeReductionAttemptCount; i++) {
 									//Reduce by 0-1 per layer
-									if (config.sizeReductionChance > 0 && this.regionPositionRand.nextInt(config.sizeReductionChance) == 0) {
+									if (config.sizeReductionChance > 0 && config.regionPositionRand.nextInt(config.sizeReductionChance) == 0) {
 										sizeReduction ++;
 									}
 								}

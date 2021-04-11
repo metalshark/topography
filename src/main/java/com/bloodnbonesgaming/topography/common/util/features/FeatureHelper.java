@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.gen.GenerationStage;
@@ -46,7 +47,13 @@ public class FeatureHelper {
 	
 	public static void clearFeatures(BiomeLoadingEvent event) {
 		for(GenerationStage.Decoration stage : GenerationStage.Decoration.values()) {
-			event.getGeneration().getFeatures(stage).clear();
+			Iterator<Supplier<ConfiguredFeature<?, ?>>> iterator = event.getGeneration().getFeatures(stage).iterator();
+			
+			while (iterator.hasNext()) {
+				if (!(iterator.next().get().feature instanceof RegionFeatureRedirector)) {//Do not remove
+					iterator.remove();
+				}
+			}
 		}
 	}
 	

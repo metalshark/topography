@@ -1,15 +1,14 @@
 package com.bloodnbonesgaming.topography.proxy;
 
-import java.util.Optional;
-
+import com.bloodnbonesgaming.topography.ModInfo;
+import com.bloodnbonesgaming.topography.client.SkyRenderer;
 import com.bloodnbonesgaming.topography.client.events.ClientEventHandler;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.BiomeGeneratorTypeScreens;
+import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.DynamicRegistries.Impl;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -21,7 +20,6 @@ import net.minecraft.world.gen.settings.NoiseSettings;
 import net.minecraft.world.gen.settings.ScalingSettings;
 import net.minecraft.world.gen.settings.SlideSettings;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ClientProxy extends CommonProxy {
 
@@ -53,6 +51,9 @@ public class ClientProxy extends CommonProxy {
     public void setup() {
     	super.setup();
     	BiomeGeneratorTypeScreens.field_239068_c_.add(worldType);
+    	DimensionRenderInfo renderInfo = new DimensionRenderInfo.Nether();
+    	renderInfo.setSkyRenderHandler(new SkyRenderer());
+    	DimensionRenderInfo.field_239208_a_.put(new ResourceLocation(ModInfo.MODID, "black"), renderInfo);
     }
 
 //	@Override

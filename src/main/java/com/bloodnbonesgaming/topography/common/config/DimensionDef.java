@@ -26,6 +26,8 @@ import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.GenerationHandler;
 import com.bloodnbonesgaming.topography.common.world.gen.GenerationHandler.EnumGenerationPhase;
 import com.bloodnbonesgaming.topography.common.world.gen.IGenerator;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeature;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFeatureConfig;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -58,6 +60,7 @@ public class DimensionDef {
 	private String guiBackground = null;
 	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
 	private DimensionType  dimensionType = null;
+	public final List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>> regionFeatures = new ArrayList<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>();
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -252,6 +255,11 @@ public class DimensionDef {
 		this.dimensionType = supplier;
 		return this;
 	}
+	
+	public DimensionDef addRegionFeature(ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature) {
+		this.regionFeatures.add(feature);
+		return this;
+	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {
 		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + path + ".js");
@@ -283,6 +291,7 @@ public class DimensionDef {
 			engine.eval("var ForgeRegistries = Java.type(\"net.minecraftforge.registries.ForgeRegistries\")");
 			engine.eval("var ResourceLoction = Java.type(\"net.minecraft.util.ResourceLocation\")");
 			engine.eval("var ForgeEvents = Java.type(\"com.bloodnbonesgaming.topography.common.util.ForgeEvents\")");
+			engine.eval("var Util = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util\")");
 			DimensionDef def = new DimensionDef((Invocable) engine);
 			engine.put("setSpawnStructure", (BiFunction<String, Integer, DimensionDef>)def::setSpawnStructure);
 			engine.put("addCarver", (BiFunction<String, ProbabilityConfig, DimensionDef>)def::addCarver);
@@ -299,6 +308,7 @@ public class DimensionDef {
 			engine.put("registerEventHandler", (BiFunction<String, Consumer<Event>, DimensionDef>)def::registerEventHandler);
 			engine.put("setStructureSpacing", (QuadFunction<String, Integer, Integer, Integer, DimensionDef>)def::setStructureSpacing);
 			engine.put("setDimensionType", (Function<DimensionType, DimensionDef>)def::setDimensionType);
+			engine.put("addRegionFeature", (Function<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>, DimensionDef>)def::addRegionFeature);
 			engine.eval(reader);
 
 			return def;

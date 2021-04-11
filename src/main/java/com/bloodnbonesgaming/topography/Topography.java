@@ -3,13 +3,13 @@ package com.bloodnbonesgaming.topography;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.bloodnbonesgaming.topography.client.SkyRenderer;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.ColumnFormation;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalactiteFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalagmiteFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StructureFeature;
@@ -20,8 +20,6 @@ import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
@@ -81,9 +79,6 @@ public class Topography
     	//^Should add to ALL registered noises
     	proxy.setup();
     	proxy.registerEventHandlers();
-    	DimensionRenderInfo renderInfo = new DimensionRenderInfo.Nether();
-    	renderInfo.setSkyRenderHandler(new SkyRenderer());
-    	DimensionRenderInfo.field_239208_a_.put(new ResourceLocation(ModInfo.MODID, "black"), renderInfo);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -148,6 +143,7 @@ public class Topography
         	event.getRegistry().register(StalagmiteFormation.INSTANCE);
         	event.getRegistry().register(VoidHoleGenerator.INSTANCE);
         	event.getRegistry().register(StructureFeature.INSTANCE);
+        	event.getRegistry().register(RegionFeatureRedirector.INSTANCE);
         }
         
 //        @SubscribeEvent

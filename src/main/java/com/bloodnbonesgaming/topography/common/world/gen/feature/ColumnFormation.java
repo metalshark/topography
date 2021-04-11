@@ -7,7 +7,6 @@ import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.config.StalactiteFormationConfig;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.world.ISeedReader;
@@ -29,9 +28,19 @@ public class ColumnFormation extends RegionFeature<StalactiteFormationConfig> {
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));
 		int regionZ = ((int) Math.floor(Math.floor(chunkZ / 16.0D) * 16D / config.regionSize));
 		config.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()));
+		List<BlockPos> positions = generatePositions(config, regionX, regionZ, config.radius);
+		return generate(reader, rand, pos, config, positions);
+	}
+
+	@Override
+	public boolean generate(ISeedReader reader, Random rand, BlockPos pos, StalactiteFormationConfig config, List<BlockPos> positions) {
+		int chunkX = pos.getX() / 16 * 16;
+		int chunkZ = pos.getZ() / 16 * 16;
+		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));
+		int regionZ = ((int) Math.floor(Math.floor(chunkZ / 16.0D) * 16D / config.regionSize));
+		config.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()));
 		int minHeight = 81;
 		int maxHeight = 174;
-		List<BlockPos> positions = generatePositions(config, regionX, regionZ, config.radius);
 		boolean changes = false;
 		Mutable mutable = new BlockPos.Mutable();
 		int posIndex = -1;

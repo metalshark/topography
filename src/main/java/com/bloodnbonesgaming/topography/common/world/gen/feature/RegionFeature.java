@@ -8,8 +8,8 @@ import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFe
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
 
 public abstract class RegionFeature<U extends RegionFeatureConfig> extends Feature<U>{
 
@@ -17,11 +17,13 @@ public abstract class RegionFeature<U extends RegionFeatureConfig> extends Featu
 		super(codec);
 	}
 	
-	protected long getRegionSeed(RegionFeatureConfig config, int regionX, int regionZ, long worldSeed) {
+	public abstract boolean generate(ISeedReader reader, Random rand, BlockPos pos, U config, List<BlockPos> positions);
+	
+	public long getRegionSeed(RegionFeatureConfig config, int regionX, int regionZ, long worldSeed) {
 		return (long) (regionX) * 341873128712L + (long) (regionZ) * 132897987541L + worldSeed + config.featureCountSeedOffset;
 	}
 	
-	protected List<BlockPos> generatePositions(RegionFeatureConfig config, int regionX, int regionZ, int radius) {
+	public List<BlockPos> generatePositions(RegionFeatureConfig config, int regionX, int regionZ, int radius) {
 		List<BlockPos> positions = new ArrayList<BlockPos>();
 		
         for (int i = 0; i < config.positionAttemptCount; i++)

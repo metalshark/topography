@@ -11,12 +11,15 @@ import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.BlockHelper;
 import com.bloodnbonesgaming.topography.common.util.EntityHelper;
 import com.bloodnbonesgaming.topography.common.util.WorldHelper;
+import com.bloodnbonesgaming.topography.common.util.features.FeatureHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -124,6 +127,11 @@ public class CommonEventHandler {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onBiomeLoading(BiomeLoadingEvent event) {
+		event.getGeneration().getFeatures(Decoration.UNDERGROUND_STRUCTURES).add(() -> {
+			return RegionFeatureRedirector.INSTANCE.withConfiguration(NoFeatureConfig.field_236559_b_);
+			//return FeatureHelper.buildConfiguredFeature("topography:region_feature_redirector", NoFeatureConfig.field_236559_b_);
+		});
+		
 		//Topography.getLog().info("BiomeLoadingEvent " + event.getName());
 		try {
 			GlobalConfig global = ConfigurationManager.getGlobalConfig();

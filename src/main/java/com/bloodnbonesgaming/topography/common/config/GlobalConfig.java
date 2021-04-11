@@ -93,6 +93,7 @@ public class GlobalConfig {
 					engine.eval("var BiomeDictionary = Java.type(\"net.minecraftforge.common.BiomeDictionary\")");
 					engine.eval("var StructureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.StructureHelper\")");
 					engine.eval("var WorldHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.WorldHelper\")");
+					engine.eval("var Util = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util\")");
 					
 					engine.put("registerPreset", (Consumer<Preset>)this::registerPreset);
 					engine.put("registerPreset", (QuadFunction<String, String, String, String, Preset>)this::registerPreset);

@@ -5,11 +5,11 @@ import net.minecraft.world.World;
 
 public class ClientUtil {
 	
-	public static Minecraft getMinecraft() {
+	public Minecraft getMinecraft() {
 		return Minecraft.getInstance();
 	}
 	
-	public static World getWorld() {
+	public World getWorld() {
 		return getMinecraft().world;
 	}
 }

@@ -4,6 +4,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -58,5 +62,25 @@ public class EntityHelper {
 		if (event.getEntity().getType() == type) {
 			event.getDrops().add(ItemHelper.buildEntity(event.getEntity().world, event.getEntity().getPosition(), stack));
 		}
+	}
+	
+	public static void modifyAttribute(Entity entity, String attribute, String name, double amount, AttributeModifier.Operation operation) throws Exception {
+		if (!(entity instanceof LivingEntity)) {
+			throw new Exception("Can only modify attribute of living entities");
+		}
+		LivingEntity living = (LivingEntity)entity;
+		Attribute att = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(attribute));
+		if (!(entity instanceof LivingEntity)) {
+			throw new Exception("Attribute " + attribute + " is not registered");
+		}
+		ModifiableAttributeInstance ins = living.getAttribute(att);
+		
+		if (ins != null) {
+			ins.applyPersistentModifier(new AttributeModifier(name, amount, operation));
+		}
+	}
+	
+	public static void healToMax(LivingEntity entity) {
+		entity.setHealth(entity.getMaxHealth());
 	}
 }

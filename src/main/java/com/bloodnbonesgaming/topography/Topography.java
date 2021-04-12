@@ -7,7 +7,10 @@ import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
+import com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider;
+import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorLayersFlat;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
+import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.ColumnFormation;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StalactiteFormation;
@@ -152,8 +155,11 @@ public class Topography
 //        }
         
         static {
+        	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_multi_biome_provider", MultiBiomeProvider.CODEC);
         	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.BP.CODEC);
     		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.codec);
+    		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_layers_flat", ChunkGeneratorLayersFlat.codec);
+    		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_void", ChunkGeneratorVoid.codec);
     	}
     }
     

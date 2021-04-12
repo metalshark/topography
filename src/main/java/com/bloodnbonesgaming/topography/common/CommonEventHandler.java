@@ -8,30 +8,20 @@ import com.bloodnbonesgaming.topography.common.commands.ModCommands;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
-import com.bloodnbonesgaming.topography.common.util.BlockHelper;
-import com.bloodnbonesgaming.topography.common.util.EntityHelper;
-import com.bloodnbonesgaming.topography.common.util.WorldHelper;
-import com.bloodnbonesgaming.topography.common.util.features.FeatureHelper;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class CommonEventHandler {
 	
@@ -208,7 +198,6 @@ public class CommonEventHandler {
 			Topography.getLog().error("Script error: ", e);
 		}
 	}
-	
 	
 	@SubscribeEvent
 	public void onServerStopped(FMLServerStoppedEvent event) {

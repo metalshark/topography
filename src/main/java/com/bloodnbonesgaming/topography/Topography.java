@@ -1,10 +1,14 @@
 package com.bloodnbonesgaming.topography;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
+import com.bloodnbonesgaming.topography.common.config.RegistrationConfig;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider;
@@ -25,8 +29,6 @@ import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeMaker;
 import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.structure.Structure;
@@ -44,6 +46,7 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("topography")
@@ -70,6 +73,7 @@ public class Topography
         
         WorldRegistry.init();
     	ConfigurationManager.init();
+    	RegistrationConfig.init();
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -133,10 +137,6 @@ public class Topography
     // Event bus for receiving Registry Events)
     @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onBiomeRegistry(final RegistryEvent.Register<Biome> event) {
-            event.getRegistry().register(BiomeMaker.makePlainsBiome(false).setRegistryName(ModInfo.MODID, "dark_deep"));
-        }
         
         @SubscribeEvent
         public static void onFeatureRegister(final RegistryEvent.Register<Feature<?>> event) {
@@ -149,10 +149,18 @@ public class Topography
         	event.getRegistry().register(RegionFeatureRedirector.INSTANCE);
         }
         
-//        @SubscribeEvent
-//        public static void onStructureRegister(final RegistryEvent.Register<Structure<?>> event) {
-//        	event.getRegistry().register(FortressStructureTopo.INSTANCE);
-//        }
+        public static List<IForgeRegistryEntry> toRegister = new ArrayList<IForgeRegistryEntry>();
+        
+        @SubscribeEvent
+        public static void onAllRegister(final RegistryEvent.Register event) {        	
+        	for (IForgeRegistryEntry entry : toRegister) {
+        		if (entry.getClass().isAssignableFrom(event.getRegistry().getRegistrySuperType())) {
+            		event.getRegistry().register(entry);
+            		Topography.getLog().info("Registered " + entry.getRegistryName());
+        		}
+        	}
+        	
+        }
         
         static {
         	Registry.register(Registry.BIOME_PROVIDER_CODEC, "topography_multi_biome_provider", MultiBiomeProvider.CODEC);

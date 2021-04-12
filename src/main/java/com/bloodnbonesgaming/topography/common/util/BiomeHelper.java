@@ -9,26 +9,26 @@ import java.util.function.Supplier;
 import com.bloodnbonesgaming.topography.Topography;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.biome.BiomeAmbience;
+import net.minecraft.world.biome.BiomeGenerationSettings;
+import net.minecraft.world.biome.BiomeMaker;
+import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.biome.MoodSoundAmbience;
 import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.gen.feature.template.AlwaysTrueRuleTest;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
-import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
-import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
+import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BiomeHelper {
 	
@@ -38,13 +38,6 @@ public class BiomeHelper {
 		} catch (Exception e) {
 			throw new Exception("Could not get biome: " + location + " " + e);
 		}
-		
-//		Biome biome = ForgeRegistries.BIOMES.getValue(new ResourceLocation(location));
-//		
-//		if (biome == null) {
-//			throw new Exception("Biome not found");
-//		}
-//		return biome;
 	}
 	
 	public static Biome getBiome(RegistryKey<Biome> key) throws Exception {
@@ -57,8 +50,6 @@ public class BiomeHelper {
 			biomes.add(entry.getValue());
 		}
 		return biomes;
-//		Collection<Biome> biomes = ForgeRegistries.BIOMES.getValues();
-//		return biomes;
 	}
 	
 	public static List<Biome> forBiomes(String... biomes) throws Exception {
@@ -169,34 +160,12 @@ public class BiomeHelper {
 		return biomeList;
 	}
 	
-//	public static void addFeature(BiomeLoadingEvent event, GenerationStage.Decoration stage, Supplier<ConfiguredFeature<?, ?>> feature) {
-//		event.getGeneration().getFeatures(stage).add(feature);
-//	}
-	
-//	public ConfiguredFeature<?, ?> withConfiguration(Feature<?> feature, IFeatureConfig config) {
-//	      return new ConfiguredFeature<?, ?>(feature, config);
-//	   }
-//	
-//	public static void addOre(BiomeLoadingEvent event, Supplier<ConfiguredFeature<?, ?>> ore) {
-//		event.getGeneration().getFeatures(GenerationStage.Decoration.UNDERGROUND_ORES).add(() -> {
-//			return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, Blocks.GOLD_BLOCK.getDefaultState(), 8)).range(16).square();
-//		});
-//		
-//		ForgeRegistries.FEATURES.getValue(new ResourceLocation("ore")).func_225566_b_(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, BlockHelper.getState("gold_block"), 8));
-//	}
-	
 	public static void addOre(BiomeLoadingEvent event, Supplier<ConfiguredFeature<?, ?>> ore) {
 		event.getGeneration().getFeatures(Decoration.UNDERGROUND_ORES).add(ore);
 	}
 	
 	public static ConfiguredFeature<?, ?> buildOreGen(BlockState blockState, int clusterSize, int minHeight, int maxHeight) {
 		return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, blockState, clusterSize)).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(minHeight, 0, maxHeight))).square();
-		//return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, blockState, clusterSize)).range(maxHeight).square();
-	}
-	
-	public static void setSurfaceGenerator(BiomeLoadingEvent event) {
-//		SurfaceBuilder<SurfaceBuilderConfig> builder = SurfaceBuilder.field_237189_ad_;
-//		event.getGeneration().withSurfaceBuilder(builder.func_242929_a(new SurfaceBuilderConfig(BlockHelper.getState("minecraft:sand"), BlockHelper.getState("minecraft:sandstone"), BlockHelper.getState("minecraft:diamond_block"))));
 	}
 	
 	public static boolean test(ResourceLocation location, BiomeDictionary.Type... types) {
@@ -210,5 +179,9 @@ public class BiomeHelper {
 			}
 		}
 		return false;
+	}
+	
+	public Biome makeBiome(String name) {
+		return new Biome.Builder().precipitation(Biome.RainType.NONE).category(Biome.Category.NONE).depth(0.1F).scale(0.2F).temperature(0.5F).downfall(0.5F).setEffects((new BiomeAmbience.Builder()).setWaterColor(4159204).setWaterFogColor(329011).setFogColor(12638463).withSkyColor(0).setMoodSound(MoodSoundAmbience.DEFAULT_CAVE).build()).withMobSpawnSettings(MobSpawnInfo.EMPTY).withGenerationSettings(new BiomeGenerationSettings.Builder().withSurfaceBuilder(ConfiguredSurfaceBuilders.field_244184_p).build()).build().setRegistryName(name);
 	}
 }

@@ -7,56 +7,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
-import com.bloodnbonesgaming.topography.common.util.scripts.ScriptUtil;
 
-public class GlobalConfig {
+import net.minecraftforge.registries.IForgeRegistryEntry;
+
+public class RegistrationConfig {
 	
-	public final Map<String, Preset> presets = new ConcurrentHashMap<String, Preset>();
-	private Preset currentPreset = null;
-	private String guiBackground = null;
-	private boolean disableExamples = false;
-	
-	public Preset getPreset() {
-		synchronized(presets) {
-			return currentPreset;
-		}
+	private static RegistrationConfig INSTANCE = new RegistrationConfig();
+
+	public void register(IForgeRegistryEntry toRegister) {
+		Topography.RegistryEvents.toRegister.add(toRegister);
 	}
 	
-	public void setPreset(String preset) {
-		synchronized(presets) {
-			this.currentPreset = this.presets.get(preset);
-			Topography.getLog().info("Preset set to: " + (currentPreset != null ? currentPreset.internalID : "null"));
-		}
-	}
-	
-	public boolean disableExamples() {
-		return this.disableExamples;
-	}
-	
-	public void init() {
-		read();
-	}
-	
-	public void clean() {
-		
+	public static void init() {
+		INSTANCE.read();
 	}
 	
 	private void read() {
-		Topography.getLog().info("Reading Javascript");
-		readMainconfig();
+		Topography.getLog().info("Reading Registration files");
 		
 		final File scriptFolder = new File(ModInfo.CONFIG_FOLDER);
 		
@@ -68,7 +44,7 @@ public class GlobalConfig {
 		
 		final ScriptEngineManager factory = new ScriptEngineManager(null);
 
-		try (Stream<Path> walk = Files.walk(Paths.get(ModInfo.CONFIG_FOLDER), Integer.MAX_VALUE).filter(p -> p.toString().endsWith("Presets.js") && (!this.disableExamples || !p.toString().contains("examples")))) {
+		try (Stream<Path> walk = Files.walk(Paths.get(ModInfo.CONFIG_FOLDER), Integer.MAX_VALUE).filter(p -> p.toString().endsWith("Registration.js") && (!ConfigurationManager.getGlobalConfig().disableExamples() || !p.toString().contains("examples")))) {
 			for (Iterator<Path> it = walk.iterator(); it.hasNext();) {
 
 				final Path path = it.next();
@@ -99,8 +75,7 @@ public class GlobalConfig {
 					engine.eval("var WorldHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.WorldHelper\")");
 					engine.eval("var Util = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util\")");
 					
-					engine.put("registerPreset", (Consumer<Preset>)this::registerPreset);
-					engine.put("registerPreset", (QuadFunction<String, String, String, String, Preset>)this::registerPreset);
+					engine.put("register", (Consumer<IForgeRegistryEntry>)this::register);
 					engine.eval(reader);
 					
 				} catch (final Exception e)
@@ -110,68 +85,7 @@ public class GlobalConfig {
 				}
 			}
 		} catch (IOException e) {
-			//Ignore, as any non preset file will error
+			//Ignore, as any other file will error
 		}
-	}
-	
-	private void readMainconfig() {
-		final File scriptFolder = new File(ModInfo.CONFIG_FOLDER);
-		
-		if (!scriptFolder.exists())
-		{
-			scriptFolder.mkdirs();
-			scriptFolder.mkdir();
-		}
-		
-		final ScriptEngineManager factory = new ScriptEngineManager(null);
-		
-		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + "Topography.js");    	
-		
-		ScriptEngine engine = factory.getEngineByName("nashorn");
-		
-		try (BufferedReader reader = FileHelper.openReader(scriptFile))
-		{
-			engine.put("setGuiBackground", (Consumer<String>)this::setGuiBackground);
-			engine.put("disableExamples", (Consumer<Boolean>)this::disableExamples);
-			engine.eval(reader);		
-			
-		} catch (final Exception e)
-		{
-			e.printStackTrace();
-			Topography.getLog().error(e.getMessage());
-		}
-	}
-	
-	public Preset registerPreset(Preset preset) {
-		synchronized(presets) {
-			Topography.getLog().info("Registering preset: " + preset.internalID);
-			this.presets.put(preset.internalID, preset);
-			return preset;
-		}
-	}
-	
-	public Preset registerPreset(String internalID, String displayName, String imageLocation, String description) {
-		synchronized(presets) {
-			Topography.getLog().info("Registering preset: " + internalID);
-			Preset preset = new Preset(internalID).displayName(displayName).image(imageLocation).description(description);
-			this.presets.put(internalID, preset);
-			return preset;
-		}
-	}
-	
-	public void setGuiBackground(String location) {
-		this.guiBackground = location;
-	}
-	
-	public String getGuiBackground() {
-		return this.guiBackground;
-	}
-	
-	public void disableExamples(boolean bool) {
-		this.disableExamples = bool;
-	}
-	
-	public boolean getDisableExamples() {
-		return this.disableExamples;
 	}
 }

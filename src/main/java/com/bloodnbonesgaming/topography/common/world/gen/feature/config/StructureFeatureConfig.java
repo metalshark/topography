@@ -1,9 +1,13 @@
 package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.world.gen.feature.template.StructureProcessor;
 import net.minecraft.world.gen.feature.template.Template;
 
 public class StructureFeatureConfig extends SquareRegionFeatureConfig implements ISquareConfig {
@@ -35,6 +39,7 @@ public class StructureFeatureConfig extends SquareRegionFeatureConfig implements
 
 	public final String path;
 	public final int height;
+	public final List<StructureProcessor> processors = new ArrayList<StructureProcessor>();
 	private Template structure = null;
 	
 	public Template getTemplate() {
@@ -42,5 +47,10 @@ public class StructureFeatureConfig extends SquareRegionFeatureConfig implements
 			structure = IOHelper.loadStructureTemplate(path);
 		}
 		return structure;
+	}
+	
+	public RegionFeatureConfig addProcessor(StructureProcessor processor) {
+		this.processors.add(processor);
+		return this;
 	}
 }

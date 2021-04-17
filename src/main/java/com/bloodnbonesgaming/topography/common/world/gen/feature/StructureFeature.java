@@ -1,6 +1,5 @@
 package com.bloodnbonesgaming.topography.common.world.gen.feature;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
 import net.minecraft.world.gen.feature.template.PlacementSettings;
+import net.minecraft.world.gen.feature.template.StructureProcessor;
 import net.minecraft.world.gen.feature.template.Template;
 
 public class StructureFeature extends RegionFeature<StructureFeatureConfig> {
@@ -130,6 +130,9 @@ public class StructureFeature extends RegionFeature<StructureFeatureConfig> {
 			    ChunkPos chunkpos = new ChunkPos(pos);
 			    MutableBoundingBox mutableboundingbox = new MutableBoundingBox(chunkpos.getXStart(), 0, chunkpos.getZStart(), chunkpos.getXEnd(), 256, chunkpos.getZEnd());
 			    PlacementSettings placementsettings = (new PlacementSettings()).setRotation(rotation).setBoundingBox(mutableboundingbox).setRandom(rand).addProcessor(BlockIgnoreStructureProcessor.AIR_AND_STRUCTURE_BLOCK);
+			    for (StructureProcessor processor : config.processors) {
+			    	placementsettings = placementsettings.addProcessor(processor);
+			    }
 			    BlockPos blockpos = template.transformedSize(rotation);
 //			    int j = rand.nextInt(16 - blockpos.getX());
 //			    int k = rand.nextInt(16 - blockpos.getZ());

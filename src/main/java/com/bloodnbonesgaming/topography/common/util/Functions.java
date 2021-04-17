@@ -28,6 +28,11 @@ public final class Functions {
 	}
 	
 	@FunctionalInterface
+	public interface QuinFunction<T, U, V, W, S, R> {
+		R apply(T var, U var2, V var3, W var4, S var5);
+	}
+	
+	@FunctionalInterface
 	public interface QuadConsumer<T, U, V, W> {
 		void apply(T var, U var2, V var3, W var4);
 	}

@@ -24,6 +24,7 @@ import com.bloodnbonesgaming.topography.common.world.gen.feature.StalagmiteForma
 import com.bloodnbonesgaming.topography.common.world.gen.feature.StructureFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VerticalOre;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.VoidHoleGenerator;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.config.BlockReplacement;
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
@@ -169,7 +170,6 @@ public class Topography
         public static void onTileEntityTypeRegister(final RegistryEvent.Register<TileEntityType<?>> event) {
         	Type<?> type = Util.attemptDataFix(TypeReferences.BLOCK_ENTITY, "structure_block");
         	event.getRegistry().register(TileEntityType.Builder.create(StructureBlockTileEntityExt::new, Blocks.STRUCTURE_BLOCK).build(type).setRegistryName("minecraft:structure_block"));
-        	
         }
         
         public static List<IForgeRegistryEntry> toRegister = new ArrayList<IForgeRegistryEntry>();
@@ -191,6 +191,8 @@ public class Topography
     		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_blobs", ChunkGeneratorSimplexSkylands.codec);
     		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_layers_flat", ChunkGeneratorLayersFlat.codec);
     		Registry.register(Registry.CHUNK_GENERATOR_CODEC, "topography_void", ChunkGeneratorVoid.codec);
+    		
+    		BlockReplacement.register();
     	}
     }
     

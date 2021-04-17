@@ -3,9 +3,6 @@ package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import com.bloodnbonesgaming.topography.Topography;
-
 import java.util.Random;
 
 import net.minecraft.util.math.BlockPos;

@@ -7,5 +7,6 @@ public class Util {
 	public static ClientUtil Client = Topography.proxy.makeClientUtil();
 	public static FeatureHelper Feature = new FeatureHelper();
 	public static BiomeHelper Biome = new BiomeHelper();
+	public static BlockHelper Block = new BlockHelper();
 	
 }

@@ -63,13 +63,15 @@ public class RegionFeatureRedirector extends Feature<NoFeatureConfig> {
 					int regionSize = entry.getKey();
 					int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / regionSize));
 					int regionZ = ((int) Math.floor(Math.floor(chunkZ / 16.0D) * 16D / regionSize));
-					regionPositionRand.setSeed(this.getRegionSeed(regionX, regionZ, reader.getSeed(), regionSize));
+					long seed = this.getRegionSeed(regionX, regionZ, reader.getSeed(), regionSize);
+					regionPositionRand.setSeed(seed);
 					
 					Map<BlockPos, RegionFeatureConfig> allPositions = new LinkedHashMap<BlockPos, RegionFeatureConfig>();
 					
 					for (ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature : entry.getValue()) {
 
-						List<BlockPos> positions = generatePositions(allPositions, regionSize, regionX, regionZ, feature.config);
+						feature.config.regionPositionRand.setSeed(seed);
+						List<BlockPos> positions = feature.config.generatePositions(allPositions, regionX, regionZ);
 						featurePositions.put(feature, positions);
 					}
 				}
@@ -87,47 +89,4 @@ public class RegionFeatureRedirector extends Feature<NoFeatureConfig> {
 	public long getRegionSeed(int regionX, int regionZ, long worldSeed, int regionSize) {
 		return (long) (regionX) * 341873128712L + (long) (regionZ) * 132897987541L + worldSeed + regionSize;
 	}
-	
-	public List<BlockPos> generatePositions(Map<BlockPos, RegionFeatureConfig> allPositions, int regionSize, int regionX, int regionZ, RegionFeatureConfig config) {
-		List<BlockPos> positions = new ArrayList<BlockPos>();
-		
-        for (int i = 0; i < config.positionAttemptCount; i++)
-        {
-            final double maxHorizontalFeatureRadius = config.radius;
-
-            final int regionCenterX = (int) ((regionX) * regionSize + regionSize / 2);
-            final int regionCenterZ = (int) ((regionZ) * regionSize + regionSize / 2);
-
-            final int randomSpace = (int) (regionSize - maxHorizontalFeatureRadius * 2);
-
-            final int featureCenterX = regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterX;
-            final int featureCenterZ = regionPositionRand.nextInt(randomSpace) - randomSpace / 2 + regionCenterZ;
-
-            final BlockPos pos = new BlockPos(featureCenterX, 0, featureCenterZ);
-            
-            if (this.isPostionAcceptable(allPositions, pos, maxHorizontalFeatureRadius, config.minSpacing)) {
-            	positions.add(pos);
-            	allPositions.put(pos, config);
-            }
-        }
-		return positions;
-	}
-    
-	protected boolean isPostionAcceptable(Map<BlockPos, RegionFeatureConfig> positions, BlockPos pos, double maxHorizontalFeatureRadius, int extraSpacing) {
-		for (Entry<BlockPos, RegionFeatureConfig> entry : positions.entrySet()) {
-			double minDistance = maxHorizontalFeatureRadius + entry.getValue().radius + entry.getValue().minSpacing + extraSpacing;
-			
-			if (getHorizontalDistance(pos, entry.getKey()) < minDistance) {
-    			return false;
-    		}
-		}
-    	return true;
-    }
-
-    protected static double getHorizontalDistance(final BlockPos pos, final BlockPos pos2)//Switch this to using multiplied values instead of sqrt. faster
-    {
-        double d0 = pos.getX() - pos2.getX();
-        double d2 = pos.getZ() - pos2.getZ();
-        return Math.sqrt(d0 * d0 + d2 * d2);
-    }
 }

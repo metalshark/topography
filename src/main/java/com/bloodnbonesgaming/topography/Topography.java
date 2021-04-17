@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.bloodnbonesgaming.topography.common.blocks.StructureBlockExt;
+import com.bloodnbonesgaming.topography.common.blocks.StructureBlockTileEntityExt;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.config.RegistrationConfig;
@@ -26,7 +28,16 @@ import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.types.Type;
 
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Util;
+import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.gen.DimensionSettings;
@@ -147,6 +158,18 @@ public class Topography
         	event.getRegistry().register(VoidHoleGenerator.INSTANCE);
         	event.getRegistry().register(StructureFeature.INSTANCE);
         	event.getRegistry().register(RegionFeatureRedirector.INSTANCE);
+        }
+        
+        @SubscribeEvent
+        public static void onBlockRegister(final RegistryEvent.Register<Block> event) {
+        	event.getRegistry().register(new StructureBlockExt(AbstractBlock.Properties.create(Material.IRON, MaterialColor.LIGHT_GRAY).setRequiresTool().hardnessAndResistance(-1.0F, 3600000.0F).noDrops()));
+        }
+        
+        @SubscribeEvent
+        public static void onTileEntityTypeRegister(final RegistryEvent.Register<TileEntityType<?>> event) {
+        	Type<?> type = Util.attemptDataFix(TypeReferences.BLOCK_ENTITY, "structure_block");
+        	event.getRegistry().register(TileEntityType.Builder.create(StructureBlockTileEntityExt::new, Blocks.STRUCTURE_BLOCK).build(type).setRegistryName("minecraft:structure_block"));
+        	
         }
         
         public static List<IForgeRegistryEntry> toRegister = new ArrayList<IForgeRegistryEntry>();

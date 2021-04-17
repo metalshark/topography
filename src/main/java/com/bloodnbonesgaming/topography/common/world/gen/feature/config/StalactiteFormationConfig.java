@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.BlockState;
 
-public class StalactiteFormationConfig extends RegionFeatureConfig {
+public class StalactiteFormationConfig extends CircleRegionFeatureConfig {
 
 	public static final Codec<StalactiteFormationConfig> CODEC = RecordCodecBuilder.create((builder) -> {
 		return builder.group(BlockState.CODEC.fieldOf("state").forGetter((config) -> {
@@ -31,10 +31,15 @@ public class StalactiteFormationConfig extends RegionFeatureConfig {
 	public final int sizeReductionAttemptCount;
 	public final BlockState state;
 
-	public StalactiteFormationConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int radius, int sizeReductionChance, int sizeReductionAttemptCount) {
-		super(regionSize, minSpacing, positionAttemptCount, seedOffset, radius);
+	public StalactiteFormationConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int size, int sizeReductionChance, int sizeReductionAttemptCount) {
+		super(regionSize, minSpacing, positionAttemptCount, seedOffset, size);
 		this.state = state;
 		this.sizeReductionChance = sizeReductionChance;
 		this.sizeReductionAttemptCount = sizeReductionAttemptCount;
+	}
+
+	@Override
+	public int getRadius() {
+		return this.radius;
 	}
 }

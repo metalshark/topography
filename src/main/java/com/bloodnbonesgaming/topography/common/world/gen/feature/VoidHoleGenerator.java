@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.bloodnbonesgaming.topography.ModInfo;
-import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFeatureConfig;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.config.CircleRegionFeatureConfig;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.block.Blocks;
@@ -13,17 +13,17 @@ import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
 
-public class VoidHoleGenerator extends RegionFeature<RegionFeatureConfig> {
+public class VoidHoleGenerator extends RegionFeature<CircleRegionFeatureConfig> {
 	
-	public static final VoidHoleGenerator INSTANCE = new VoidHoleGenerator(RegionFeatureConfig.CODEC);
+	public static final VoidHoleGenerator INSTANCE = new VoidHoleGenerator(CircleRegionFeatureConfig.CODEC);
 
-	public VoidHoleGenerator(Codec<RegionFeatureConfig> codec) {
+	public VoidHoleGenerator(Codec<CircleRegionFeatureConfig> codec) {
 		super(codec);
 		this.setRegistryName(ModInfo.MODID, "void_hole");
 	}
 
 	@Override
-	public boolean generate(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, RegionFeatureConfig config) {
+	public boolean generate(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, CircleRegionFeatureConfig config) {
 		int chunkX = pos.getX() / 16 * 16;
 		int chunkZ = pos.getZ() / 16 * 16;
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));
@@ -34,7 +34,7 @@ public class VoidHoleGenerator extends RegionFeature<RegionFeatureConfig> {
 	}
 
 	@Override
-	public boolean generate(ISeedReader reader, Random rand, BlockPos pos, RegionFeatureConfig config, List<BlockPos> positions) {
+	public boolean generate(ISeedReader reader, Random rand, BlockPos pos, CircleRegionFeatureConfig config, List<BlockPos> positions) {
 		int chunkX = pos.getX() / 16 * 16;
 		int chunkZ = pos.getZ() / 16 * 16;
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));

@@ -21,9 +21,9 @@ public class BlockReplacement extends StructureProcessor {
 	
 
 	public static final BlockReplacement INSTANCE = new BlockReplacement();
-	public static final Codec<StructureProcessor> CODEC = Codec.unit(() -> {
+	public static final Codec<StructureProcessor> CODEC = Codec.<StructureProcessor>unit(() -> {
 		return INSTANCE;
-	});
+	}).stable();
 	public static IStructureProcessorType<?> TYPE;
 	private final QuinFunction<BlockInfo, BlockPos, BlockState, CompoundNBT, Random, BlockInfo> function;
 	

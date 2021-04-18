@@ -8,15 +8,10 @@ import java.util.function.Supplier;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.ChatListenerCopy;
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorld;
-import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
-import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
-import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStretch;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
-import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.util.StructureHelper;
 import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
@@ -28,9 +23,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
-import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -60,7 +52,6 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.ServerWorldInfo;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -217,7 +208,6 @@ public class ClientEventHandler {
 				}
 				((ServerWorldInfo)event.getServer().serverConfig).generatorSettings = new DimensionGeneratorSettings(seed,
 						generateStructures, false, registry);
-				
 			}
 		}
 	}

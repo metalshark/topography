@@ -37,7 +37,7 @@ import net.minecraft.world.spawner.WorldEntitySpawner;
 
 public class ChunkGeneratorLayersFlat extends ChunkGenerator {
 
-	public static final Codec<ChunkGeneratorLayersFlat> codec = RecordCodecBuilder.create((p_236091_0_) -> {
+	public static final Codec<ChunkGeneratorLayersFlat> codec = RecordCodecBuilder.<ChunkGeneratorLayersFlat>create((p_236091_0_) -> {
 		return p_236091_0_.group(BiomeProvider.CODEC.fieldOf("biome_source").forGetter((p_236096_0_) -> {
 	        return p_236096_0_.biomeProvider;
 	    }), DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
@@ -45,7 +45,7 @@ public class ChunkGeneratorLayersFlat extends ChunkGenerator {
 		}), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
 			return p_236093_0_.seed;
 		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorLayersFlat::new));
-	});
+	}).stable();
 
 	private final long seed;
 	private final Supplier<DimensionSettings> settings;

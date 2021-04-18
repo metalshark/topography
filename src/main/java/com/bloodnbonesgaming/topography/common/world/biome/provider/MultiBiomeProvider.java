@@ -30,7 +30,7 @@ public class MultiBiomeProvider extends BiomeProvider {
 //	          return provider.biomes;
 //	      })).apply(builder, builder.stable(MultiBiomeProvider::new));
 //	   });
-	public static final Codec<MultiBiomeProvider> CODEC = RecordCodecBuilder.create((instance) -> {
+	public static final Codec<MultiBiomeProvider> CODEC = RecordCodecBuilder.<MultiBiomeProvider>create((instance) -> {
 	      return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter((provider) -> {
 		         return provider.seed;
 		      }), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((provider) -> {
@@ -44,7 +44,7 @@ public class MultiBiomeProvider extends BiomeProvider {
 				}
 				return null;
 			});
-	   });
+	   }).stable();
 	private final long seed;
 	private final int biomeSize;
 	private final Registry<Biome> biomeRegistry;

@@ -55,7 +55,7 @@ import net.minecraft.world.spawner.WorldEntitySpawner;
 
 public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 
-	public static final Codec<ChunkGeneratorSimplexSkylands> codec = RecordCodecBuilder.create((p_236091_0_) -> {
+	public static final Codec<ChunkGeneratorSimplexSkylands> codec = RecordCodecBuilder.<ChunkGeneratorSimplexSkylands>create((p_236091_0_) -> {
 		return p_236091_0_.group(DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
 			return p_236090_0_.settings;
 		}), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((overworldProvider) -> {
@@ -63,7 +63,7 @@ public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 		}), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
 			return p_236093_0_.seed;
 		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorSimplexSkylands::new));
-	});
+	}).stable();
 
 	private final long seed;
 	private final Supplier<DimensionSettings> settings;
@@ -313,7 +313,7 @@ public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 	}
 
 	public static class BP extends BiomeProvider {
-		public static final Codec<BP> CODEC = RecordCodecBuilder.create((instance) -> {
+		public static final Codec<BP> CODEC = RecordCodecBuilder.<BP>create((instance) -> {
 			return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter((provider) -> {
 				return provider.seed;
 			}), RegistryLookupCodec.getLookUpCodec(Registry.BIOME_KEY).forGetter((provider) -> {
@@ -327,7 +327,7 @@ public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 				}
 				return null;
 			});
-		});
+		}).stable();
 		private final long seed;
 		private final int biomeSize;
 		private final Registry<Biome> biomeRegistry;

@@ -306,6 +306,42 @@ function initializeCoreMod() {
         		
                 return method;
             }
+        },
+        'removeexperimentalwarning': {
+            'target': {
+                'type': 'METHOD',
+                'class': 'net.minecraft.world.storage.ServerWorldInfo',
+                'methodName': 'func_230401_A_',
+                'methodDesc': '()Lcom/mojang/serialization/Lifecycle;'
+            },
+            'transformer': function(method) {
+                print("Topography injecting into: " + method.name);
+            	
+            	var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
+            	var Opcodes = Java.type('org.objectweb.asm.Opcodes');
+            	var LabelNode = Java.type('org.objectweb.asm.tree.LabelNode');
+            	var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
+            	var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
+            	var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode');
+            	var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
+            	var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
+            	
+            	var target = method.instructions.getFirst();
+        		
+        		if (target == null)
+        		{
+        			throw "Something went wrong in Topography";
+        		}
+            	
+            	var toInject = new InsnList();
+            	//mv.visitMethodInsn(INVOKESTATIC, "com/mojang/serialization/Lifecycle", "stable", "()Lcom/mojang/serialization/Lifecycle;", false);
+            	toInject.add(ASMAPI.buildMethodCall("com/mojang/serialization/Lifecycle", "stable", "()Lcom/mojang/serialization/Lifecycle;", ASMAPI.MethodType.STATIC));
+            	toInject.add(new InsnNode(Opcodes.ARETURN));
+            	
+        		method.instructions.insertBefore(target, toInject);
+        		
+                return method;
+            }
         }
     }
 }

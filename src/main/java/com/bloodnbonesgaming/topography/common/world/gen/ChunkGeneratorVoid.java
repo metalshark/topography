@@ -1,40 +1,27 @@
 package com.bloodnbonesgaming.topography.common.world.gen;
 
-import java.util.BitSet;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.function.Supplier;
 
-import com.bloodnbonesgaming.topography.Topography;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.SharedSeedRandom;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Blockreader;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
-import net.minecraft.world.gen.NoiseChunkGenerator;
-import net.minecraft.world.gen.Heightmap.Type;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.carver.WorldCarver;
-import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.GenerationStage.Carving;
+import net.minecraft.world.gen.Heightmap.Type;
+import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.structure.StructureManager;
-import net.minecraft.world.gen.feature.template.TemplateManager;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ChunkGeneratorVoid extends ChunkGenerator {
 
-	public static final Codec<ChunkGeneratorVoid> codec = RecordCodecBuilder.create((p_236091_0_) -> {
+	public static final Codec<ChunkGeneratorVoid> codec = RecordCodecBuilder.<ChunkGeneratorVoid>create((p_236091_0_) -> {
 		return p_236091_0_.group(BiomeProvider.CODEC.fieldOf("biome_source").forGetter((p_236096_0_) -> {
 			return p_236096_0_.biomeProvider;
 		}), DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
@@ -42,21 +29,13 @@ public class ChunkGeneratorVoid extends ChunkGenerator {
 		}), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
 			return p_236093_0_.seed;
 		})).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorVoid::new));
-	});
+	}).stable();
 
 	private final long seed;
 	private final Supplier<DimensionSettings> settings;
 
-	public ChunkGeneratorVoid(BiomeProvider biomeProvider, Supplier<DimensionSettings> settings) {
-		this(biomeProvider, biomeProvider, settings, 0L);
-	}
-
 	public ChunkGeneratorVoid(BiomeProvider biomeProvider, Supplier<DimensionSettings> settings, long seed) {
-		this(biomeProvider, biomeProvider, settings, seed);
-	}
-
-	public ChunkGeneratorVoid(BiomeProvider biomeProvider, BiomeProvider biomeProvider2, Supplier<DimensionSettings> settings, long seed) {
-		super(biomeProvider, biomeProvider2, settings.get().getStructures(), seed);
+		super(biomeProvider, biomeProvider, settings.get().getStructures(), seed);
 		this.seed = seed;
 		this.settings = settings;
 	}

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.LockableLootTileEntity;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -53,8 +54,20 @@ public class BlockHelper {
 		return tile;
 	}
 	
+	public MobSpawnerTileEntity buildSpawner(String entity) {
+		MobSpawnerTileEntity tile = new MobSpawnerTileEntity();
+		tile.getSpawnerBaseLogic().setEntityType(ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entity)));
+		return tile;
+	}
+	
 	public CompoundNBT setChestLoot(BlockState state, CompoundNBT nbt, Random rand, String table) {
 		LockableLootTileEntity tile = (LockableLootTileEntity) LockableLootTileEntity.readTileEntity(state, nbt);
+		tile.setLootTable(new ResourceLocation(table), rand.nextLong());
+		return tile.serializeNBT();
+	}
+	
+	public CompoundNBT buildChestLoot(Random rand, String table) {
+		ChestTileEntity tile = new ChestTileEntity();
 		tile.setLootTable(new ResourceLocation(table), rand.nextLong());
 		return tile.serializeNBT();
 	}

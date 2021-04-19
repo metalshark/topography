@@ -22,6 +22,7 @@ public class SetDim {
 	private static int execute(CommandContext<CommandSource> context, ServerWorld dim) throws CommandSyntaxException {
 		ServerPlayerEntity player = context.getSource().asPlayer();
 		String dimName = dim.getDimensionKey().getLocation().toString();
-		return player.server.getCommandManager().handleCommand(context.getSource(), "execute in " + dimName + " run tp @p ~ ~ ~");
+		///execute in topography:infinite_dark run tp @s ~ ~ ~
+		return player.server.getCommandManager().handleCommand(context.getSource(), "execute in " + dimName + " run tp @s ~ ~ ~");
 	}
 }

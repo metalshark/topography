@@ -8,5 +8,8 @@ public class Util {
 	public static FeatureHelper Feature = new FeatureHelper();
 	public static BiomeHelper Biome = new BiomeHelper();
 	public static BlockHelper Block = new BlockHelper();
+	public static EffectHelper Effect = new EffectHelper();
+	public static EntityHelper Entity = new EntityHelper();
+	public static WorldHelper World = new WorldHelper();
 	
 }

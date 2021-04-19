@@ -11,6 +11,8 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -82,5 +84,17 @@ public class EntityHelper {
 	
 	public static void healToMax(LivingEntity entity) {
 		entity.setHealth(entity.getMaxHealth());
+	}
+	
+	public BlockPos getPos(Entity entity) {
+		return entity.getPosition();
+	}
+	
+	public int getLight(Entity entity) {
+		return Util.World.getLight(getWorld(entity), getPos(entity));
+	}
+	
+	public World getWorld(Entity entity) {
+		return entity.world;
 	}
 }

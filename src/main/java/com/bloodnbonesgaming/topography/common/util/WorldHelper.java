@@ -58,4 +58,12 @@ public class WorldHelper {
 		}
 		return ret;
 	}
+	
+	public int getLight(World world, BlockPos pos) {
+		return world.getLight(pos);
+	}
+	
+	public long getGameTime(World world) {
+		return world.getGameTime();
+	}
 }

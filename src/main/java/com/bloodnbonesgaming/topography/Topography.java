@@ -11,6 +11,7 @@ import com.bloodnbonesgaming.topography.common.blocks.StructureBlockTileEntityEx
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.config.RegistrationConfig;
+import com.bloodnbonesgaming.topography.common.network.TopoPacketHandler;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider;
@@ -84,6 +85,7 @@ public class Topography
         MinecraftForge.EVENT_BUS.register(this);
         
         WorldRegistry.init();
+        TopoPacketHandler.init();
     	ConfigurationManager.init();
     	RegistrationConfig.init();
     }

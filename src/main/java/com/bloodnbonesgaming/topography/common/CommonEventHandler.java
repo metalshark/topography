@@ -18,7 +18,6 @@ import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
@@ -178,25 +177,6 @@ public class CommonEventHandler {
 //		BiomeHelper.addFeature(event, GenerationStage.Decoration.UNDERGROUND_ORES, () -> {
 //			return Feature.ORE.withConfiguration(new OreFeatureConfig(AlwaysTrueRuleTest.INSTANCE, Blocks.GOLD_BLOCK.getDefaultState(), 8)).func_242733_d(16).func_242728_a();
 //		});
-	}
-	
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onAllEvents(Event event) {
-		try {
-			GlobalConfig global = ConfigurationManager.getGlobalConfig();
-			
-			if (global != null) {
-				Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
-				
-				if (preset != null) {
-					preset.fireEventSubscribers(event.getClass().getSimpleName(), event);
-									
-				}
-			}
-		}
-		catch(Exception e) {
-			Topography.getLog().error("Script error: ", e);
-		}
 	}
 	
 	@SubscribeEvent

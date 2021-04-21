@@ -10,11 +10,14 @@ import com.bloodnbonesgaming.topography.client.ChatListenerCopy;
 import com.bloodnbonesgaming.topography.client.gui.GuiCreateWorld;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
+import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
+import com.bloodnbonesgaming.topography.common.util.EventSide;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.util.StructureHelper;
 import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.world.DimensionTypeTopography;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
 import com.mojang.serialization.Lifecycle;
@@ -54,6 +57,8 @@ import net.minecraft.world.storage.ServerWorldInfo;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
@@ -227,6 +232,37 @@ public class ClientEventHandler {
 //				(Minecraft.getMinecraft().ingameGUI.chatListeners.get(ChatType.GAME_INFO)).add(new ChatListenerCopy());
 				this.registeredChatListener = true;
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
+		ConfigurationManager.getGlobalConfig().clean();
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onAllEvents(Event event) {
+		try {
+			GlobalConfig global = ConfigurationManager.getGlobalConfig();
+			
+			if (global != null) {
+				Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+				
+				if (preset != null) {
+					World world = Util.Client.getWorld();
+					
+					if (world == null) {
+						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.ANY);
+					} else if (world.isRemote) {
+						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.CLIENT, EventSide.ANY);
+					} else {
+						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.SERVER, EventSide.ANY);
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			Topography.getLog().error("Script error: ", e);
 		}
 	}
 }

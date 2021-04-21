@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
@@ -20,7 +19,6 @@ import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
-import com.bloodnbonesgaming.topography.common.util.scripts.ScriptUtil;
 
 public class GlobalConfig {
 	
@@ -47,11 +45,13 @@ public class GlobalConfig {
 	}
 	
 	public void init() {
+		clean();
 		read();
 	}
 	
 	public void clean() {
-		
+		this.presets.clear();
+		this.currentPreset = null;
 	}
 	
 	private void read() {
@@ -98,6 +98,7 @@ public class GlobalConfig {
 					engine.eval("var StructureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.StructureHelper\")");
 					engine.eval("var WorldHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.WorldHelper\")");
 					engine.eval("var Util = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util\")");
+					engine.eval("var EventSide = Java.type(\"com.bloodnbonesgaming.topography.common.util.EventSide\")");
 					
 					engine.put("registerPreset", (Consumer<Preset>)this::registerPreset);
 					engine.put("registerPreset", (QuadFunction<String, String, String, String, Preset>)this::registerPreset);

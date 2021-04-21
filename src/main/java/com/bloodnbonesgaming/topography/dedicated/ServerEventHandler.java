@@ -1,24 +1,27 @@
 package com.bloodnbonesgaming.topography.dedicated;
 
-import java.util.Map.Entry;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.OptionalLong;
 import java.util.function.Supplier;
 
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
+import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
+import com.bloodnbonesgaming.topography.common.network.SyncPacket;
+import com.bloodnbonesgaming.topography.common.network.TopoPacketHandler;
+import com.bloodnbonesgaming.topography.common.util.EventSide;
 import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.util.StructureHelper;
 import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
 import com.bloodnbonesgaming.topography.common.world.DimensionTypeTopography;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Lifecycle;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.command.CommandSource;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -28,7 +31,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.Dimension;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.ColumnFuzzedBiomeMagnifier;
@@ -48,9 +50,12 @@ import net.minecraft.world.storage.ISpawnWorldInfo;
 import net.minecraft.world.storage.ServerWorldInfo;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ServerEventHandler {
@@ -216,6 +221,34 @@ public class ServerEventHandler {
 					}
 				}
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
+		Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+		
+		if (preset != null) {
+			TopoPacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)event.getPlayer()), new SyncPacket().setPreset(preset.internalID));
+		}
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onAllEvents(Event event) {
+		try {
+			GlobalConfig global = ConfigurationManager.getGlobalConfig();
+			
+			if (global != null) {
+				Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+				
+				if (preset != null) {
+					preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.DEDICATED, EventSide.SERVER, EventSide.ANY);
+									
+				}
+			}
+		}
+		catch(Exception e) {
+			Topography.getLog().error("Script error: ", e);
 		}
 	}
 }

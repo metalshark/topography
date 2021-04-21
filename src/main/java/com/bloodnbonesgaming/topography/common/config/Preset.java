@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import javax.script.ScriptEngineManager;
 
 import com.bloodnbonesgaming.topography.Topography;
-import com.bloodnbonesgaming.topography.common.util.ForgeEvents;
+import com.bloodnbonesgaming.topography.common.util.EventSide;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
@@ -27,7 +27,7 @@ public class Preset {
 	public final Map<ResourceLocation, String> dimensions = new HashMap<ResourceLocation, String>();
 	public final Map<ResourceLocation, DimensionDef> defs = new HashMap<ResourceLocation, DimensionDef>();
 	//Script event subscribers
-	private final Map<String, List<Consumer>> scriptEventSubscribers = new HashMap<String, List<Consumer>>();
+	private final Map<EventSide, Map<String, List<Consumer>>> scriptEventSubscribers = new HashMap<EventSide, Map<String, List<Consumer>>>();
 	
 	public Preset(String internalID) {
 		this.internalID = internalID;
@@ -79,22 +79,40 @@ public class Preset {
 	}
 	
 	public Preset registerEventHandler(String eventType, Consumer event) {
-		if (!this.scriptEventSubscribers.containsKey(eventType)) {
-			this.scriptEventSubscribers.put(eventType, new ArrayList<Consumer>());
+		return this.registerEventHandler(eventType, EventSide.ANY, event);
+	}
+	
+	public Preset registerEventHandler(String eventType, EventSide side, Consumer event) {
+		if (!this.scriptEventSubscribers.containsKey(side)) {
+			this.scriptEventSubscribers.put(side, new HashMap<String, List<Consumer>>());
 		}
-		this.scriptEventSubscribers.get(eventType).add(event);
+		Map<String, List<Consumer>> eventMap = this.scriptEventSubscribers.get(side);
+		if (!eventMap.containsKey(eventType)) {
+			eventMap.put(eventType, new ArrayList<Consumer>());
+		}
+		eventMap.get(eventType).add(event);
 		return this;
 	}
 	
 	public Preset registerEventHandler(String eventType, Class eventClass) throws InstantiationException, IllegalAccessException {
+		return registerEventHandler(eventType, EventSide.ANY, eventClass);
+	}
+	
+	public Preset registerEventHandler(String eventType, EventSide side, Class eventClass) throws InstantiationException, IllegalAccessException {
 		Consumer event = (Consumer) eventClass.newInstance();
 		return registerEventHandler(eventType, event);
 	}
 	
-	public void fireEventSubscribers(String eventType, Event event) {
-		if (this.scriptEventSubscribers.containsKey(eventType)) {
-			for (Consumer consumer : this.scriptEventSubscribers.get(eventType)) {
-				consumer.accept((Object)event);
+	public void fireEventSubscribers(String eventType, Event event, EventSide... sides) {
+		for (EventSide side : sides) {
+			if (this.scriptEventSubscribers.containsKey(side)) {
+				Map<String, List<Consumer>> eventMap = this.scriptEventSubscribers.get(side);
+				
+				if (eventMap.containsKey(eventType)) {
+					for (Consumer consumer : eventMap.get(eventType)) {
+						consumer.accept((Object)event);
+					}
+				}
 			}
 		}
 		for (DimensionDef def : this.defs.values()) {

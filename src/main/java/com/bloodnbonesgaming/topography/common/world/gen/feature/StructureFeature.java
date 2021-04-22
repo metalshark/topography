@@ -125,7 +125,7 @@ public class StructureFeature extends RegionFeature<StructureFeatureConfig> {
 				config.regionPositionRand.setSeed(this.getRegionSeed(config, regionX, regionZ, reader.getSeed()) + posIndex);
 				
 				//Spawn structure
-				Rotation rotation = Rotation.NONE;
+				Rotation rotation = Rotation.randomRotation(config.regionPositionRand);
 			    Template template = config.getTemplate();
 			    ChunkPos chunkpos = new ChunkPos(pos);
 			    MutableBoundingBox mutableboundingbox = new MutableBoundingBox(chunkpos.getXStart(), 0, chunkpos.getZStart(), chunkpos.getXEnd(), 256, chunkpos.getZEnd());

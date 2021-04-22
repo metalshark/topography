@@ -61,6 +61,8 @@ public class DimensionDef {
 	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
 	private DimensionType  dimensionType = null;
 	public final List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>> regionFeatures = new ArrayList<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>();
+	private float minGamma = 0;
+	private float maxGamma = 1;
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -260,6 +262,24 @@ public class DimensionDef {
 		this.regionFeatures.add(feature);
 		return this;
 	}
+	
+	public DimensionDef minGamma(double gamma) {
+		this.minGamma = (float) gamma;
+		return this;
+	}
+	
+	public DimensionDef maxGamma(double gamma) {
+		this.maxGamma = (float) gamma;
+		return this;
+	}
+	
+	public float getMinGamma() {
+		return this.minGamma;
+	}
+	
+	public float getMaxGamma() {
+		return this.maxGamma;
+	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {
 		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + path + ".js");
@@ -309,6 +329,8 @@ public class DimensionDef {
 			engine.put("setStructureSpacing", (QuadFunction<String, Integer, Integer, Integer, DimensionDef>)def::setStructureSpacing);
 			engine.put("setDimensionType", (Function<DimensionType, DimensionDef>)def::setDimensionType);
 			engine.put("addRegionFeature", (Function<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>, DimensionDef>)def::addRegionFeature);
+			engine.put("minGamma", (Function<Double, DimensionDef>)def::minGamma);
+			engine.put("maxGamma", (Function<Double, DimensionDef>)def::maxGamma);
 			engine.eval(reader);
 
 			return def;

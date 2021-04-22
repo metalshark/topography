@@ -2,6 +2,7 @@ package com.bloodnbonesgaming.topography.common.network;
 
 import java.util.function.Supplier;
 
+import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 
 import net.minecraft.network.PacketBuffer;
@@ -27,8 +28,12 @@ public class SyncPacket {
 	
 	public static void handleMsg(SyncPacket packet, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
+			Topography.getLog().info("Read syncpacket " + packet.preset);
 			ConfigurationManager.getGlobalConfig().init();
 			ConfigurationManager.getGlobalConfig().setPreset(packet.preset);
+			if (ConfigurationManager.getGlobalConfig().getPreset() != null) {
+				ConfigurationManager.getGlobalConfig().getPreset().readDimensionDefs();
+			}
 		});
 	}
 }

@@ -11,6 +11,9 @@ public class DimensionTypeBuilder {
 	
 	private ResourceLocation effects = new ResourceLocation("overworld");
 	private OptionalLong fixedTime = OptionalLong.empty();
+	private boolean hasSkylight = true;
+	private boolean hasCeiling = false;
+	private float[] ambientWorldLight = null;
 	
 	public DimensionTypeBuilder fixedTime(long time) {
 		this.fixedTime = OptionalLong.of(time);
@@ -22,7 +25,27 @@ public class DimensionTypeBuilder {
 		return this;
 	}
 	
+	public DimensionTypeBuilder skylight(boolean bool) {
+		this.hasSkylight = bool;
+		return this;
+	}
+	
+	//Stops thunder, changes how spawn location locating works, changes map filling range?
+	public DimensionTypeBuilder ceiling(boolean bool) {
+		this.hasCeiling = bool;
+		return this;
+	}
+	
+	public DimensionTypeBuilder lightBrightness(float[] brightness) {
+		this.ambientWorldLight = brightness;
+		return this;
+	}
+	
 	public DimensionType build() {
-		return new DimensionType(fixedTime, true, false, false, true, 1.0D, false, false, true, false, true, 256, ColumnFuzzedBiomeMagnifier.INSTANCE, BlockTags.INFINIBURN_OVERWORLD.getName(), this.effects, 0.0F);
+		DimensionType type = new DimensionType(fixedTime, hasSkylight, hasCeiling, false, true, 1.0D, false, false, true, false, true, 256, ColumnFuzzedBiomeMagnifier.INSTANCE, BlockTags.INFINIBURN_OVERWORLD.getName(), this.effects, 0.0F);
+		if (ambientWorldLight != null) {
+			type.ambientWorldLight = ambientWorldLight;
+		}
+		return type;
 	}
 }

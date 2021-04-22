@@ -342,6 +342,44 @@ function initializeCoreMod() {
         		
                 return method;
             }
+        },
+        'overridelightmap': {
+            'target': {
+                'type': 'METHOD',
+                'class': 'net.minecraft.client.renderer.LightTexture',
+                'methodName': 'func_205106_a',
+                'methodDesc': '(F)V'
+            },
+            'transformer': function(method) {
+                print("Topography injecting into: " + method.name);
+            	
+            	var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
+            	var Opcodes = Java.type('org.objectweb.asm.Opcodes');
+            	var LabelNode = Java.type('org.objectweb.asm.tree.LabelNode');
+            	var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
+            	var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
+            	var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode');
+            	var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
+            	var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
+            	
+            	var target = method.instructions.getFirst();
+        		
+        		if (target == null)
+        		{
+        			throw "Something went wrong in Topography";
+        		}
+            	
+            	var toInject = new InsnList();
+            	//mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "updateLightmap", "(Lnet/minecraft/client/renderer/LightTexture;F)V", null, null);
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            	toInject.add(new VarInsnNode(Opcodes.FLOAD, 1));
+            	toInject.add(ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/client/core/ClientHooks", "updateLightmap", "(Lnet/minecraft/client/renderer/LightTexture;F)V", ASMAPI.MethodType.STATIC));
+            	toInject.add(new InsnNode(Opcodes.RETURN));
+            	
+        		method.instructions.insertBefore(target, toInject);
+        		
+                return method;
+            }
         }
     }
 }

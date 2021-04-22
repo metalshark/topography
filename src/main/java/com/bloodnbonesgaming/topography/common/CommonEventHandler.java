@@ -181,7 +181,7 @@ public class CommonEventHandler {
 	
 	@SubscribeEvent
 	public void onServerStopped(FMLServerStoppedEvent event) {
-		ConfigurationManager.clean();
+		ConfigurationManager.getGlobalConfig().clean();;
 	}
 	
 	@SubscribeEvent

@@ -26,6 +26,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -61,6 +63,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -249,14 +252,10 @@ public class ClientEventHandler {
 				Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
 				
 				if (preset != null) {
-					World world = Util.Client.getWorld();
-					
-					if (world == null) {
-						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.ANY);
-					} else if (world.isRemote) {
-						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.CLIENT, EventSide.ANY);
-					} else {
+					if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER) {
 						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.SERVER, EventSide.ANY);
+					} else {
+						preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.CLIENT, EventSide.ANY);
 					}
 				}
 			}

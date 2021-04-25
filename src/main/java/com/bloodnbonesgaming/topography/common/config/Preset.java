@@ -100,7 +100,7 @@ public class Preset {
 	
 	public Preset registerEventHandler(String eventType, EventSide side, Class eventClass) throws InstantiationException, IllegalAccessException {
 		Consumer event = (Consumer) eventClass.newInstance();
-		return registerEventHandler(eventType, event);
+		return registerEventHandler(eventType, side, event);
 	}
 	
 	public void fireEventSubscribers(String eventType, Event event, EventSide... sides) {

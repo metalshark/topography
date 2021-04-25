@@ -2,6 +2,7 @@ package com.bloodnbonesgaming.topography.common.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 
 public class ClientUtil {
@@ -16,5 +17,9 @@ public class ClientUtil {
 	
 	public PlayerEntity getPlayer() {
 		return getMinecraft().player;
+	}
+	
+	public GameType getGamemode() {
+		return getMinecraft().playerController.getCurrentGameType();
 	}
 }

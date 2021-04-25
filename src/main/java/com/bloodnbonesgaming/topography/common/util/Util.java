@@ -11,5 +11,6 @@ public class Util {
 	public static EffectHelper Effect = new EffectHelper();
 	public static EntityHelper Entity = new EntityHelper();
 	public static WorldHelper World = new WorldHelper();
+	public static PlayerHelper Player = new PlayerHelper();
 	
 }

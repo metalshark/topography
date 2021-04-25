@@ -19,6 +19,7 @@ import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
@@ -196,4 +197,12 @@ public class CommonEventHandler {
 	public void onDataPackRegistriesReload(AddReloadListenerEvent event) {
 		//event.addListener(listener);
 	}
+	
+	@SubscribeEvent
+    public void onGetPotentialSpawns(final WorldEvent.PotentialSpawns event)
+    {
+		if (event.getWorld().getChunk(event.getPos()).isEmptyBetween(0, 255)) {
+			event.setCanceled(true);
+		}
+    }
 }

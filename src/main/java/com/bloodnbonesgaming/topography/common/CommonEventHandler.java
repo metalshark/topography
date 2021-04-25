@@ -10,6 +10,7 @@ import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFeatureRedirectorConfig;
 
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.GenerationStage.Decoration;
@@ -116,10 +117,12 @@ public class CommonEventHandler {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onBiomeLoading(BiomeLoadingEvent event) {
-		event.getGeneration().getFeatures(Decoration.UNDERGROUND_STRUCTURES).add(() -> {
-			return RegionFeatureRedirector.INSTANCE.withConfiguration(NoFeatureConfig.field_236559_b_);
-			//return FeatureHelper.buildConfiguredFeature("topography:region_feature_redirector", NoFeatureConfig.field_236559_b_);
-		});
+		for (Decoration stage : Decoration.values()) {
+			event.getGeneration().getFeatures(stage).add(() -> {
+				return RegionFeatureRedirector.INSTANCE.withConfiguration(new RegionFeatureRedirectorConfig(stage));
+				//return FeatureHelper.buildConfiguredFeature("topography:region_feature_redirector", NoFeatureConfig.field_236559_b_);
+			});
+		}
 		
 		//Topography.getLog().info("BiomeLoadingEvent " + event.getName());
 		try {

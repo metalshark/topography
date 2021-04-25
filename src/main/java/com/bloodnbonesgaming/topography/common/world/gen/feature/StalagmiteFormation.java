@@ -7,6 +7,8 @@ import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.config.StalactiteFormationConfig;
 import com.mojang.serialization.Codec;
 
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FallingBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.world.ISeedReader;
@@ -78,7 +80,17 @@ public class StalagmiteFormation extends RegionFeature<StalactiteFormationConfig
 								
 								if (distanceFromCenter <= config.radius - sizeReduction) {
 									mutable.setPos(x + pos.getX(), y, z + pos.getZ());
-									reader.setBlockState(mutable, config.state, 0);
+									//Make falling blocks fall
+									if (config.state.getBlock() instanceof FallingBlock) {
+										while (mutable.getY() > 0 && !reader.getBlockState(mutable.down()).getMaterial().blocksMovement()) {
+											mutable.setY(mutable.getY() - 1);
+										}
+										if (mutable.getY() > 0) {
+											reader.setBlockState(mutable, config.state, 0);
+										}
+									} else {
+										reader.setBlockState(mutable, config.state, 0);
+									}
 									changes = true;
 								} else {
 									break;

@@ -37,6 +37,7 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.GenerationStage.Decoration;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -60,7 +61,7 @@ public class DimensionDef {
 	private String guiBackground = null;
 	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
 	private DimensionType  dimensionType = null;
-	public final List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>> regionFeatures = new ArrayList<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>();
+	public final Map<Decoration, List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>> regionFeatures = new HashMap<Decoration, List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>>();
 	private float minGamma = 0;
 	private float maxGamma = 1;
 
@@ -258,8 +259,11 @@ public class DimensionDef {
 		return this;
 	}
 	
-	public DimensionDef addRegionFeature(ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature) {
-		this.regionFeatures.add(feature);
+	public DimensionDef addRegionFeature(GenerationStage.Decoration stage, ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature) {
+		if (!this.regionFeatures.containsKey(stage)) {
+			this.regionFeatures.put(stage, new ArrayList<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>());
+		}
+		this.regionFeatures.get(stage).add(feature);
 		return this;
 	}
 	
@@ -328,7 +332,7 @@ public class DimensionDef {
 			engine.put("registerEventHandler", (BiFunction<String, Consumer<Event>, DimensionDef>)def::registerEventHandler);
 			engine.put("setStructureSpacing", (QuadFunction<String, Integer, Integer, Integer, DimensionDef>)def::setStructureSpacing);
 			engine.put("setDimensionType", (Function<DimensionType, DimensionDef>)def::setDimensionType);
-			engine.put("addRegionFeature", (Function<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>, DimensionDef>)def::addRegionFeature);
+			engine.put("addRegionFeature", (BiFunction<GenerationStage.Decoration, ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>, DimensionDef>)def::addRegionFeature);
 			engine.put("minGamma", (Function<Double, DimensionDef>)def::minGamma);
 			engine.put("maxGamma", (Function<Double, DimensionDef>)def::maxGamma);
 			engine.eval(reader);

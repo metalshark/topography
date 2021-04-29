@@ -33,6 +33,16 @@ public final class Functions {
 	}
 	
 	@FunctionalInterface
+	public interface HexFunction<T, U, V, W, X, Y, R> {
+		R apply(T var, U var2, V var3, W var4, X var5, Y var6);
+	}
+	
+	@FunctionalInterface
+	public interface HepFunction<T, U, V, W, X, Y, R, Z> {
+		R apply(T var, U var2, V var3, W var4, X var5, Y var6, Z var7);
+	}
+	
+	@FunctionalInterface
 	public interface QuadConsumer<T, U, V, W> {
 		void apply(T var, U var2, V var3, W var4);
 	}

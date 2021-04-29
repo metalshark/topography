@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import com.bloodnbonesgaming.topography.ModInfo;
+import com.bloodnbonesgaming.topography.common.world.StructureTemplate;
 
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.nbt.CompoundNBT;
@@ -30,7 +31,7 @@ public class IOHelper {
                 
 //                if (nbt != null)
                 {
-                    final Template template = new Template();
+                    final StructureTemplate template = new StructureTemplate();
                     template.read(nbt);
                     
                     return template;

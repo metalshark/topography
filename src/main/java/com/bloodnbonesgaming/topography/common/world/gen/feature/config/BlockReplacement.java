@@ -1,11 +1,12 @@
 package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 
+import java.util.List;
 import java.util.Random;
 
-import com.bloodnbonesgaming.topography.common.util.Functions.QuinFunction;
+import com.bloodnbonesgaming.topography.common.util.Functions.HepFunction;
+import com.bloodnbonesgaming.topography.common.world.TStructureProcessor;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
@@ -16,8 +17,9 @@ import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.feature.template.StructureProcessor;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.gen.feature.template.Template.BlockInfo;
+import net.minecraft.world.gen.feature.template.Template.EntityInfo;
 
-public class BlockReplacement extends StructureProcessor {
+public class BlockReplacement extends TStructureProcessor {
 	
 
 	public static final BlockReplacement INSTANCE = new BlockReplacement();
@@ -25,9 +27,9 @@ public class BlockReplacement extends StructureProcessor {
 		return INSTANCE;
 	}).stable();
 	public static IStructureProcessorType<?> TYPE;
-	private final QuinFunction<BlockInfo, BlockPos, BlockState, CompoundNBT, Random, BlockInfo> function;
+	private final HepFunction<BlockInfo, BlockPos, BlockState, CompoundNBT, Random, List<EntityInfo>, BlockInfo, BlockPos> function;
 	
-	public BlockReplacement(QuinFunction<BlockInfo, BlockPos, BlockState, CompoundNBT, Random, BlockInfo> function) {
+	public BlockReplacement(HepFunction<BlockInfo, BlockPos, BlockState, CompoundNBT, Random, List<EntityInfo>, BlockInfo, BlockPos> function) {
 		this.function = function;
 	}
 	
@@ -36,10 +38,10 @@ public class BlockReplacement extends StructureProcessor {
 	}
 	
 	@Override
-	public BlockInfo process(IWorldReader reader, BlockPos pos, BlockPos pos2, BlockInfo blockInfo, BlockInfo blockInfo2, PlacementSettings settings, Template template) {
+	public BlockInfo process(IWorldReader reader, BlockPos pos, BlockPos pos2, BlockInfo blockInfo, BlockInfo blockInfo2, PlacementSettings settings, Template template, List<EntityInfo> extraEntities) {
 		if (this.function == null)
 			return blockInfo2;
-		return this.function.apply(blockInfo2, blockInfo2.pos, blockInfo2.state, blockInfo2.nbt, settings.getRandom(null));
+		return this.function.apply(blockInfo2, blockInfo2.pos, blockInfo2.state, blockInfo2.nbt, settings.getRandom(null), extraEntities, blockInfo.pos);
 	}
 
 	@Override

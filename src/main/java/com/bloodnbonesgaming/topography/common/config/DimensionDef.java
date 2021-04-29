@@ -309,6 +309,7 @@ public class DimensionDef {
 			engine.eval("var Optional = Java.type(\"java.util.Optional\");");
 			engine.eval("var ProbabilityConfig = Java.type(\"net.minecraft.world.gen.feature.ProbabilityConfig\")");
 			engine.eval("var CellNoiseGenerator = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.CellNoiseGenerator\")");
+			engine.eval("var ChunkGeneratorNoiseTopo = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorNoiseTopo\")");
 			engine.eval("var GenerationPhase = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.GenerationHandler$EnumGenerationPhase\")");
 			engine.eval("var GenerationStage = Java.type(\"net.minecraft.world.gen.GenerationStage\")");
 			engine.eval("var BiomeDictionary = Java.type(\"net.minecraftforge.common.BiomeDictionary\")");

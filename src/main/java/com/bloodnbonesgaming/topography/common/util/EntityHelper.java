@@ -10,9 +10,13 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.feature.template.Template.EntityInfo;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -96,5 +100,17 @@ public class EntityHelper {
 	
 	public World getWorld(Entity entity) {
 		return entity.world;
+	}
+	
+	public EntityInfo buildEntityInfo(Vector3d pos, BlockPos blockPos, CompoundNBT nbt) {
+		return new EntityInfo(pos, blockPos, nbt);
+	}
+	
+	public EntityInfo buildEntityInfo(BlockPos pos, BlockPos blockPos, CompoundNBT nbt) {
+		return new EntityInfo(Vector3d.copy(pos), blockPos, nbt);
+	}
+	
+	public CompoundNBT buildNBT(String str) throws CommandSyntaxException {
+		return JsonToNBT.getTagFromJson(str);
 	}
 }

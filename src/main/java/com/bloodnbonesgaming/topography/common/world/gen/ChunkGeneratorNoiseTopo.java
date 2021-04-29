@@ -55,15 +55,15 @@ import net.minecraft.world.spawner.WorldEntitySpawner;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public final class TestGenerator extends ChunkGenerator {
-   public static final Codec<TestGenerator> field_236079_d_ = RecordCodecBuilder.create((p_236091_0_) -> {
+public final class ChunkGeneratorNoiseTopo extends ChunkGenerator {
+   public static final Codec<ChunkGeneratorNoiseTopo> field_236079_d_ = RecordCodecBuilder.create((p_236091_0_) -> {
       return p_236091_0_.group(BiomeProvider.CODEC.fieldOf("biome_source").forGetter((p_236096_0_) -> {
          return p_236096_0_.biomeProvider;
       }), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
          return p_236093_0_.field_236084_w_;
       }), DimensionSettings.field_236098_b_.fieldOf("settings").forGetter((p_236090_0_) -> {
          return p_236090_0_.field_236080_h_;
-      })).apply(p_236091_0_, p_236091_0_.stable(TestGenerator::new));
+      })).apply(p_236091_0_, p_236091_0_.stable(ChunkGeneratorNoiseTopo::new));
    });
    public static final float[] field_222561_h = Util.make(new float[13824], (p_236094_0_) -> {
       for(int i = 0; i < 24; ++i) {
@@ -103,12 +103,15 @@ public final class TestGenerator extends ChunkGenerator {
    public final long field_236084_w_;
    public final Supplier<DimensionSettings> field_236080_h_;
    public final int field_236085_x_;
+   
+   
+   private boolean removeCenterEndIsland = false;
 
-   public TestGenerator(BiomeProvider p_i241975_1_, long p_i241975_2_, Supplier<DimensionSettings> p_i241975_4_) {
+   public ChunkGeneratorNoiseTopo(BiomeProvider p_i241975_1_, long p_i241975_2_, Supplier<DimensionSettings> p_i241975_4_) {
       this(p_i241975_1_, p_i241975_1_, p_i241975_2_, p_i241975_4_);
    }
 
-   private TestGenerator(BiomeProvider p_i241976_1_, BiomeProvider p_i241976_2_, long p_i241976_3_, Supplier<DimensionSettings> p_i241976_5_) {
+   private ChunkGeneratorNoiseTopo(BiomeProvider p_i241976_1_, BiomeProvider p_i241976_2_, long p_i241976_3_, Supplier<DimensionSettings> p_i241976_5_) {
       super(p_i241976_1_, p_i241976_2_, p_i241976_5_.get().getStructures(), p_i241976_3_);
       this.field_236084_w_ = p_i241976_3_;
       DimensionSettings dimensionsettings = p_i241976_5_.get();
@@ -145,7 +148,7 @@ public final class TestGenerator extends ChunkGenerator {
 
    @OnlyIn(Dist.CLIENT)
    public ChunkGenerator func_230349_a_(long p_230349_1_) {
-      return new TestGenerator(this.biomeProvider.getBiomeProvider(p_230349_1_), p_230349_1_, this.field_236080_h_);
+      return new ChunkGeneratorNoiseTopo(this.biomeProvider.getBiomeProvider(p_230349_1_), p_230349_1_, this.field_236080_h_);
    }
 
    public boolean func_236088_a_(long p_236088_1_, RegistryKey<DimensionSettings> p_236088_3_) {
@@ -192,32 +195,6 @@ public final class TestGenerator extends ChunkGenerator {
       this.fillNoiseColumn(adouble, p_222547_1_, p_222547_2_);
       return adouble;
    }
-   public static float getRandomNoise(SimplexNoiseGenerator noiseGenerator, int x, int z) {
-	      int i = x / 2;
-	      int j = z / 2;
-	      int k = x % 2;
-	      int l = z % 2;
-	      float f = 100.0F - MathHelper.sqrt((float)(x * x + z * z)) * 8.0F;
-	      f = MathHelper.clamp(f, -100.0F, 80.0F);
-	      f = -100;
-
-	      for(int i1 = -12; i1 <= 12; ++i1) {
-	         for(int j1 = -12; j1 <= 12; ++j1) {
-	            long k1 = (long)(i + i1);
-	            long l1 = (long)(j + j1);
-	            if (k1 * k1 + l1 * l1 > 4096L && noiseGenerator.getValue((double)k1, (double)l1) < (double)-0.9F) {
-	               float f1 = (MathHelper.abs((float)k1) * 3439.0F + MathHelper.abs((float)l1) * 147.0F) % 13.0F + 9.0F;
-	               float f2 = (float)(k - i1 * 2);
-	               float f3 = (float)(l - j1 * 2);
-	               float f4 = 100.0F - MathHelper.sqrt(f2 * f2 + f3 * f3) * f1;
-	               f4 = MathHelper.clamp(f4, -100.0F, 80.0F);
-	               f = Math.max(f, f4);
-	            }
-	         }
-	      }
-
-	      return f;
-	   }
 
    private void fillNoiseColumn(double[] noiseColumn, int noiseX, int noiseZ) {
       NoiseSettings noisesettings = this.field_236080_h_.get().getNoise();
@@ -655,13 +632,57 @@ public final class TestGenerator extends ChunkGenerator {
    }
 
    public void func_230354_a_(WorldGenRegion p_230354_1_) {
-//      if (!this.field_236080_h_.get().func_236120_h_()) {
-//         int i = p_230354_1_.getMainChunkX();
-//         int j = p_230354_1_.getMainChunkZ();
-//         Biome biome = p_230354_1_.getBiome((new ChunkPos(i, j)).asBlockPos());
-//         SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-//         sharedseedrandom.setDecorationSeed(p_230354_1_.getSeed(), i << 4, j << 4);
-//         WorldEntitySpawner.performWorldGenSpawning(p_230354_1_, biome, i, j, sharedseedrandom);
-//      }
+      if (!this.field_236080_h_.get().func_236120_h_()) {
+         int i = p_230354_1_.getMainChunkX();
+         int j = p_230354_1_.getMainChunkZ();
+         Biome biome = p_230354_1_.getBiome((new ChunkPos(i, j)).asBlockPos());
+         SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+         sharedseedrandom.setDecorationSeed(p_230354_1_.getSeed(), i << 4, j << 4);
+         WorldEntitySpawner.performWorldGenSpawning(p_230354_1_, biome, i, j, sharedseedrandom);
+      }
    }
+   
+   
+   
+   
+   
+   
+   
+
+	public float getRandomNoise(SimplexNoiseGenerator noiseGenerator, int x, int z) {
+		int i = x / 2;
+		int j = z / 2;
+		int k = x % 2;
+		int l = z % 2;
+		float f;
+		
+		if (removeCenterEndIsland) {
+			f = -100;
+		} else {
+			f = 100.0F - MathHelper.sqrt((float) (x * x + z * z)) * 8.0F;
+			f = MathHelper.clamp(f, -100.0F, 80.0F);
+		}
+
+		for (int i1 = -12; i1 <= 12; ++i1) {
+			for (int j1 = -12; j1 <= 12; ++j1) {
+				long k1 = (long) (i + i1);
+				long l1 = (long) (j + j1);
+				if (k1 * k1 + l1 * l1 > 4096L && noiseGenerator.getValue((double) k1, (double) l1) < (double) -0.9F) {
+					float f1 = (MathHelper.abs((float) k1) * 3439.0F + MathHelper.abs((float) l1) * 147.0F) % 13.0F
+							+ 9.0F;
+					float f2 = (float) (k - i1 * 2);
+					float f3 = (float) (l - j1 * 2);
+					float f4 = 100.0F - MathHelper.sqrt(f2 * f2 + f3 * f3) * f1;
+					f4 = MathHelper.clamp(f4, -100.0F, 80.0F);
+					f = Math.max(f, f4);
+				}
+			}
+		}
+		return f;
+	}
+	
+	public ChunkGeneratorNoiseTopo removeCenterEndIsland() {
+		this.removeCenterEndIsland = true;
+		return this;
+	}
 }

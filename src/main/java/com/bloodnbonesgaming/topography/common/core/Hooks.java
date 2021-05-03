@@ -73,7 +73,7 @@ public class Hooks {
 	public static DynamicRegistries.Impl getRegistryForLoadWorld(Minecraft minecraft, String worldName) {
 		try (LevelSave save = minecraft.getSaveLoader().getLevelSave(worldName)) {
 			String line = FileHelper.readLineFromFile(save.getWorldDir().toString() + "/topography.txt");// TODO Check file existence first
-			ConfigurationManager.init();
+			ConfigurationManager.getGlobalConfig().initPresets();
 			ConfigurationManager.getGlobalConfig().setPreset(line);
 		} catch (Exception e) {
 

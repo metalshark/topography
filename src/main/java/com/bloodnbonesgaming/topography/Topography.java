@@ -13,7 +13,6 @@ import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.config.RegistrationConfig;
 import com.bloodnbonesgaming.topography.common.network.TopoPacketHandler;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.world.WorldRegistry;
 import com.bloodnbonesgaming.topography.common.world.biome.provider.MultiBiomeProvider;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorLayersFlat;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands;
@@ -29,7 +28,6 @@ import com.bloodnbonesgaming.topography.common.world.gen.feature.config.BlockRep
 import com.bloodnbonesgaming.topography.proxy.ClientProxy;
 import com.bloodnbonesgaming.topography.proxy.CommonProxy;
 import com.bloodnbonesgaming.topography.proxy.ServerProxy;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.types.Type;
 
 import net.minecraft.block.AbstractBlock;
@@ -41,12 +39,7 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Util;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.settings.DimensionStructuresSettings;
-import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -84,7 +77,6 @@ public class Topography
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
-        WorldRegistry.init();
         TopoPacketHandler.init();
     	ConfigurationManager.init();
     	RegistrationConfig.init();
@@ -92,12 +84,7 @@ public class Topography
 
     private void setup(final FMLCommonSetupEvent event)
     {
-    	//Add custom structures to settings map
-    	DimensionStructuresSettings.field_236191_b_ = ImmutableMap.<Structure<?>, StructureSeparationSettings>builder().putAll(DimensionStructuresSettings.field_236191_b_)
-    			.put(WorldRegistry.FORTRESS.get(), new StructureSeparationSettings(27, 4, 30084232)).build();
-    	
-    	WorldGenRegistries.NOISE_SETTINGS.getValueForKey(DimensionSettings.field_242734_c).getStructures().func_236195_a_().put(WorldRegistry.FORTRESS.get(), new StructureSeparationSettings(27, 4, 30084232));
-    	//^Should add to ALL registered noises
+		ConfigurationManager.getGlobalConfig().initPresets();
     	proxy.setup();
     	proxy.registerEventHandlers();
     }
@@ -107,8 +94,8 @@ public class Topography
     }
     
     private void doServerStuff(final FMLDedicatedServerSetupEvent event) {
-    	//Initialize everything. This happens right before the registry is created.
-    	ConfigurationManager.init();
+    	//Initialize presets. This happens right before the registry is created.
+		ConfigurationManager.getGlobalConfig().initPresets();
     	String[] lines = FileHelper.readLinesFromFile("./server.properties");//TODO Check file existence first;
     	
     	if (lines != null) {
@@ -165,13 +152,17 @@ public class Topography
         
         @SubscribeEvent
         public static void onBlockRegister(final RegistryEvent.Register<Block> event) {
-        	event.getRegistry().register(new StructureBlockExt(AbstractBlock.Properties.create(Material.IRON, MaterialColor.LIGHT_GRAY).setRequiresTool().hardnessAndResistance(-1.0F, 3600000.0F).noDrops()));
+        	if (ConfigurationManager.getGlobalConfig().registerStructureBlockReplacement()) {
+            	event.getRegistry().register(new StructureBlockExt(AbstractBlock.Properties.create(Material.IRON, MaterialColor.LIGHT_GRAY).setRequiresTool().hardnessAndResistance(-1.0F, 3600000.0F).noDrops()));
+        	}
         }
         
         @SubscribeEvent
         public static void onTileEntityTypeRegister(final RegistryEvent.Register<TileEntityType<?>> event) {
-        	Type<?> type = Util.attemptDataFix(TypeReferences.BLOCK_ENTITY, "structure_block");
-        	event.getRegistry().register(TileEntityType.Builder.create(StructureBlockTileEntityExt::new, Blocks.STRUCTURE_BLOCK).build(type).setRegistryName("minecraft:structure_block"));
+        	if (ConfigurationManager.getGlobalConfig().registerStructureBlockReplacement()) {
+            	Type<?> type = Util.attemptDataFix(TypeReferences.BLOCK_ENTITY, "structure_block");
+            	event.getRegistry().register(TileEntityType.Builder.create(StructureBlockTileEntityExt::new, Blocks.STRUCTURE_BLOCK).build(type).setRegistryName("minecraft:structure_block"));
+        	}
         }
         
         public static List<IForgeRegistryEntry> toRegister = new ArrayList<IForgeRegistryEntry>();

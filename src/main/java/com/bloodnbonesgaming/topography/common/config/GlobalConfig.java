@@ -26,6 +26,7 @@ public class GlobalConfig {
 	private Preset currentPreset = null;
 	private String guiBackground = null;
 	private boolean disableExamples = false;
+	private boolean registerStructureBlockReplacement = false;
 	
 	public Preset getPreset() {
 		synchronized(presets) {
@@ -46,7 +47,12 @@ public class GlobalConfig {
 	
 	public void init() {
 		clean();
-		read();
+		readMainconfig();
+	}
+	
+	public void initPresets() {
+		clean();
+		readPresets();
 	}
 	
 	public void clean() {
@@ -54,9 +60,8 @@ public class GlobalConfig {
 		this.currentPreset = null;
 	}
 	
-	private void read() {
+	private void readPresets() {
 		Topography.getLog().info("Reading Javascript");
-		readMainconfig();
 		
 		final File scriptFolder = new File(ModInfo.CONFIG_FOLDER);
 		
@@ -174,5 +179,13 @@ public class GlobalConfig {
 	
 	public boolean getDisableExamples() {
 		return this.disableExamples;
+	}
+	
+	public void registerStructureBlockReplacement(boolean bool) {
+		this.registerStructureBlockReplacement = bool;
+	}
+	
+	public boolean registerStructureBlockReplacement() {
+		return this.registerStructureBlockReplacement;
 	}
 }

@@ -29,7 +29,7 @@ public class SyncPacket {
 	public static void handleMsg(SyncPacket packet, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			Topography.getLog().info("Read syncpacket " + packet.preset);
-			ConfigurationManager.getGlobalConfig().init();
+			ConfigurationManager.getGlobalConfig().initPresets();
 			ConfigurationManager.getGlobalConfig().setPreset(packet.preset);
 			if (ConfigurationManager.getGlobalConfig().getPreset() != null) {
 				ConfigurationManager.getGlobalConfig().getPreset().readDimensionDefs();

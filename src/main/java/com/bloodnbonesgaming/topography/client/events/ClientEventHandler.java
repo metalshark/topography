@@ -46,6 +46,7 @@ import net.minecraft.world.biome.provider.SingleBiomeProvider;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
 import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
@@ -72,8 +73,8 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void OnOpenGui(final GuiOpenEvent event) {
 		if (event.getGui() instanceof CreateWorldScreen && !(event.getGui() instanceof GuiCreateWorld)) {
-			//Initialize the config manager so presets exist for the gui
-			ConfigurationManager.init();
+			//Initialize presets so they exist for the gui
+			ConfigurationManager.getGlobalConfig().initPresets();
 			event.setGui(GuiCreateWorld.func_243425_a(((CreateWorldScreen)event.getGui()).parentScreen));
 		}
 	}
@@ -110,12 +111,12 @@ public class ClientEventHandler {
                                         }
                     	            	Topography.getLog().info("Spawning structure for dimension " + entry.getKey());
                     	            	BlockPos pos = new BlockPos(0, def.spawnStructureHeight, 0);
-                    	            	def.spawnStructure.func_237146_a_(dimWorld, pos, pos, new PlacementSettings(), dimWorld.rand, 2);
+                    	            	def.spawnStructure.func_237146_a_(dimWorld, pos, pos, new PlacementSettings().addProcessor(BlockIgnoreStructureProcessor.AIR_AND_STRUCTURE_BLOCK), dimWorld.rand, 2);
                                         final BlockPos spawn = StructureHelper.getSpawn(def.spawnStructure);
                                         
-                                        if (spawn != null) {
-                        	            	dimWorld.setBlockState(spawn.add(0, def.spawnStructureHeight, 0), Blocks.AIR.getDefaultState(), 2);
-                                        }
+//                                        if (spawn != null) {
+//                        	            	dimWorld.setBlockState(spawn.add(0, def.spawnStructureHeight, 0), Blocks.AIR.getDefaultState(), 2);
+//                                        }
                                         
                                         if (entry.getKey().equals(new ResourceLocation("overworld")))
                                         {

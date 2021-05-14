@@ -19,8 +19,6 @@ public class StructureFeatureConfig extends SquareRegionFeatureConfig implements
 			return config.minSpacing;
 		}), Codec.INT.fieldOf("position_attempt_count").forGetter((config) -> {
 			return config.positionAttemptCount;
-		}), Codec.INT.fieldOf("seed_offset").forGetter((config) -> {
-			return config.featureCountSeedOffset;
 		}), Codec.INT.fieldOf("height").forGetter((config) -> {
 			return config.height;
 		}), Codec.STRING.fieldOf("structure_path").forGetter((config) -> {
@@ -28,8 +26,8 @@ public class StructureFeatureConfig extends SquareRegionFeatureConfig implements
 		})).apply(builder, StructureFeatureConfig::new);
 	});
 
-	public StructureFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int height, String path) {
-		super(regionSize, minSpacing, positionAttemptCount, seedOffset, 0, 0);
+	public StructureFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int height, String path) {
+		super(regionSize, minSpacing, positionAttemptCount, 0, 0);
 		this.path = path;
 		Template template = getTemplate();
 		this.sizeX = template.getSize().getX();

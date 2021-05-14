@@ -26,8 +26,6 @@ public class RegionFeatureRedirector extends Feature<RegionFeatureRedirectorConf
 	
 	public static final RegionFeatureRedirector INSTANCE = new RegionFeatureRedirector(RegionFeatureRedirectorConfig.CODEC);
 	
-	private final Random regionPositionRand = new Random();
-
 	public RegionFeatureRedirector(Codec<RegionFeatureRedirectorConfig> codec) {
 		super(codec);
 		this.setRegistryName(ModInfo.MODID, "region_feature_redirector");
@@ -63,14 +61,12 @@ public class RegionFeatureRedirector extends Feature<RegionFeatureRedirectorConf
 						int regionSize = entry.getKey();
 						int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / regionSize));
 						int regionZ = ((int) Math.floor(Math.floor(chunkZ / 16.0D) * 16D / regionSize));
-						long seed = this.getRegionSeed(regionX, regionZ, reader.getSeed(), regionSize);
-						regionPositionRand.setSeed(seed);
 						
 						Map<BlockPos, RegionFeatureConfig> allPositions = new LinkedHashMap<BlockPos, RegionFeatureConfig>();
 						
 						for (ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature : entry.getValue()) {
 
-							feature.config.regionPositionRand.setSeed(seed);
+							feature.config.regionPositionRand.setSeed(feature.feature.getRegionSeed(feature.config, regionX, regionZ, reader.getSeed()));
 							List<BlockPos> positions = feature.config.generatePositions(allPositions, regionX, regionZ);
 							featurePositions.put(feature, positions);
 						}

@@ -18,8 +18,6 @@ public class CircleRegionFeatureConfig extends RegionFeatureConfig implements IC
 			return config.minSpacing;
 		}), Codec.INT.fieldOf("position_attempt_count").forGetter((config) -> {
 			return config.positionAttemptCount;
-		}), Codec.INT.fieldOf("seed_offset").forGetter((config) -> {
-			return config.featureCountSeedOffset;
 		}), Codec.INT.fieldOf("radius").forGetter((config) -> {
 			return config.radius;
 		})).apply(builder, CircleRegionFeatureConfig::new);
@@ -27,8 +25,8 @@ public class CircleRegionFeatureConfig extends RegionFeatureConfig implements IC
 	
 	public final int radius;
 
-	public CircleRegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int radius) {
-		super(regionSize, minSpacing, positionAttemptCount, seedOffset);
+	public CircleRegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int radius) {
+		super(regionSize, minSpacing, positionAttemptCount);
 		this.radius = radius;
 	}
 

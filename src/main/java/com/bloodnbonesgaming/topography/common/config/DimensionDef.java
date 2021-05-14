@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -260,6 +261,12 @@ public class DimensionDef {
 	}
 	
 	public DimensionDef addRegionFeature(GenerationStage.Decoration stage, ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>> feature) {
+		int seedOffset = 0;
+		for (Entry<Decoration, List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>> entry : this.regionFeatures.entrySet()) {
+			seedOffset += entry.getValue().size();
+		}
+		feature.config.featureCountSeedOffset = seedOffset;
+		
 		if (!this.regionFeatures.containsKey(stage)) {
 			this.regionFeatures.put(stage, new ArrayList<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>());
 		}

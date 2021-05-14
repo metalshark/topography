@@ -8,8 +8,8 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class SquareRegionFeatureConfig extends RegionFeatureConfig implements ISquareConfig {
 	
-	public SquareRegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int sizeX, int sizeZ) {
-		super(regionSize, minSpacing, positionAttemptCount, seedOffset);
+	public SquareRegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int sizeX, int sizeZ) {
+		super(regionSize, minSpacing, positionAttemptCount);
 		this.sizeX = sizeX;
 		this.sizeZ = sizeZ;
 	}

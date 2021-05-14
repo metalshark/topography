@@ -16,8 +16,6 @@ public class StalactiteFormationConfig extends CircleRegionFeatureConfig {
 			return config.minSpacing;
 		}), Codec.INT.fieldOf("position_attempt_count").forGetter((config) -> {
 			return config.positionAttemptCount;
-		}), Codec.INT.fieldOf("seed_offset").forGetter((config) -> {
-			return config.featureCountSeedOffset;
 		}), Codec.INT.fieldOf("radius").forGetter((config) -> {
 			return config.radius;
 		}), Codec.INT.fieldOf("size_reduction_chance").forGetter((config) -> {
@@ -31,8 +29,8 @@ public class StalactiteFormationConfig extends CircleRegionFeatureConfig {
 	public final int sizeReductionAttemptCount;
 	public final BlockState state;
 
-	public StalactiteFormationConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int seedOffset, int size, int sizeReductionChance, int sizeReductionAttemptCount) {
-		super(regionSize, minSpacing, positionAttemptCount, seedOffset, size);
+	public StalactiteFormationConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int size, int sizeReductionChance, int sizeReductionAttemptCount) {
+		super(regionSize, minSpacing, positionAttemptCount, size);
 		this.state = state;
 		this.sizeReductionChance = sizeReductionChance;
 		this.sizeReductionAttemptCount = sizeReductionAttemptCount;

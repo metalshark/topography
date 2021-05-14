@@ -25,17 +25,16 @@ public abstract class RegionFeatureConfig implements IFeatureConfig {
 	public final int regionSize;
 	public final int minSpacing;
 	public final int positionAttemptCount;
-	public final int featureCountSeedOffset;
+	public int featureCountSeedOffset = 0;
 	
 	public final Random regionPositionRand = new Random();
 	
 	
 	
-	public RegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount, int seedOffset) {
+	public RegionFeatureConfig(int regionSize, int minSpacing, int positionAttemptCount) {
 		this.regionSize = regionSize * 16;
 		this.minSpacing = minSpacing;
 		this.positionAttemptCount = positionAttemptCount;
-		this.featureCountSeedOffset = seedOffset;
 	}
 	
 	public abstract List<BlockPos> generatePositions(Map<BlockPos, RegionFeatureConfig> allPositions, int regionX, int regionZ);

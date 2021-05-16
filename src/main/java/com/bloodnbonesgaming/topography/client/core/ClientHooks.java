@@ -13,6 +13,7 @@ import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.list.AbstractList;
+import net.minecraft.client.gui.widget.list.ResourcePackList;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -80,7 +81,9 @@ public class ClientHooks {
 			}
 		}
 		if (texture != null) {
-			texture.render(minecraft, list.width, list.height);
+			if (!(list instanceof ResourcePackList)) {
+				texture.render(minecraft, list.width, list.height);
+			}
 		}
 	}
 	

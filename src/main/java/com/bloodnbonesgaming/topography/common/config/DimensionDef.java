@@ -299,10 +299,10 @@ public class DimensionDef {
 
 		try (BufferedReader reader = FileHelper.openReader(scriptFile)) {
 			engine.eval("var Topography = Java.type(\"com.bloodnbonesgaming.topography.Topography\")");
-			engine.eval("var RegistryHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.RegistryHelper\")");
-			engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
-			engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
-			engine.eval("var DimensionHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.DimensionHelper\")");
+//			engine.eval("var RegistryHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.RegistryHelper\")");
+//			engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
+//			engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
+//			engine.eval("var DimensionHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.DimensionHelper\")");
 			engine.eval("var ChunkGeneratorVoid = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid\");");
 			engine.eval("var ChunkGeneratorSimplexSkylands = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorSimplexSkylands\");");
 			engine.eval("var ChunkGeneratorLayersFlat = Java.type(\"com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorLayersFlat\");");

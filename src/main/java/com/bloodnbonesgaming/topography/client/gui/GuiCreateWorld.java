@@ -26,7 +26,6 @@ import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.IOHelper;
-import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
@@ -55,7 +54,6 @@ import net.minecraft.resources.ResourcePackList;
 import net.minecraft.resources.ServerPackFinder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.FileUtil;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.datafix.codec.DatapackCodec;
 import net.minecraft.util.registry.DynamicRegistries;
@@ -342,7 +340,7 @@ public class GuiCreateWorld extends Screen {
 					
 					if (preset != null) {
 						registry = DynamicRegistries.func_239770_b_();
-						RegistryHelper.UpdateRegistries(registry);
+						com.bloodnbonesgaming.topography.common.util.Util.Registries.UpdateRegistries(registry);
 						preset.readDimensionDefs();
 					} else {
 						registry = DynamicRegistries.func_239770_b_();

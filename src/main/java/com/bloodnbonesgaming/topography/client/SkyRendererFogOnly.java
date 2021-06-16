@@ -67,7 +67,7 @@ public class SkyRendererFogOnly implements ISkyRenderHandler {
 	public void render(int ticks, float partialTicks, MatrixStack matrixStack, ClientWorld world, Minecraft mc) {
 		RenderSystem.disableTexture();
         Vector3d vector3d = world.getSkyColor(mc.gameRenderer.getActiveRenderInfo().getBlockPos(), partialTicks);
-        vector3d = new Vector3d(0.1, 0.1, 0.1);
+        vector3d = new Vector3d(0.0, 0.0, 0.0);
         float f = (float)vector3d.x;
         float f1 = (float)vector3d.y;
         float f2 = (float)vector3d.z;

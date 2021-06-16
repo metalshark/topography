@@ -3,7 +3,7 @@ package com.bloodnbonesgaming.topography.common.world.biome.provider;
 import java.util.List;
 import java.util.function.LongFunction;
 
-import com.bloodnbonesgaming.topography.common.util.BiomeHelper;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.world.gen.layer.RandomBiomeBaseLayer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -51,7 +51,7 @@ public class MultiBiomeProvider extends BiomeProvider {
 	private final Layer layerGen;
 
 	public MultiBiomeProvider(long seed, Registry<Biome> biomeRegistry) throws Exception {
-		this(BiomeHelper.forBiomes("plains"), seed, 4, biomeRegistry);
+		this(Util.Biomes.forBiomes("plains"), seed, 4, biomeRegistry);
 	}
 
 	public MultiBiomeProvider(List<Biome> biomes, long seed, int biomeSize, Registry<Biome> biomeRegistry) {

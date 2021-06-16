@@ -2,7 +2,7 @@ package com.bloodnbonesgaming.topography.proxy;
 
 import com.bloodnbonesgaming.topography.common.CommonEventHandler;
 import com.bloodnbonesgaming.topography.common.util.ClientUtil;
-import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
+import com.bloodnbonesgaming.topography.common.util.Util;
 
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,7 +18,7 @@ public abstract class CommonProxy {
 	}
 	
 	public DynamicRegistries.Impl getRegistries() {
-		return RegistryHelper.getRegistry();
+		return Util.Registries.getRegistry();
 	}
 	
 	public abstract ClientUtil makeClientUtil();

@@ -87,21 +87,21 @@ public class GlobalConfig {
 					engine.eval("var Preset = Java.type(\"com.bloodnbonesgaming.topography.common.config.Preset\")");
 					engine.eval("var GenerationStage = Java.type(\"net.minecraft.world.gen.GenerationStage\")");
 					engine.eval("var Feature = Java.type(\"net.minecraft.world.gen.feature.Feature\")");
-					engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
-					engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
+//					engine.eval("var BlockHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BlockHelper\")");
+//					engine.eval("var BiomeHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.BiomeHelper\")");
 					engine.eval("var OreFeatureConfig = Java.type(\"net.minecraft.world.gen.feature.OreFeatureConfig\")");
 					engine.eval("var AlwaysTrueRuleTest = Java.type(\"net.minecraft.world.gen.feature.template.AlwaysTrueRuleTest\")");
 					engine.eval("var ResourceLocation = Java.type(\"net.minecraft.util.ResourceLocation\")");
 					engine.eval("var OreFeatureConfig = Java.type(\"net.minecraft.world.gen.feature.OreFeatureConfig\")");
 					engine.eval("var ForgeRegistries = Java.type(\"net.minecraftforge.registries.ForgeRegistries\")");
-					engine.eval("var FeatureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.FeatureHelper\")");
-					engine.eval("var OreHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.OreHelper\")");
-					engine.eval("var EntityHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.EntityHelper\")");
-					engine.eval("var ItemHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.ItemHelper\")");
+//					engine.eval("var FeatureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util.Feature\")");
+//					engine.eval("var OreHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.OreHelper\")");
+//					engine.eval("var EntityHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.EntityHelper\")");
+//					engine.eval("var ItemHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.ItemHelper\")");
 					engine.eval("var Consumer = Java.type(\"java.util.function.Consumer\")");
 					engine.eval("var BiomeDictionary = Java.type(\"net.minecraftforge.common.BiomeDictionary\")");
-					engine.eval("var StructureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.StructureHelper\")");
-					engine.eval("var WorldHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.WorldHelper\")");
+//					engine.eval("var StructureHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.features.StructureHelper\")");
+//					engine.eval("var WorldHelper = Java.type(\"com.bloodnbonesgaming.topography.common.util.WorldHelper\")");
 					engine.eval("var Util = Java.type(\"com.bloodnbonesgaming.topography.common.util.Util\")");
 					engine.eval("var EventSide = Java.type(\"com.bloodnbonesgaming.topography.common.util.EventSide\")");
 					
@@ -139,6 +139,7 @@ public class GlobalConfig {
 		{
 			engine.put("setGuiBackground", (Consumer<String>)this::setGuiBackground);
 			engine.put("disableExamples", (Consumer<Boolean>)this::disableExamples);
+			engine.put("registerStructureBlockReplacement", (Consumer<Boolean>)this::registerStructureBlockReplacement);
 			engine.eval(reader);		
 			
 		} catch (final Exception e)

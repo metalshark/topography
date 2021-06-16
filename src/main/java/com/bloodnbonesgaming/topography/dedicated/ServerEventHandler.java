@@ -13,9 +13,9 @@ import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.network.SyncPacket;
 import com.bloodnbonesgaming.topography.common.network.TopoPacketHandler;
 import com.bloodnbonesgaming.topography.common.util.EventSide;
-import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
 import com.bloodnbonesgaming.topography.common.util.StructureHelper;
 import com.bloodnbonesgaming.topography.common.util.TopographyWorldData;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.world.DimensionTypeTopography;
 import com.bloodnbonesgaming.topography.common.world.gen.ChunkGeneratorVoid;
 import com.mojang.serialization.Lifecycle;
@@ -80,7 +80,7 @@ public class ServerEventHandler {
 				Topography.getLog().info("Using preset: " + preset.internalID);
 				Impl impl = event.getServer().field_240767_f_;
 				
-				RegistryHelper.UpdateRegistries(impl);
+				Util.Registries.UpdateRegistries(impl);
 				preset.readDimensionDefs();
 				//Make new registry instead of reusing the current one^
 				//DynamicRegistries.Impl impl = DynamicRegistries.func_239770_b_();

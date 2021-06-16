@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.bloodnbonesgaming.topography.ModInfo;
-import com.bloodnbonesgaming.topography.common.world.gen.feature.config.StalactiteFormationConfig;
+import com.bloodnbonesgaming.topography.common.world.gen.feature.config.SpeleothemConfig;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.math.BlockPos;
@@ -12,17 +12,17 @@ import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
 
-public class ColumnFormation extends RegionFeature<StalactiteFormationConfig> {
+public class ColumnFormation extends RegionFeature<SpeleothemConfig> {
 	
-	public static final ColumnFormation INSTANCE = new ColumnFormation(StalactiteFormationConfig.CODEC);
+	public static final ColumnFormation INSTANCE = new ColumnFormation(SpeleothemConfig.CODEC);
 
-	public ColumnFormation(Codec<StalactiteFormationConfig> codec) {
+	public ColumnFormation(Codec<SpeleothemConfig> codec) {
 		super(codec);
 		this.setRegistryName(ModInfo.MODID, "column_formation");
 	}
 
 	@Override
-	public boolean generate(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, StalactiteFormationConfig config) {
+	public boolean generate(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, SpeleothemConfig config) {
 		int chunkX = pos.getX() / 16 * 16;
 		int chunkZ = pos.getZ() / 16 * 16;
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));
@@ -33,7 +33,7 @@ public class ColumnFormation extends RegionFeature<StalactiteFormationConfig> {
 	}
 
 	@Override
-	public boolean generate(ISeedReader reader, Random rand, BlockPos pos, StalactiteFormationConfig config, List<BlockPos> positions) {
+	public boolean generate(ISeedReader reader, Random rand, BlockPos pos, SpeleothemConfig config, List<BlockPos> positions) {
 		int chunkX = pos.getX() / 16 * 16;
 		int chunkZ = pos.getZ() / 16 * 16;
 		int regionX = ((int) Math.floor(Math.floor(chunkX / 16.0D) * 16D / config.regionSize));

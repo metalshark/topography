@@ -1,12 +1,34 @@
-
-setSpawnStructure("examples/structures/oaktree", 64);
+/*
+ * This file makes an empty void dimension with end biomes.
+ */
 
 function buildChunkGenerator(seed, biomeRegistry, dimensionSettingsRegistry) {
-	var biomes = BiomeHelper.forNether();
-	
-	var biomeProvider = new MultiBiomeProvider(biomes, seed, 6, biomeRegistry);
-	
+	/*
+	 * Creates a list of biomes, removing ones from the two remove lists
+	 */
+	var biomesToRemove = Java.to(
+		[],
+		"java.lang.String[]"
+	);
+	var biomeTypesToRemove = Java.to(
+		[
+			BiomeDictionary.Type.WATER,
+			BiomeDictionary.Type.BEACH,
+			BiomeDictionary.Type.VOID,
+			BiomeDictionary.Type.OCEAN,
+		],
+		"net.minecraftforge.common.BiomeDictionary$Type[]"
+	);
+	var biomes = Util.Biomes.withoutBiomes(Util.Biomes.withoutTypes(Util.Biomes.forNether(), biomeTypesToRemove), biomesToRemove);
+	/*
+	 * Makes the BiomeProvider
+	 * biomes, seed, biome size, registry
+	 */
+	var biomeProvider = new MultiBiomeProvider(biomes, seed, 4, biomeRegistry);
+	/*
+	 * Makes the ChunkGenerator
+	 */
 	return new ChunkGeneratorVoid(biomeProvider, function() {
-		return RegistryHelper.get(dimensionSettingsRegistry, "minecraft:nether");
+		return Util.Registries.get(dimensionSettingsRegistry, "minecraft:nether");
 	}, seed);
 }

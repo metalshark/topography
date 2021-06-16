@@ -86,7 +86,7 @@ public class PresetListWidget extends ExtendedList<PresetListWidget.PresetEntry>
     	       //this.minecraft.getTextureManager().bindTexture(AbstractGui.BACKGROUND_LOCATION);
     	       RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     	       float f = 32.0F;
-    	       if (this.selected != null) {
+    	       if (this.selected != null) {//Renders the gradient background
     	           RenderSystem.enableBlend();
     	           bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
     	           bufferbuilder.pos((double)this.x0, (double)this.y1, 0.0D).color(32, 32, 32, 125).endVertex();

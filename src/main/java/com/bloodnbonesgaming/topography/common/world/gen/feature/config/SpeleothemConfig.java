@@ -5,9 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.BlockState;
 
-public class StalactiteFormationConfig extends CircleRegionFeatureConfig {
+public class SpeleothemConfig extends CircleRegionFeatureConfig {
 
-	public static final Codec<StalactiteFormationConfig> CODEC = RecordCodecBuilder.create((builder) -> {
+	public static final Codec<SpeleothemConfig> CODEC = RecordCodecBuilder.create((builder) -> {
 		return builder.group(BlockState.CODEC.fieldOf("state").forGetter((config) -> {
 			return config.state;
 	    }), Codec.INT.fieldOf("region_size").forGetter((config) -> {
@@ -22,14 +22,14 @@ public class StalactiteFormationConfig extends CircleRegionFeatureConfig {
 			return config.sizeReductionChance;
 		}), Codec.INT.fieldOf("size_reduction_attempt_count").forGetter((config) -> {
 			return config.sizeReductionAttemptCount;
-		})).apply(builder, StalactiteFormationConfig::new);
+		})).apply(builder, SpeleothemConfig::new);
 	});
 
 	public final int sizeReductionChance;
 	public final int sizeReductionAttemptCount;
 	public final BlockState state;
 
-	public StalactiteFormationConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int size, int sizeReductionChance, int sizeReductionAttemptCount) {
+	public SpeleothemConfig(BlockState state, int regionSize, int minSpacing, int positionAttemptCount, int size, int sizeReductionChance, int sizeReductionAttemptCount) {
 		super(regionSize, minSpacing, positionAttemptCount, size);
 		this.state = state;
 		this.sizeReductionChance = sizeReductionChance;

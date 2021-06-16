@@ -47,7 +47,7 @@ public class Preset {
 				def = DimensionDef.read(entry.getValue(), factory);
 				this.defs.put(entry.getKey(), def);
 			} catch (Exception e) {
-				Topography.getLog().error("Error reading DimensionDef: " + e.getMessage());
+				Topography.getLog().error("Error reading file " + entry.getValue() + ": " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

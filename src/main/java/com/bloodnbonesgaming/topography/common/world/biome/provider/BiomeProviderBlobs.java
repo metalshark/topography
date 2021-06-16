@@ -3,20 +3,14 @@ package com.bloodnbonesgaming.topography.common.world.biome.provider;
 import java.util.List;
 
 import com.bloodnbonesgaming.topography.Topography;
-import com.bloodnbonesgaming.topography.common.util.BiomeHelper;
-import com.bloodnbonesgaming.topography.common.util.noise.NoiseUtil;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.util.noise.OpenSimplexNoiseGeneratorOctaves;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryLookupCodec;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.biome.provider.EndBiomeProvider;
-import net.minecraft.world.biome.provider.SingleBiomeProvider;
-
-import com.google.common.collect.ImmutableList;
 
 public class BiomeProviderBlobs extends BiomeProvider {
 
@@ -29,7 +23,7 @@ public class BiomeProviderBlobs extends BiomeProvider {
 	private final long seed;
 	
 	public BiomeProviderBlobs(long seed) {
-		this(BiomeHelper.allBiomes(), seed);
+		this(Util.Biomes.allBiomes(), seed);
 	}
 
 	public BiomeProviderBlobs(List<Biome> biomes, long seed) {
@@ -55,9 +49,9 @@ public class BiomeProviderBlobs extends BiomeProvider {
 		
 		try {
 			if (val - heightReduction >= minNoise) {
-				return BiomeHelper.getBiome("plains");
+				return Util.Biomes.getBiome("plains");
 			} else {
-				return BiomeHelper.getBiome("the_void");
+				return Util.Biomes.getBiome("the_void");
 			}
 		} catch(Exception e) {
 			Topography.getLog().error("Error getting biome for gen: ", e);

@@ -6,7 +6,7 @@ import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
-import com.bloodnbonesgaming.topography.common.util.RegistryHelper;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.world.gen.GenerationHandler.EnumGenerationPhase;
 
 import net.minecraft.client.Minecraft;
@@ -79,7 +79,7 @@ public class Hooks {
 
 		}
 		DynamicRegistries.Impl registry = DynamicRegistries.func_239770_b_();
-		RegistryHelper.UpdateRegistries(registry);
+		Util.Registries.UpdateRegistries(registry);
 		try {
 			Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
 

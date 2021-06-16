@@ -204,9 +204,6 @@ public class ClientHooks {
 	                  if (def != null) {
 	                	  f11 = Math.max(f11, def.getMinGamma());
 	                	  f11 = Math.min(f11, def.getMaxGamma());
-	                  } else {
-
-	                	  Topography.getLog().info("def null");
 	                  }
 	                  Vector3f vector3f4 = vector3f1.copy();
 	                  vector3f4.apply(ClientHooks::invGamma);

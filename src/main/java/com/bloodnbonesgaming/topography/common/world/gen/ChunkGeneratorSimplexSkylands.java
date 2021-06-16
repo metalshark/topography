@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import com.bloodnbonesgaming.topography.Topography;
-import com.bloodnbonesgaming.topography.common.util.BiomeHelper;
+import com.bloodnbonesgaming.topography.common.util.Util;
 import com.bloodnbonesgaming.topography.common.util.noise.NoiseUtil;
 import com.bloodnbonesgaming.topography.common.util.noise.OpenSimplexNoiseGeneratorOctaves;
 import com.bloodnbonesgaming.topography.common.world.gen.layer.RandomBiomeBaseLayer;
@@ -338,7 +338,7 @@ public class ChunkGeneratorSimplexSkylands extends ChunkGenerator {
 		private final double verticalScale;
 
 		public BP(long seed, Registry<Biome> biomeRegistry) throws Exception {
-			this(BiomeHelper.forBiomes("plains"), seed, 4, biomeRegistry, 128, 32);
+			this(Util.Biomes.forBiomes("plains"), seed, 4, biomeRegistry, 128, 32);
 		}
 
 		public BP(List<Biome> biomes, long seed, int biomeSize, Registry<Biome> biomeRegistry, double horizontalScale, double verticalScale) {

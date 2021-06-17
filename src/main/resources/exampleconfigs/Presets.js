@@ -41,7 +41,7 @@ registerPreset("void", "Void Worlds", "examples/images/Basic_Tree", "Overworld/N
  * This preset is meant to show off "skylands" generation. A series of interconnected End style islands.
  * internal id, display name, image path, description
  */
-registerPreset("skylands", "Skylands", "examples/images/Basic_Tree", "Overworld with skylands generation")
+registerPreset("skylands", "Skylands", "examples/images/Skylands", "Overworld with skylands generation")
 /*
  * Registers the dimensions.
  * resource location, script path
@@ -70,7 +70,7 @@ registerPreset("skylands", "Skylands", "examples/images/Basic_Tree", "Overworld 
  * This preset is meant to show off the Infinite Dark dimension, which is made in the style of the old Deep Dark.
  * internal id, display name, image path, description
  */
-registerPreset("infinite_dark", "Infinite Dark", "images/Basic_Tree", "")
+registerPreset("infinite_dark", "Infinite Dark", "examples/images/Infinite_Dark", "Normal worlds + the Infinite Dark dimension. Similar to the Deep Dark")
 /*
  * Registers the dimension
  * resource location, script path

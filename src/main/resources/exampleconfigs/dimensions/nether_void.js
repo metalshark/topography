@@ -1,5 +1,5 @@
 /*
- * This file makes an empty void dimension with end biomes.
+ * This file makes an empty void dimension with nether biomes.
  */
 
 function buildChunkGenerator(seed, biomeRegistry, dimensionSettingsRegistry) {

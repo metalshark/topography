@@ -31,7 +31,6 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.biome.provider.EndBiomeProvider;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
@@ -56,7 +55,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class ChunkGeneratorNoiseTopo extends ChunkGenerator {
-   public static final Codec<ChunkGeneratorNoiseTopo> field_236079_d_ = RecordCodecBuilder.create((p_236091_0_) -> {
+   public static final Codec<ChunkGeneratorNoiseTopo> CODEC = RecordCodecBuilder.create((p_236091_0_) -> {
       return p_236091_0_.group(BiomeProvider.CODEC.fieldOf("biome_source").forGetter((p_236096_0_) -> {
          return p_236096_0_.biomeProvider;
       }), Codec.LONG.fieldOf("seed").stable().forGetter((p_236093_0_) -> {
@@ -143,7 +142,7 @@ public final class ChunkGeneratorNoiseTopo extends ChunkGenerator {
    }
 
    protected Codec<? extends ChunkGenerator> func_230347_a_() {
-      return field_236079_d_;
+      return CODEC;
    }
 
    @OnlyIn(Dist.CLIENT)

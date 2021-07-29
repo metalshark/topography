@@ -1,5 +1,6 @@
 package com.bloodnbonesgaming.topography.dedicated;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalLong;
@@ -233,6 +234,8 @@ public class ServerEventHandler {
 		}
 	}
 	
+	private final Map<Class<?>, String> eventClasses = new HashMap<Class<?>, String>();
+	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onAllEvents(Event event) {
 		try {
@@ -242,7 +245,12 @@ public class ServerEventHandler {
 				Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
 				
 				if (preset != null) {
-					preset.fireEventSubscribers(event.getClass().getSimpleName(), event, EventSide.DEDICATED, EventSide.SERVER, EventSide.ANY);
+					Class<?> clazz = event.getClass();
+					
+					if (!eventClasses.containsKey(clazz)) {
+						eventClasses.put(clazz, clazz.getSimpleName());
+					}
+					preset.fireEventSubscribers(eventClasses.get(clazz), event, EventSide.DEDICATED, EventSide.SERVER, EventSide.ANY);
 									
 				}
 			}

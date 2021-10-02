@@ -1,16 +1,24 @@
 package com.bloodnbonesgaming.topography.common.core;
 
 import java.util.List;
+import java.util.Random;
 
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.DimensionDef;
 import com.bloodnbonesgaming.topography.common.config.Preset;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.Util;
+import com.bloodnbonesgaming.topography.common.util.Functions.QuinFunction;
 import com.bloodnbonesgaming.topography.common.world.gen.GenerationHandler.EnumGenerationPhase;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySpawnPlacementRegistry;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.server.ServerWorld;
@@ -90,5 +98,46 @@ public class Hooks {
 
 		}
 		return registry;
+	}
+	
+	public static <T extends Entity> boolean testSpawnRule(EntityType<T> type, IServerWorld world, SpawnReason reason, BlockPos pos, Random rand) {
+		Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+
+		if (preset != null) {
+			DimensionDef def = preset.defs.get(world.getWorld().getDimensionKey().getLocation());
+
+			if (def != null) {
+				QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean> func = def.getSpawnRule(type.getRegistryName().toString());
+
+				if (func != null) {
+					return func.apply(type, (ServerWorld) world, reason, pos, rand);
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static <T extends Entity> boolean overrideSpawnRules(EntityType<T> type, IServerWorld world, SpawnReason reason, BlockPos pos, Random rand) {
+		Preset preset = ConfigurationManager.getGlobalConfig().getPreset();
+
+		if (preset != null) {
+			DimensionDef def = preset.defs.get(world.getWorld().getDimensionKey().getLocation());
+
+			if (def != null) {
+				QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean> func = def.getSpawnRule(type.getRegistryName().toString());
+
+				if (func != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static boolean test(EntityType<?> type, IServerWorld world, SpawnReason reason, BlockPos pos, Random rand) {
+		if (overrideSpawnRules(type, world, reason, pos, rand)) {
+			testSpawnRule(type, world, reason, pos, rand);
+		}
+		return false;
 	}
 }

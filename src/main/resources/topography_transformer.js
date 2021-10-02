@@ -380,6 +380,58 @@ function initializeCoreMod() {
         		
                 return method;
             }
+        },
+        'overridespawnrules': {
+            'target': {
+                'type': 'METHOD',
+                'class': 'net.minecraft.entity.EntitySpawnPlacementRegistry',
+                'methodName': 'func_223515_a',
+                'methodDesc': '(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/IServerWorld;Lnet/minecraft/entity/SpawnReason;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)Z'
+            },
+            'transformer': function(method) {
+                print("Topography injecting into: " + method.name);
+            	
+            	var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
+            	var Opcodes = Java.type('org.objectweb.asm.Opcodes');
+            	var LabelNode = Java.type('org.objectweb.asm.tree.LabelNode');
+            	var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
+            	var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
+            	var JumpInsnNode = Java.type('org.objectweb.asm.tree.JumpInsnNode');
+            	var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
+            	var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
+            	
+            	var target = method.instructions.getFirst();
+        		
+        		if (target == null)
+        		{
+        			throw "Something went wrong in Topography";
+        		}
+            	
+            	var toInject = new InsnList();
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 1));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 2));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 3));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 4));
+            	toInject.add(ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/common/core/Hooks", "overrideSpawnRules", "(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/IServerWorld;Lnet/minecraft/entity/SpawnReason;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)Z", ASMAPI.MethodType.STATIC));
+            	
+            	var label = new LabelNode();
+            	toInject.add(new JumpInsnNode(Opcodes.IFEQ, label));
+            	
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 1));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 2));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 3));
+            	toInject.add(new VarInsnNode(Opcodes.ALOAD, 4));
+            	toInject.add(ASMAPI.buildMethodCall("com/bloodnbonesgaming/topography/common/core/Hooks", "testSpawnRule", "(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/IServerWorld;Lnet/minecraft/entity/SpawnReason;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)Z", ASMAPI.MethodType.STATIC));
+            	toInject.add(new InsnNode(Opcodes.IRETURN));
+            	
+            	toInject.add(label);
+            	
+        		method.instructions.insertBefore(target, toInject);
+        		
+                return method;
+            }
         }
     }
 }

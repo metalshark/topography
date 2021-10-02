@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -21,6 +23,7 @@ import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
+import com.bloodnbonesgaming.topography.common.util.Functions.QuinFunction;
 import com.bloodnbonesgaming.topography.common.util.Functions.TriFunction;
 import com.bloodnbonesgaming.topography.common.util.Functions.VarArgTriFunction;
 import com.bloodnbonesgaming.topography.common.util.IOHelper;
@@ -30,7 +33,10 @@ import com.bloodnbonesgaming.topography.common.world.gen.IGenerator;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFeatureConfig;
 
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
@@ -65,6 +71,7 @@ public class DimensionDef {
 	public final Map<Decoration, List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>> regionFeatures = new HashMap<Decoration, List<ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>>>();
 	private float minGamma = 0;
 	private float maxGamma = 1;
+	private final Map<String, QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean>> spawnRules = new HashMap<String, QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean>>();
 
 	public DimensionDef(Invocable js) {
 		this.js = js;
@@ -291,6 +298,14 @@ public class DimensionDef {
 	public float getMaxGamma() {
 		return this.maxGamma;
 	}
+	
+	public void setSpawnRule(String entity, QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean> func) {
+		this.spawnRules.put(entity, func);
+	}
+	
+	public QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean> getSpawnRule(String entity) {
+		return this.spawnRules.get(entity);
+	}
 
 	public static DimensionDef read(String path, ScriptEngineManager factory) throws Exception {
 		final File scriptFile = new File(ModInfo.CONFIG_FOLDER + path + ".js");
@@ -343,6 +358,7 @@ public class DimensionDef {
 			engine.put("addRegionFeature", (BiFunction<GenerationStage.Decoration, ConfiguredFeature<RegionFeatureConfig, RegionFeature<RegionFeatureConfig>>, DimensionDef>)def::addRegionFeature);
 			engine.put("minGamma", (Function<Double, DimensionDef>)def::minGamma);
 			engine.put("maxGamma", (Function<Double, DimensionDef>)def::maxGamma);
+			engine.put("setSpawnRule", (BiConsumer<String, QuinFunction<EntityType<?>, ServerWorld, SpawnReason, BlockPos, Random, Boolean>>)def::setSpawnRule);
 			engine.eval(reader);
 
 			return def;

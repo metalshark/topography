@@ -129,7 +129,7 @@ public class StructureFeature extends RegionFeature<StructureFeatureConfig> {
 			    Template template = config.getTemplate();
 			    ChunkPos chunkpos = new ChunkPos(pos);
 			    MutableBoundingBox mutableboundingbox = new MutableBoundingBox(chunkpos.getXStart(), 0, chunkpos.getZStart(), chunkpos.getXEnd(), 256, chunkpos.getZEnd());
-			    PlacementSettings placementsettings = (new PlacementSettings()).setRotation(rotation).setBoundingBox(mutableboundingbox).setRandom(rand).addProcessor(BlockIgnoreStructureProcessor.AIR_AND_STRUCTURE_BLOCK);
+			    PlacementSettings placementsettings = (new PlacementSettings()).setRotation(rotation).setBoundingBox(mutableboundingbox).setRandom(rand);
 			    for (StructureProcessor processor : config.processors) {
 			    	placementsettings = placementsettings.addProcessor(processor);
 			    }
@@ -148,7 +148,7 @@ public class StructureFeature extends RegionFeature<StructureFeatureConfig> {
 			    BlockPos blockpos1 = template.getZeroPositionWithTransform(position.add(0, config.height, 0), Mirror.NONE, rotation);
 //			    IntegrityProcessor integrityprocessor = new IntegrityProcessor(0.9F);
 //			    placementsettings.clearProcessors().addProcessor(integrityprocessor);
-			    template.func_237146_a_(reader, blockpos1, blockpos1, placementsettings, rand, 4);
+			    template.func_237146_a_(reader, blockpos1, blockpos1, placementsettings, rand, 0);
 			}
 		}
 		return changes;

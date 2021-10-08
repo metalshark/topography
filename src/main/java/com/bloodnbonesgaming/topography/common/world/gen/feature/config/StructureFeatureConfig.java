@@ -1,12 +1,16 @@
 package com.bloodnbonesgaming.topography.common.world.gen.feature.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.bloodnbonesgaming.topography.common.util.IOHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
 import net.minecraft.world.gen.feature.template.StructureProcessor;
 import net.minecraft.world.gen.feature.template.Template;
 
@@ -49,6 +53,23 @@ public class StructureFeatureConfig extends SquareRegionFeatureConfig implements
 	
 	public RegionFeatureConfig addProcessor(StructureProcessor processor) {
 		this.processors.add(processor);
+		return this;
+	}
+	
+	public RegionFeatureConfig removeBlocks(BlockState... states) {
+		List<Block> blocks = new ArrayList<Block>();
+		
+		for (int i = 0; i < states.length; i++) {
+			blocks.add(states[i].getBlock());
+		}
+		this.processors.add(new BlockIgnoreStructureProcessor(blocks));
+		return this;
+	}
+	
+	public RegionFeatureConfig removeBlocks(Block... blocks) {
+		List<Block> list = new ArrayList<Block>();
+		Collections.addAll(list, blocks);
+		this.processors.add(new BlockIgnoreStructureProcessor(list));
 		return this;
 	}
 }

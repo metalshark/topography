@@ -16,9 +16,10 @@ public class SetDim {
 	public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
 		return Commands.literal("setdim")
 				.requires(r -> r.hasPermissionLevel(3))
-				.then(Commands.argument("dim", DimensionArgument.getDimension()))
-				.executes(ctx -> execute(ctx, DimensionArgument.getDimensionArgument(ctx, "dim")));
+				.then(Commands.argument("dim", DimensionArgument.getDimension())
+						.executes(ctx -> execute(ctx, DimensionArgument.getDimensionArgument(ctx, "dim"))));
 	}
+	
 	private static int execute(CommandContext<CommandSource> context, ServerWorld dim) throws CommandSyntaxException {
 		ServerPlayerEntity player = context.getSource().asPlayer();
 		String dimName = dim.getDimensionKey().getLocation().toString();

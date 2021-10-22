@@ -5,6 +5,7 @@ import com.bloodnbonesgaming.topography.common.commands.topography.CMBEntity;
 import com.bloodnbonesgaming.topography.common.commands.topography.Hand;
 import com.bloodnbonesgaming.topography.common.commands.topography.NightVision;
 import com.bloodnbonesgaming.topography.common.commands.topography.SetDim;
+import com.bloodnbonesgaming.topography.common.commands.topography.island.IslandNew;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
@@ -21,8 +22,23 @@ public class ModCommands {
 				.then(NightVision.register(dispatcher))
 				.then(SetDim.register(dispatcher))
 				.then(CMBEntity.register(dispatcher))
+				.then(Commands.literal("island")
+						.then(IslandNew.register(dispatcher))
+				)
 		);
 		//Adds an alternative
 //		dispatcher.register(Commands.literal("topo").redirect(commands));
 	}
 }
+
+
+
+/*
+ * New island
+ * tp to island
+ * invite to island
+ * accept invite to island
+ * island location info
+ * 
+ * 
+ */

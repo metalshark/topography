@@ -8,6 +8,7 @@ import com.bloodnbonesgaming.topography.common.commands.ModCommands;
 import com.bloodnbonesgaming.topography.common.config.ConfigurationManager;
 import com.bloodnbonesgaming.topography.common.config.GlobalConfig;
 import com.bloodnbonesgaming.topography.common.config.Preset;
+import com.bloodnbonesgaming.topography.common.util.capabilities.TopographyPlayerData;
 import com.bloodnbonesgaming.topography.common.world.gen.ScriptFeature;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.RegionFeatureRedirector;
 import com.bloodnbonesgaming.topography.common.world.gen.feature.config.RegionFeatureRedirectorConfig;
@@ -18,6 +19,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -205,4 +207,15 @@ public class CommonEventHandler {
 			event.setCanceled(true);
 		}
     }
+	
+	@SubscribeEvent
+	public void onClone(PlayerEvent.Clone event) {
+		if (event.isWasDeath()) {
+			event.getOriginal().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null).ifPresent((data) -> {
+				event.getPlayer().getCapability(TopographyPlayerData.CAPABILITY_TOPOGRAPHY_PLAYER_DATA, null).ifPresent((data2) -> {
+		        	data2.setIsland(data.getIslandX(), data.getIslandZ());
+		        });
+	        });
+		}
+	}
 }

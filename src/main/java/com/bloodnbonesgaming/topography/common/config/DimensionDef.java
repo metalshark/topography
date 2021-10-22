@@ -60,6 +60,7 @@ public class DimensionDef {
 	private final Invocable js;
 	public Template spawnStructure;
 	public int spawnStructureHeight = 64;
+	public int spawnStructureSpacing = 256;
 	public final CarverHandler carverHandler = new CarverHandler();
 	public final GenerationHandler genHandler = new GenerationHandler();
 	public final Map<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>> features = new HashMap<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>>();
@@ -101,6 +102,11 @@ public class DimensionDef {
 		this.spawnStructure = IOHelper.loadStructureTemplate(path);
 		this.spawnStructureHeight = height;
 		return this;
+	}
+	
+	public DimensionDef setSpawnStructure(String path, int height, int spacing) {
+		this.spawnStructureSpacing = spacing;
+		return this.setSpawnStructure(path, height);
 	}
 	
 	public DimensionDef addCarver(String location, ProbabilityConfig config) {

@@ -125,6 +125,7 @@ public class ClientHooks {
 					gui.getMinecraft().getTextureManager().loadTexture(backgroundLoc, new DynamicTexture(image));
 					texture = new GuiElementTextureStretch(EnumGuiLocation.TOP_LEFT, backgroundLoc, image.getWidth(), image.getHeight());
 					texture.setRelRender(1, 1);
+					currentImage = imageName;
 				}
 			}
 		}

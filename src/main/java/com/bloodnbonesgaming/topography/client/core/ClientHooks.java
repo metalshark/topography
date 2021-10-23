@@ -1,6 +1,5 @@
 package com.bloodnbonesgaming.topography.client.core;
 
-import com.bloodnbonesgaming.topography.Topography;
 import com.bloodnbonesgaming.topography.client.gui.element.EnumGuiLocation;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTexture;
 import com.bloodnbonesgaming.topography.client.gui.element.GuiElementTextureStretch;

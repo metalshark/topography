@@ -22,9 +22,9 @@ public class ModCommands {
 				.then(NightVision.register(dispatcher))
 				.then(SetDim.register(dispatcher))
 				.then(CMBEntity.register(dispatcher))
-				.then(Commands.literal("island")
-						.then(IslandNew.register(dispatcher))
-				)
+//				.then(Commands.literal("island")
+//						.then(IslandNew.register(dispatcher))
+//				)
 		);
 		//Adds an alternative
 //		dispatcher.register(Commands.literal("topo").redirect(commands));

@@ -21,6 +21,7 @@ import javax.script.ScriptEngineManager;
 
 import com.bloodnbonesgaming.topography.ModInfo;
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.common.util.EventHandlers;
 import com.bloodnbonesgaming.topography.common.util.FileHelper;
 import com.bloodnbonesgaming.topography.common.util.Functions.QuadFunction;
 import com.bloodnbonesgaming.topography.common.util.Functions.QuinFunction;
@@ -65,7 +66,7 @@ public class DimensionDef {
 	public final GenerationHandler genHandler = new GenerationHandler();
 	public final Map<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>> features = new HashMap<GenerationStage.Decoration, List<ConfiguredFeature<?, ?>>>();
 	//Script event subscribers
-	private final Map<String, List<Consumer<Event>>> scriptEventSubscribers = new HashMap<String, List<Consumer<Event>>>();
+	private final Map<Class<? extends Event>, List<Consumer<Event>>> scriptEventSubscribers = new HashMap<>();
 	private String guiBackground = null;
 	public final Map<String, StructureSeparationSettings> structureSpacingMap = new HashMap<String, StructureSeparationSettings>();
 	private DimensionType  dimensionType = null;
@@ -231,18 +232,26 @@ public class DimensionDef {
 		return this;
 	}
 	
-	public DimensionDef registerEventHandler(String eventType, Consumer<Event> event) {
-		if (!this.scriptEventSubscribers.containsKey(eventType)) {
-			this.scriptEventSubscribers.put(eventType, new ArrayList<Consumer<Event>>());
-		}
-		this.scriptEventSubscribers.get(eventType).add(event);
+	public DimensionDef registerEventHandler(final String eventType, final Consumer<Event> consumer) {
+		final Class<? extends Event> eventClass = EventHandlers.getEventClassByName(eventType);
+		EventHandlers.registerEventClassHandler(eventClass);
+		scriptEventSubscribers
+				.computeIfAbsent(eventClass, k -> new ArrayList<>())
+				.add(consumer);
 		return this;
 	}
 	
-	public void fireEventSubscribers(String eventType, Event event) {
-		if (this.scriptEventSubscribers.containsKey(eventType)) {
-			for (Consumer<Event> consumer : this.scriptEventSubscribers.get(eventType)) {
+	public void fireEventSubscribers(final Event event) {
+		final Class<? extends Event> eventClass = event.getClass();
+		final List<Consumer<Event>> consumers = scriptEventSubscribers.get(event.getClass());
+		if (consumers == null)
+			return;
+
+		for (final Consumer<Event> consumer : consumers) {
+			try {
 				consumer.accept(event);
+			} catch(Exception e) {
+				Topography.getLog().error("Script error: ", e);
 			}
 		}
 	}

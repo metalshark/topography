@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import javax.script.ScriptEngineManager;
 
 import com.bloodnbonesgaming.topography.Topography;
+import com.bloodnbonesgaming.topography.common.util.EventHandlers;
 import com.bloodnbonesgaming.topography.common.util.EventSide;
 
 import net.minecraft.util.ResourceLocation;
@@ -24,10 +25,10 @@ public class Preset {
 	private String guiBackground = null;
 	
 	//ID, script path
-	public final Map<ResourceLocation, String> dimensions = new HashMap<ResourceLocation, String>();
-	public final Map<ResourceLocation, DimensionDef> defs = new HashMap<ResourceLocation, DimensionDef>();
+	public final Map<ResourceLocation, String> dimensions = new HashMap<>();
+	public final Map<ResourceLocation, DimensionDef> defs = new HashMap<>();
 	//Script event subscribers
-	private final Map<EventSide, Map<String, List<Consumer>>> scriptEventSubscribers = new HashMap<EventSide, Map<String, List<Consumer>>>();
+	private final Map<EventSide, Map<Class<? extends Event>, List<Consumer<Event>>>> scriptEventSubscribers = new HashMap<>();
 	
 	public Preset(String internalID) {
 		this.internalID = internalID;
@@ -77,46 +78,50 @@ public class Preset {
 		this.guiBackground = location;
 		return this;
 	}
-	
-	public Preset registerEventHandler(String eventType, Consumer event) {
+
+	public Preset registerEventHandler(final String eventType, final Consumer<Event> event) {
 		return this.registerEventHandler(eventType, EventSide.ANY, event);
 	}
-	
-	public Preset registerEventHandler(String eventType, EventSide side, Consumer event) {
-		if (!this.scriptEventSubscribers.containsKey(side)) {
-			this.scriptEventSubscribers.put(side, new HashMap<String, List<Consumer>>());
-		}
-		Map<String, List<Consumer>> eventMap = this.scriptEventSubscribers.get(side);
-		if (!eventMap.containsKey(eventType)) {
-			eventMap.put(eventType, new ArrayList<Consumer>());
-		}
-		eventMap.get(eventType).add(event);
+
+	public Preset registerEventHandler(final String eventType, final EventSide side, final Consumer<Event> eventConsumer) {
+		final Class<? extends Event> eventClass = EventHandlers.getEventClassByName(eventType);
+		EventHandlers.registerEventClassHandler(eventClass);
+		scriptEventSubscribers
+				.computeIfAbsent(side, k -> new HashMap<>())
+				.computeIfAbsent(eventClass, k -> new ArrayList<>())
+				.add(eventConsumer);
 		return this;
 	}
-	
-	public Preset registerEventHandler(String eventType, Class eventClass) throws InstantiationException, IllegalAccessException {
+
+	public Preset registerEventHandler(final String eventType, final Class<Consumer<Event>> eventClass) throws InstantiationException, IllegalAccessException {
 		return registerEventHandler(eventType, EventSide.ANY, eventClass);
 	}
-	
-	public Preset registerEventHandler(String eventType, EventSide side, Class eventClass) throws InstantiationException, IllegalAccessException {
-		Consumer event = (Consumer) eventClass.newInstance();
-		return registerEventHandler(eventType, side, event);
+
+	public Preset registerEventHandler(final String eventType, final EventSide side, final Class<Consumer<Event>> eventConsumerClass) throws InstantiationException, IllegalAccessException {
+		final Consumer<Event> eventConsumer = eventConsumerClass.newInstance();
+		return registerEventHandler(eventType, side, eventConsumer);
 	}
 	
-	public void fireEventSubscribers(String eventType, Event event, EventSide... sides) {
-		for (EventSide side : sides) {
-			if (this.scriptEventSubscribers.containsKey(side)) {
-				Map<String, List<Consumer>> eventMap = this.scriptEventSubscribers.get(side);
-				
-				if (eventMap.containsKey(eventType)) {
-					for (Consumer consumer : eventMap.get(eventType)) {
-						consumer.accept((Object)event);
-					}
+	public void fireEventSubscribers(Event event, EventSide... sides) {
+		for (final EventSide side : sides) {
+			final Map<Class<? extends Event>, List<Consumer<Event>>> eventMap = scriptEventSubscribers.get(side);
+			if (eventMap == null)
+				continue;
+
+			final List<Consumer<Event>> consumers = eventMap.get(event.getClass());
+			if (consumers == null)
+				continue;
+
+			for (final Consumer<Event> consumer : consumers) {
+				try {
+					consumer.accept(event);
+				} catch(Exception e) {
+					Topography.getLog().error("Script error: ", e);
 				}
 			}
 		}
-		for (DimensionDef def : this.defs.values()) {
-			def.fireEventSubscribers(eventType, event);
+		for (final DimensionDef def : defs.values()) {
+			def.fireEventSubscribers(event);
 		}
 	}
 	
